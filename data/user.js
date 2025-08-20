@@ -1,9 +1,9 @@
 export const user = [
     {
-        name: "Muhammad Revy",
+        name: "admin",
         uid: "01100830333",
-        username: "muhammadrevy",
-        email: "rmuhammadrevy@gmail.com",
-        password: "080806",
+        username: "Admin",
+        email: "admin@gmail.com",
+        password: "admin",
     }
 ];
