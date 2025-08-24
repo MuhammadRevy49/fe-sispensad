@@ -150,9 +150,9 @@ export default function Sidebar({ children }) {
                 key={item.name}
                 href={item.href}
                 prefetch={false}
-                className={`flex items-center gap-3 px-4 py-2 text-white rounded-lg transition
+                className={`flex items-center gap-3 px-4 py-2 rounded-lg transition
                   ${pathname === item.href
-                    ? "bg-[var(--armyhover)]"
+                    ? "bg-white text-[var(--armycolor)] shadow-lg"
                     : "bg-[var(--armycolor)] hover:bg-[var(--armyhover)]"}`}
               >
                 <span className="text-lg">{item.icon}</span>

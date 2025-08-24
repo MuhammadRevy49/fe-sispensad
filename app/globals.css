@@ -5,7 +5,8 @@
   --foreground: #171717;
   --armycolor: #0B4803;
   --armyhover: #072e02;
-}
+  --textgray: #888;
+};
 
 @theme inline {
   --color-background: var(--background);
@@ -19,7 +20,8 @@
     --background: #0a0a0a;
     --foreground: #ededed;
     --armycolor: #0B4803;
-    --armyhover: #072e02;
+    --armyhover: #060706;
+    --textgray: #888;
   }
 }
 

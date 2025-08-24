@@ -19,7 +19,6 @@ export default function Login() {
     setLoading(true);
 
     setTimeout(() => {
-      // cek apakah username/email ada
       const foundUser = user.find(
         (u) => u.username === usernameOrEmail || u.email === usernameOrEmail
       );
