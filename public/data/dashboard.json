@@ -1,0 +1,21 @@
+{
+  "chartData": [
+    { "year": 2019, "people": 120 },
+    { "year": 2020, "people": 340 },
+    { "year": 2021, "people": 500 },
+    { "year": 2022, "people": 260 },
+    { "year": 2023, "people": 710 },
+    { "year": 2024, "people": 430 },
+    { "year": 2025, "people": 620 }
+  ],
+  "cards": [
+    { "jumlah": 2750, "label": "Letda - Kapten", "sub": "Jumlah Perwira Pertama - PAMA" },
+    { "jumlah": 1890, "label": "Mayor - Kolonel", "sub": "Jumlah Perwira Menengah - PAMEN" },
+    { "jumlah": 920, "label": "Brigjen - Jendral", "sub": "Jumlah Perwira Tinggi - PATI" }
+  ],
+  "activities": [
+    { "id": 1, "user": "Administrator - Dimas", "activity": "Menambahkan data warakawuri" },
+    { "id": 2, "user": "Administrator - Sinta", "activity": "Memperbarui data perwira" },
+    { "id": 3, "user": "Administrator - Budi", "activity": "Menghapus data pensiunan" }
+  ]
+}
