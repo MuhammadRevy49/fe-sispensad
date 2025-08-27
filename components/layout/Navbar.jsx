@@ -1,0 +1,47 @@
+"use client";
+
+import { ChevronLeft, ChevronRight, LogOut } from "lucide-react";
+
+export default function Navbar({ user, isSidebarOpen, setIsSidebarOpen }) {
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    window.location.href = "/login";
+  };
+
+  return (
+    <header className="flex items-center justify-between bg-white shadow-lg border-b border-gray-100 p-2">
+      <div className="flex flex-row">
+        <button
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className="hidden md:block hover:cursor-pointer"
+        >
+          {isSidebarOpen ? (
+            <ChevronLeft className="text-[var(--armycolor)]" size={24} />
+          ) : (
+            <ChevronRight className="text-[var(--armycolor)]" size={24} />
+          )}
+        </button>
+        <div className="ml-3">
+          <p className="font-bold text-[var(--armycolor)] text-lg">
+            {user ? user.name : "Guest"}
+          </p>
+          <p className="text-gray-700 text-sm">
+            {user ? user.username : "-"}
+          </p>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <p className="w-10 h-10 rounded-full bg-[var(--armycolor)] text-white font-bold flex items-center justify-center">
+          {user ? user.name?.charAt(0).toUpperCase() : "?"}
+        </p>
+        <button
+          onClick={handleLogout}
+          className="p-2 rounded-full hover:bg-green-100 transition-all"
+        >
+          <LogOut className="text-gray-600" />
+        </button>
+      </div>
+    </header>
+  );
+}

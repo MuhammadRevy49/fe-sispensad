@@ -5,30 +5,26 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import {
   Home, Users, Tag, GraduationCap,
-  ChevronDown, ChevronUp, LogOut,
-  ChevronLeft, ChevronRight
+  ChevronDown, ChevronUp
 } from "lucide-react";
+import Navbar from "./Navbar";
 
 export default function Sidebar({ children }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  // State
   const [user, setUser] = useState(null);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [loading, setLoading] = useState(true);
 
-  const noSidebar = ["/login"]; // halaman tanpa sidebar
+  const noSidebar = ["/login", "lupa-password"];
 
   useEffect(() => {
-    // kalau di halaman login, skip auth check
     if (noSidebar.includes(pathname)) {
       setLoading(false);
       return;
     }
-
-    // cek localStorage
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
       setUser(JSON.parse(savedUser));
@@ -37,11 +33,6 @@ export default function Sidebar({ children }) {
     }
     setLoading(false);
   }, [pathname, router]);
-
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    router.replace("/login");
-  };
 
   const menuItems = [
     { name: "Dashboard", icon: <Home />, href: "/" },
@@ -67,7 +58,6 @@ export default function Sidebar({ children }) {
     },
   ];
 
-  // ✅ Spinner saat masih loading
   if (loading) {
     return (
       <div className="w-full h-screen flex items-center justify-center">
@@ -76,7 +66,6 @@ export default function Sidebar({ children }) {
     );
   }
 
-  // ✅ Halaman login tidak pakai sidebar
   if (noSidebar.includes(pathname)) {
     return <>{children}</>;
   }
@@ -99,7 +88,7 @@ export default function Sidebar({ children }) {
               return (
                 <div key={item.name}>
                   <div
-                    className={`flex items-center justify-between px-4 py-2 text-white rounded-lg transition
+                    className={`flex items-center justify-between px-4 py-2 text-white rounded-lg transition whitespace-nowrap
                       ${isOpen ? "bg-[var(--armyhover)]" : "bg-[var(--armycolor)] hover:bg-[var(--armyhover)]"}`}
                   >
                     <button
@@ -167,40 +156,11 @@ export default function Sidebar({ children }) {
 
       {/* Main */}
       <div className="flex-1 flex flex-col overflow-x-hidden">
-        <header className="flex items-center justify-between bg-white shadow-lg border-b border-gray-100 p-2">
-          <div className="flex flex-row">
-            <button
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="hidden md:block hover:cursor-pointer"
-            >
-              {isSidebarOpen ? (
-                <ChevronLeft className="text-[var(--armycolor)]" size={24} />
-              ) : (
-                <ChevronRight className="text-[var(--armycolor)]" size={24} />
-              )}
-            </button>
-            <div className="ml-3">
-              <p className="font-bold text-[var(--armycolor)] text-lg">
-                {user ? user.name : "Guest"}
-              </p>
-              <p className="text-gray-700 text-sm">
-                {user ? user.username : "-"}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <p className="w-10 h-10 rounded-full bg-[var(--armycolor)] text-white font-bold flex items-center justify-center">
-              {user ? user.name?.charAt(0).toUpperCase() : "?"}
-            </p>
-            <button
-              onClick={handleLogout}
-              className="p-2 rounded-full hover:bg-green-100 transition-all"
-            >
-              <LogOut className="text-gray-600" />
-            </button>
-          </div>
-        </header>
+        <Navbar
+          user={user}
+          isSidebarOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+        />
 
         <main className="p-4 overflow-x-hidden bg-gray-50 flex-1 md:pb-6 pb-[64px]">
           {children}
