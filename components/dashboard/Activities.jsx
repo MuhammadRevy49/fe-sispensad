@@ -52,7 +52,7 @@ export default function Activities({ activities }) {
               className="flex items-center gap-3 p-3 rounded-lg hover:bg-green-50 transition-colors duration-150 group"
             >
               {/* Avatar */}
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-700 text-white font-bold flex items-center justify-center flex-shrink-0 shadow-sm group-hover:shadow-md transition-shadow">
+              <div className="w-10 h-10 rounded-full bg-[var(--armycolor)] text-white font-bold flex items-center justify-center flex-shrink-0 shadow-sm group-hover:shadow-md transition-shadow">
                 {a.user?.name ? a.user.name.charAt(0).toUpperCase() : "?"}
               </div>
 
