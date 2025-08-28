@@ -18,7 +18,7 @@ export default function Sidebar({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [loading, setLoading] = useState(true);
 
-  const noSidebar = ["/auth/login", "/auth/lupa-password"];
+  const noSidebar = ["/auth/login", "/auth/lupa-password","/auth/registrasi"];
 
   useEffect(() => {
     if (noSidebar.includes(pathname)) {
