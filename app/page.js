@@ -29,7 +29,7 @@ export default function Beranda() {
     <div className="p-1 flex flex-col">
       {/** ini bagian atas dashboard ye */}
       <div className="flex flex-col">
-        <h2 className="text-gray-800">Dashboard Statistik Sispens AD</h2>
+        <h2 className="text-[var(--textgray)]">Dashboard Statistik Sispens AD</h2>
         <p className="text-sm text-[var(--textgray)]">Sistem Pensiun Angkatan Darat</p>
       </div>
 
@@ -40,13 +40,13 @@ export default function Beranda() {
               <div className="p-3 bg-gray-100 shadow rounded flex flex-row items-center">
                 <img />
                 <div>
-                  <p className="text-gray-800">{card.jumlah}</p>
+                  <p className="text-[var(--textgray)]">{card.jumlah}</p>
                   <p className="text-sm text-[var(--textgray)]">{card.label}</p>
                 </div>
               </div>
             </div>
             <div>
-              <p className="text-sm p-3 text-gray-800">{card.sub}</p>
+              <p className="text-sm p-3 text-[var(--textgray)]">{card.sub}</p>
             </div>
           </div>
         ))}
@@ -56,8 +56,8 @@ export default function Beranda() {
       <div className="flex md:flex-row flex-col mt-3 gap-3">
         <div className="flex-1 bg-white shadow p-3 rounded flex flex-col">
           <div className="flex items-center border-b border-gray-200 pb-3">
-            <User className="mr-2 text-gray-800" />
-            <p className="text-sm text-gray-800">Jumlah Pensiun Perwira TNI AD</p>
+            <User className="mr-2 text-[var(--textgray)]" />
+            <p className="text-sm text-[var(--textgray)]">Jumlah Pensiun Perwira TNI AD</p>
           </div>
           <div className="flex flex-col w-full h-[400px] p-3 space-y-3">
             <select className="flex p-2 rounded bg-gray-100">
@@ -77,13 +77,13 @@ export default function Beranda() {
 
         <div className="flex-1 bg-white shadow p-3 rounded">
           <div className="flex items-center border-b border-gray-200 pb-3">
-            <File className="mr-2 text-gray-800" />
-            <p className="text-sm text-gray-800">Aktivitas Terbaru</p>
+            <File className="mr-2 text-[var(--textgray)]" />
+            <p className="text-sm text-[var(--textgray)]">Aktivitas Terbaru</p>
           </div>
           <div className="p-3 overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-100 rounded p-3">
-                <tr className="text-gray-600 text-sm text-left">
+                <tr className="text-[var(--textgray)] text-sm text-left">
                   <th className="py-2 px-3">No.</th>
                   <th className="py-2 px-3">User</th>
                   <th className="py-2 px-3">Aktivitas</th>
@@ -92,7 +92,7 @@ export default function Beranda() {
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {activities.map((a) => (
-                  <tr key={a.id} className="text-sm hover:bg-gray-50 text-gray-800">
+                  <tr key={a.id} className="text-sm hover:bg-gray-50 text-[var(--textgray)]">
                     <td className="py-2 px-3">{a.id}.</td>
                     <td className="py-2 px-3">{a.user}</td>
                     <td className="py-2 px-3">{a.activity}</td>

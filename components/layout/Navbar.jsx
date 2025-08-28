@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight, LogOut } from "lucide-react";
 export default function Navbar({ user, isSidebarOpen, setIsSidebarOpen }) {
   const handleLogout = () => {
     localStorage.removeItem("user");
-    window.location.href = "/login";
+    window.location.href = "/auth/login";
   };
 
   return (
@@ -25,7 +25,7 @@ export default function Navbar({ user, isSidebarOpen, setIsSidebarOpen }) {
           <p className="font-bold text-[var(--armycolor)] text-lg">
             {user ? user.name : "Guest"}
           </p>
-          <p className="text-gray-700 text-sm">
+          <p className="text-[var(--textgray)] text-sm">
             {user ? user.username : "-"}
           </p>
         </div>
@@ -39,7 +39,7 @@ export default function Navbar({ user, isSidebarOpen, setIsSidebarOpen }) {
           onClick={handleLogout}
           className="p-2 rounded-full hover:bg-green-100 transition-all"
         >
-          <LogOut className="text-gray-600" />
+          <LogOut className="text-[var(--textgray)]" />
         </button>
       </div>
     </header>

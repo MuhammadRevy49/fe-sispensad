@@ -3,82 +3,56 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
-import { user } from "@/data/user";
 import Image from "next/image";
+import Button from "../reusable/button";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
-  const [usernameOrEmail, setUsernameOrEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    setTimeout(() => {
-      const foundUser = user.find(
-        (u) => u.username === usernameOrEmail || u.email === usernameOrEmail
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/users/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            identifier,
+            password,
+          }),
+        }
       );
 
-      if (!foundUser) {
-        setError("Maaf, username/email tidak ditemukan!");
-      } else if (foundUser.password !== password) {
-        setError("Maaf, password salah!");
-      } else {
-        // login sukses
-        localStorage.setItem("user", JSON.stringify(foundUser));
-        router.push("/");
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data?.error || "Login gagal!");
+        setLoading(false);
+        return;
       }
 
+      localStorage.setItem("token", data.token);
+
+      router.push("/");
+    } catch (err) {
+      console.error(err);
+      setError("Terjadi kesalahan, coba lagi!");
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
-  // const handleLogin = async (e) => {
-  //   e.preventDefault();
-  //   setError("");
-  //   setLoading(true);
-
-  //   try {
-  //     const res = await fetch(
-  //       `${process.env.NEXT_PUBLIC_BASE_URL}/api/users/login`,
-  //       {
-  //         method: "POST",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //         body: JSON.stringify({
-  //           identifier,
-  //           password,
-  //         }),
-  //       }
-  //     );
-
-  //     if (!res.ok) {
-  //       const errData = await res.json().catch(() => ({}));
-  //       setError(errData?.message || "Login gagal!");
-  //       setLoading(false);
-  //       return;
-  //     }
-
-  //     const data = await res.json();
-
-  //     // Misalnya API balikin { user, token }
-  //     localStorage.setItem("user", JSON.stringify(data.user));
-  //     localStorage.setItem("token", data.token);
-
-  //     router.push("/");
-  //   } catch (err) {
-  //     console.error(err);
-  //     setError("Terjadi kesalahan, coba lagi!");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
   return (
     <div className="h-screen w-screen flex items-center justify-center bg-gray-100">
       <form
@@ -95,62 +69,48 @@ export default function Login() {
           />
         </div>
 
-        {/* Username */}
         <div>
-          <p className="text-sm font-medium text-gray-700 mb-1">
+          <p className="text-sm font-medium text-[var(--foreground)] mb-1">
             Username / Email
           </p>
           <input
             type="text"
-            value={usernameOrEmail}
-            onChange={(e) => setUsernameOrEmail(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition-all"
+            value={identifier}
+            onChange={(e) => setIdentifier(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 text-[var(--foreground)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--armycolor)] transition-all"
             placeholder="Masukkan username atau email"
             required
           />
         </div>
 
-        {/* Password */}
         <div className="relative">
-          <p className="text-sm font-medium text-gray-700 mb-1">Password</p>
+          <p className="text-sm font-medium text-[var(--foreground)] mb-1">Password</p>
           <input
             type={showPassword ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition-all pr-10"
+            className="w-full px-3 py-2 border border-gray-300 text-[var(--foreground)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--armycolor)] transition-all pr-10"
             placeholder="Masukkan password"
             required
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-[34px] text-gray-500 hover:text-gray-700 focus:outline-none"
+            className="absolute right-3 top-[34px] text-gray-500 hover:text-[var(--textgray)] focus:outline-none"
           >
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
         </div>
 
-        {/* Error */}
         {error && <p className="text-sm text-red-600">{error}</p>}
 
-        {/* Tombol Login */}
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-2 bg-[var(--armycolor)] text-white font-semibold rounded-lg shadow hover:opacity-80 disabled:opacity-50 transition-all flex items-center justify-center"
+        <Button type="submit" loading={loading}>
+          Login
+        </Button>
+        <a
+          href="/auth/lupa-password"
+          className="text-[var(--armycolor)] hover:underline text-sm"
         >
-          {loading ? (
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              <span>Loading...</span>
-            </div>
-          ) : (
-            "Login"
-          )}
-        </button>
-
-        {/* Link Lupa Password */}
-        <a href="/lupa-password" className="text-left text-sm text-gray-700 hover:underline">
           Lupa password ?
         </a>
       </form>

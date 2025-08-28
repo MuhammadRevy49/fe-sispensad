@@ -18,7 +18,7 @@ export default function Sidebar({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [loading, setLoading] = useState(true);
 
-  const noSidebar = ["/login", "lupa-password"];
+  const noSidebar = ["/auth/login", "/auth/lupa-password"];
 
   useEffect(() => {
     if (noSidebar.includes(pathname)) {
@@ -29,7 +29,7 @@ export default function Sidebar({ children }) {
     if (savedUser) {
       setUser(JSON.parse(savedUser));
     } else {
-      router.replace("/login");
+      router.replace("/auth/login");
     }
     setLoading(false);
   }, [pathname, router]);
@@ -121,7 +121,7 @@ export default function Sidebar({ children }) {
                           prefetch={false}
                           className={`flex items-center gap-3 px-4 py-2 rounded-lg transition
                             ${pathname === sub.href
-                              ? "bg-[var(--armyhover)] text-white"
+                              ? "bg-[var(--armycolor)] text-white"
                               : "text-white/90 hover:bg-[var(--armyhover)]"}`}
                         >
                           <span className="text-lg">{sub.icon}</span>

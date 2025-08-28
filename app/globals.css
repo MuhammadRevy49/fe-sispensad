@@ -15,16 +15,6 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    --armycolor: #0B4803;
-    --armyhover: #060706;
-    --textgray: #888;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
