@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Button from "../reusable/button";
+import { variable } from "@/lib/variable";
 export default function EmailOtpForm({
   email,
   setEmail,
@@ -21,7 +22,7 @@ export default function EmailOtpForm({
     setError("");
     setLoading(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/otp`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}`+ variable.otp, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -43,7 +44,7 @@ export default function EmailOtpForm({
     setLoading(true);
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/otp/check`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}`+ variable.otpVerify,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
