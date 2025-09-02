@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 import Button from "../reusable/button";
+import { variable } from "@/lib/variable";
 
 export default function UpdatePasswordForm({
   newPassword,
@@ -28,7 +29,7 @@ export default function UpdatePasswordForm({
     setLoading(true);
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/users/${userId}`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}`+ variable.updatePassword + `${userId}`,
         {
           method: "PUT",
           headers: {
