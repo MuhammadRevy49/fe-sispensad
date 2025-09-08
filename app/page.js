@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Cards from "@/components/dashboard/card";
+import Cards from "@/components/reusable/card";
 import Chart from "@/components/dashboard/chart";
 import Activities from "@/components/dashboard/Activities";
 import {variable} from "@/lib/variable";
@@ -55,7 +55,7 @@ export default function Beranda() {
           {
             jumlah: totalData.total,
             label: "Total Prajurit",
-            sub: "Semua prajurit",
+            sub: "Seluruh Prajurit",
             iconUrl: "/images/tni.png",
           },
         ];

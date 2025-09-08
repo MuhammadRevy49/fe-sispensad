@@ -16,7 +16,7 @@ export default function Button({
       onClick={onClick}
       disabled={disabled || loading}
       className={`
-        w-full py-2 px-4 rounded-lg font-semibold text-white bg-[var(--armycolor)] 
+        w-full py-2 px-3 rounded-lg text-white bg-[var(--armycolor)] 
         shadow hover:bg-[var(--armyhover)] disabled:opacity-50 transition-all flex items-center justify-center
         ${className}
       `}

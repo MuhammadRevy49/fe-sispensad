@@ -33,9 +33,9 @@ export default function Activities({ activities }) {
   dayjs.locale("id");
 
   return (
-    <div className="flex-1 bg-white shadow-lg rounded-[8px] border border-gray-100">
-      <div className="flex items-center border-b p-4 border-gray-200 pb-3">
-        <div className="p-2 mr-3">
+    <div className="flex-1 bg-white shadow-lg p-4 rounded-xl border border-gray-100">
+      <div className="flex items-center border-b border-gray-200 pb-3 mb-4">
+        <div className="p-2 rounded-lg mr-3">
           <File className="text-[var(--armycolor)]" size={20} />
         </div>
         <div>

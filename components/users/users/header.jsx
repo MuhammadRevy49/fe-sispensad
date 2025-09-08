@@ -2,6 +2,7 @@
 
 import {SearchInput, Dropdown} from "@/components/reusable/search";
 import Button from "@/components/reusable/button";
+import { Plus } from "lucide-react";
 
 export default function UserHeader({ roleFilter, setRoleFilter, searchTerm, setSearchTerm }) {
   const roleOptions = [
@@ -34,7 +35,7 @@ export default function UserHeader({ roleFilter, setRoleFilter, searchTerm, setS
           variant="primary"
           onClick={() => (window.location.href = "/auth/registrasi")}
         >
-          Tambah Pengguna
+          <Plus className="mr-1" size={18}/>Tambah Pengguna
         </Button>
       </div>
     </div>
