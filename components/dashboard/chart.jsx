@@ -10,9 +10,9 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Cell
+  Cell,
 } from "recharts";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, File } from "lucide-react";
 
 export default function Chart({ chartData }) {
   const [years, setYears] = useState([]);
@@ -39,7 +39,7 @@ export default function Chart({ chartData }) {
     if (chartData && chartData.length > 0) {
       const availableYears = chartData.map((item) => item.year);
       setYears(availableYears);
-      
+
       if (!selectedYear) {
         const latestYear = Math.max(...availableYears);
         setSelectedYear(latestYear);
@@ -49,13 +49,15 @@ export default function Chart({ chartData }) {
 
   useEffect(() => {
     if (selectedYear && chartData && chartData.length > 0) {
-      const selectedYearData = chartData.find((item) => item.year === selectedYear);
-      
+      const selectedYearData = chartData.find(
+        (item) => item.year === selectedYear
+      );
+
       if (selectedYearData) {
         const data = monthNames.map((m) => ({
           month: m.label,
           people: selectedYearData[m.key] || 0,
-          fullMonth: m.key
+          fullMonth: m.key,
         }));
         setMonthlyData(data);
       }
@@ -70,8 +72,8 @@ export default function Chart({ chartData }) {
     if (value === 0) return "#D1D5DB";
     if (value <= 10) return "#86EFAC";
     if (value <= 30) return "#4ADE80";
-    if (value <= 50) return "#22C55E"; 
-    return "#166534";
+    if (value <= 50) return "#22C55E";
+    return "#0B4803";
   };
 
   // Custom Tooltip
@@ -118,8 +120,10 @@ export default function Chart({ chartData }) {
               className="w-full flex justify-between items-center p-2 bg-gray-50 border border-gray-300 rounded-lg text-sm shadow-sm hover:bg-gray-100 transition-all duration-150"
             >
               {selectedYear || "Pilih Tahun"}
-              <ChevronDown 
-                className={`w-4 h-4 text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} 
+              <ChevronDown
+                className={`w-4 h-4 text-gray-500 transition-transform ${
+                  isOpen ? "rotate-180" : ""
+                }`}
               />
             </button>
 
@@ -129,7 +133,9 @@ export default function Chart({ chartData }) {
                   <div
                     key={year}
                     className={`p-2 cursor-pointer hover:bg-green-50 transition-colors duration-150 text-sm ${
-                      selectedYear === year ? 'bg-[var(--armyhover)] font-medium text-[var(--background)] hover:text-[var(--foreground)]' : ''
+                      selectedYear === year
+                        ? "bg-[var(--armyhover)] font-medium text-[var(--background)] hover:text-[var(--foreground)]"
+                        : ""
                     }`}
                     onClick={() => {
                       setSelectedYear(year);
@@ -146,25 +152,38 @@ export default function Chart({ chartData }) {
 
         {monthlyData.length > 0 ? (
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={monthlyData} margin={{ top: 10, right: 10, left: -25, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-              <XAxis 
-                dataKey="month" 
-                axisLine={false} 
-                tickLine={false}
-                tick={{ fontSize: 12, fill: '#6B7280' }}
+            <BarChart
+              data={monthlyData}
+              margin={{ top: 10, right: 10, left: -25, bottom: 5 }}
+            >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                vertical={false}
+                stroke="#E5E7EB"
               />
-              <YAxis 
-                domain={yDomain} 
-                axisLine={false} 
+              <XAxis
+                dataKey="month"
+                axisLine={false}
                 tickLine={false}
-                tick={{ fontSize: 12, fill: '#6B7280' }}
+                tick={{ fontSize: 12, fill: "#6B7280" }}
+              />
+              <YAxis
+                domain={yDomain}
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 12, fill: "#6B7280" }}
                 tickCount={6}
               />
-              <Tooltip content={<CustomTooltip />} cursor={{ fill: '#F3F4F6' }} />
+              <Tooltip
+                content={<CustomTooltip />}
+                cursor={{ fill: "#F3F4F6" }}
+              />
               <Bar dataKey="people" radius={[4, 4, 0, 0]} barSize={30}>
                 {monthlyData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={getBarColor(entry.people)} />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={getBarColor(entry.people)}
+                  />
                 ))}
               </Bar>
             </BarChart>
@@ -172,16 +191,10 @@ export default function Chart({ chartData }) {
         ) : (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
-              <div className="bg-gray-100 p-4 rounded-lg inline-block">
-                <Image
-                  src="/images/no-data.png"
-                  width={48}
-                  height={48}
-                  alt="No data"
-                  className="mx-auto opacity-50"
-                />
-              </div>
-              <p className="mt-3 text-gray-500">Tidak ada data untuk ditampilkan</p>
+              <File className="mx-auto mb-2 text-gray-400" size={48} />
+              <p className="mt-3 text-gray-500">
+                Tidak ada data untuk ditampilkan
+              </p>
             </div>
           </div>
         )}

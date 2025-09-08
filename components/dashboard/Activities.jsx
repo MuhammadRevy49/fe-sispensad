@@ -4,7 +4,7 @@ import { File } from "lucide-react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import updateLocale from "dayjs/plugin/updateLocale";
-import "dayjs/locale/id"; // Import locale Indonesia
+import "dayjs/locale/id";
 
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocale);
@@ -36,7 +36,7 @@ export default function Activities({ activities }) {
     <div className="flex-1 bg-white shadow-lg p-4 rounded-xl border border-gray-100">
       <div className="flex items-center border-b border-gray-200 pb-3 mb-4">
         <div className="p-2 rounded-lg mr-3">
-          <File className="text-gray-800" size={23} />
+          <File className="text-[var(--armycolor)]" size={20} />
         </div>
         <div>
           <p className="text-lg font-semibold text-gray-800">Aktivitas Terbaru</p>
@@ -44,12 +44,12 @@ export default function Activities({ activities }) {
         </div>
       </div>
 
-      <div className="mt-3 flex flex-col gap-3 max-h-[400px] overflow-y-auto pr-2">
+      <div className="flex flex-col max-h-[400px] overflow-y-auto">
         {activities.length > 0 ? (
           activities.map((a) => (
             <div
               key={a.id}
-              className="flex items-center gap-3 p-3 rounded-lg hover:bg-green-50 transition-colors duration-150 group"
+              className="flex items-center gap-3 p-3 hover:bg-green-50 transition-colors duration-150 group"
             >
               {/* Avatar */}
               <div className="w-10 h-10 rounded-full bg-[var(--armycolor)] text-white font-bold flex items-center justify-center flex-shrink-0 shadow-sm group-hover:shadow-md transition-shadow">

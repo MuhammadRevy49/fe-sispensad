@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import Button from "../reusable/button";
+import { variable } from "@/lib/variable";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -21,7 +22,7 @@ export default function Login() {
 
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/users/login`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}`+ variable.login,
         {
           method: "POST",
           headers: {

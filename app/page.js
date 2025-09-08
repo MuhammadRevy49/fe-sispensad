@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Cards from "@/components/reusable/card";
 import Chart from "@/components/dashboard/chart";
 import Activities from "@/components/dashboard/Activities";
+import {variable} from "@/lib/variable";
 
 export default function Beranda() {
   const [chartData, setChartData] = useState([]);
@@ -17,7 +18,7 @@ export default function Beranda() {
 
         // Ambil data cards dari API
         const resTotal = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/api/soldier/count`,
+       `${process.env.NEXT_PUBLIC_BASE_URL}${variable.totalSoldier}?category=all`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -25,7 +26,7 @@ export default function Beranda() {
         const totalData = await resTotal.json();
 
         const resPerwira = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/api/soldier/count/perwira`,
+          `${process.env.NEXT_PUBLIC_BASE_URL}${variable.totalSoldier}?category=group`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -62,7 +63,7 @@ export default function Beranda() {
         setCards(newCards);
 
         const resChart = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/api/soldier/history/year`,
+          `${process.env.NEXT_PUBLIC_BASE_URL}`+ variable.historyYear,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -89,7 +90,7 @@ export default function Beranda() {
           setChartData(formattedData);
         }
 
-        const resHistory = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/history`, {
+        const resHistory = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}`+ variable.history, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await resHistory.json();
