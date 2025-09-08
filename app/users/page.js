@@ -199,8 +199,8 @@ export default function UsersPage() {
   return (
     <div className="bg-gray-50 px-1 pt-1 pb-5 overflow-y-hidden">
       <div className="mb-1">
-        <h1 className="text-3xl font-bold text-gray-800">User Management</h1>
-        <p className="text-gray-600">
+        <h1 className="text-md font-semibold text-gray-800">User Management</h1>
+        <p className="text-gray-500 text-sm">
           Kelola pengguna dan lihat aktivitas mereka
         </p>
       </div>

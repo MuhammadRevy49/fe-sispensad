@@ -131,8 +131,8 @@ export default function Pama() {
         <div>
             <div className="mb-3">
                 <div className="mb-3">
-                    <p className="text-gray-800">Data Perwira Pertama - PAMA</p>
-                    <p className="text-gray-400 text-sm">Sistem Pensiun Angkatan Darat</p>
+                    <p className="text-gray-800 text-md font-semibold">Data Perwira Pertama</p>
+                    <p className="text-gray-500 text-sm">Sistem Pensiun Angkatan Darat</p>
                 </div>
                 <Cards cards={data} />
             </div>

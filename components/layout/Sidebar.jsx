@@ -6,8 +6,7 @@ import { useRouter, usePathname } from "next/navigation";
 import {
   Home,
   Users,
-  Tag,
-  GraduationCap,
+  UserCog,
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
@@ -82,6 +81,11 @@ export default function Sidebar({ children }) {
       subMenu: [
         { name: "Warakawuri", href: "/warakawuri" },
       ],
+    },
+    {
+      name: "Users",
+      icon: <UserCog/>,
+      href: "/users",
     },
   ];
 

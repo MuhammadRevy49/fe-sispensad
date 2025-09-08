@@ -131,8 +131,8 @@ export default function Pamen() {
         <div>
             <div className="mb-3">
                 <div className="mb-3">
-                    <p className="text-gray-800">Data Perwira Menengah - PAMEN</p>
-                    <p className="text-gray-400 text-sm">Sistem Pensiun Angkatan Darat</p>
+                    <p className="text-gray-800 text-md font-semibold">Data Perwira Menengah</p>
+                    <p className="text-gray-500 text-sm">Sistem Pensiun Angkatan Darat</p>
                 </div>
                 <Cards cards={data} />
             </div>
