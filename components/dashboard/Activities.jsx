@@ -36,7 +36,7 @@ export default function Activities({ activities }) {
     <div className="flex-1 bg-white shadow-lg p-4 rounded-xl border border-gray-100">
       <div className="flex items-center border-b border-gray-200 pb-3 mb-4">
         <div className="p-2 rounded-lg mr-3">
-          <File className="text-[var(--armycolor)]" size={20} />
+          <File className="text-gray-800" size={23} />
         </div>
         <div>
           <p className="text-lg font-semibold text-gray-800">Aktivitas Terbaru</p>

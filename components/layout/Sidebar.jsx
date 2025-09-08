@@ -26,14 +26,14 @@ export default function Sidebar({ children }) {
 
   useEffect(() => {
     if (noSidebar.includes(pathname)) {
-      setLoading(false);
+      if(loading) setLoading(false);
       return;
     }
 
     const token = localStorage.getItem("token");
     if (!token) {
       router.replace("/auth/login");
-      setLoading(false);
+      if(loading) setLoading(false);
       return;
     }
 
@@ -51,12 +51,12 @@ export default function Sidebar({ children }) {
         if (!res.ok) throw new Error("Failed to fetch user");
 
         const data = await res.json();
-        setUser(data.user); // set user dari response
+        setUser(data.user);
       } catch (err) {
         console.error(err);
         router.replace("/auth/login");
       } finally {
-        setLoading(false);
+        if(loading) setLoading(false);
       }
     };
 
@@ -70,9 +70,9 @@ export default function Sidebar({ children }) {
       icon: <Users />,
       isDropdown: true,
       subMenu: [
-        { name: "Prospek", icon: <Users />, href: "/prospek" },
-        { name: "Campaign", icon: <Tag />, href: "/campaign" },
-        { name: "Anak Juara", icon: <GraduationCap />, href: "/anakjuara" },
+        { name: "Perwira Pertama", href: "/perwira/pama" },
+        { name: "Perwira Menengah", href: "/perwira/pamen" },
+        { name: "Perwira Tinggi", href: "/perwira/pati" },
       ],
     },
     {
@@ -80,13 +80,7 @@ export default function Sidebar({ children }) {
       icon: <Users />,
       isDropdown: true,
       subMenu: [
-        { name: "Prospek", icon: <Users />, href: "/warakawuri/prospek" },
-        { name: "Campaign", icon: <Tag />, href: "/warakawuri/campaign" },
-        {
-          name: "Anak Juara",
-          icon: <GraduationCap />,
-          href: "/warakawuri/anakjuara",
-        },
+        { name: "Warakawuri", href: "/warakawuri" },
       ],
     },
   ];
@@ -108,7 +102,7 @@ export default function Sidebar({ children }) {
       {/* Sidebar */}
       <aside
         className={`bg-[var(--armycolor)] shadow-xl flex-col transition-all duration-300 overflow-hidden hidden md:flex
-          ${isSidebarOpen ? "w-60" : "w-20"}`}
+          ${isSidebarOpen ? "w-57" : "w-20"}`}
       >
         <div className="flex items-center justify-center p-2 mt-4">
           <img src="/images/logo1.png" alt="Logo" className="h-16" />
@@ -169,7 +163,6 @@ export default function Sidebar({ children }) {
                                 : "text-white/90 hover:bg-[var(--armyhover)]"
                             }`}
                         >
-                          <span className="text-lg">{sub.icon}</span>
                           <span className="font-medium">{sub.name}</span>
                         </Link>
                       ))}
@@ -188,7 +181,7 @@ export default function Sidebar({ children }) {
                   ${
                     pathname === item.href
                       ? "bg-white text-[var(--armycolor)] shadow-lg"
-                      : "bg-[var(--armycolor)] hover:bg-[var(--armyhover)]"
+                      : "bg-[var(--armycolor)] text-white hover:bg-[var(--armyhover)]"
                   }`}
               >
                 <span className="text-lg">{item.icon}</span>

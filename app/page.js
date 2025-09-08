@@ -36,7 +36,7 @@ export default function Beranda() {
           {
             jumlah: perwiraData.pama,
             label: "Letnan - Kapten",
-            sub: "Jumlah Perwira Muda",
+            sub: "Jumlah Perwira Pertama",
             iconUrl: "images/pama.png",
           },
           {
@@ -54,7 +54,7 @@ export default function Beranda() {
           {
             jumlah: totalData.total,
             label: "Total Prajurit",
-            sub: "Semua prajurit",
+            sub: "Seluruh Prajurit",
             iconUrl: "/images/tni.png",
           },
         ];
