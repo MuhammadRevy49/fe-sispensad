@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from "react";
-import Cards from "@/components/dashboard/card";
+import Cards from "@/components/reusable/card";
 import Dropdown from "@/components/reusable/dropdown";
 import { Download, Upload, Plus } from "lucide-react";
 import Table from "@/components/reusable/table";
 
 export default function Pama() {
-    // Data dummy cards
+    // Data Dummy
     const data = [
         {
             jumlah: 33,
@@ -29,7 +29,7 @@ export default function Pama() {
         },
     ];
 
-    // Table columns
+    // Untuk TH Tabel ygy
     const columns = [
         { header: "No", accessor: "no" },
         { header: "Nama Prajurit", accessor: "nama" },
@@ -43,7 +43,7 @@ export default function Pama() {
         { header: "Action", accessor: "action" },
     ];
 
-    // Data dummy table
+    // Data dummy ae
     const initialData = [
         {
             no: 1,
@@ -106,22 +106,18 @@ export default function Pama() {
     const [search, setSearch] = useState("");
     const [filterPangkat, setFilterPangkat] = useState("Semua");
 
-    // Handler Delete
     const handleDelete = (row) => {
         setDataTable(prev => prev.filter(item => item.no !== row.no));
     };
 
-    // Handler Edit (contoh aja)
     const handleEdit = (row) => {
         alert("Edit data: " + row.nama);
     };
 
-    // Handler dropdown filter
     const handleFilter = (value) => {
         setFilterPangkat(value);
     };
 
-    // Filtered & searched data
     const filteredData = dataTable.filter((item) => {
         const matchSearch =
             item.nama.toLowerCase().includes(search.toLowerCase()) ||

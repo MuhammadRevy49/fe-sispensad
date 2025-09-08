@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from "react";
-import Cards from "@/components/dashboard/card";
+import Cards from "@/components/reusable/card";
 import Dropdown from "@/components/reusable/dropdown";
 import { Download, Upload, Plus } from "lucide-react";
 import Table from "@/components/reusable/table";
 
-export default function Pama() {
-    // Ini Data Dummy Pama
+export default function Pati() {
+    // Data Dummy
     const data = [
         {
             jumlah: 33,
@@ -29,7 +29,7 @@ export default function Pama() {
         },
     ];
 
-    // table
+    // Untuk TH Tabel ygy
     const columns = [
         { header: "No", accessor: "no" },
         { header: "Nama Prajurit", accessor: "nama" },
@@ -43,7 +43,8 @@ export default function Pama() {
         { header: "Action", accessor: "action" },
     ];
 
-    const dataTable = [
+    // Data dummy ae
+    const initialData = [
         {
             no: 1,
             nama: "Jacob Jhone Pati",
@@ -66,7 +67,65 @@ export default function Pama() {
             jabatan: "Danramil 13",
             tempatDinas: "Kodam I / Sil"
         },
+        {
+            no: 3,
+            nama: "Andi Pratama Pati",
+            pangkat: "Lettu",
+            nrp: "1900032112345",
+            tglLahir: "12 Maret 1985",
+            tglDinas: "12 Maret 2008",
+            korps: "Kavaleri (Kav)",
+            jabatan: "Dankipan",
+            tempatDinas: "Kodam II / Sil"
+        },
+        {
+            no: 4,
+            nama: "Budi Santoso Pati",
+            pangkat: "Letda",
+            nrp: "1900045678912",
+            tglLahir: "5 April 1986",
+            tglDinas: "5 April 2010",
+            korps: "Artileri (Art)",
+            jabatan: "Bamin",
+            tempatDinas: "Kodam IV / Sil"
+        },
+        {
+            no: 5,
+            nama: "Cahyo Nugroho Pati",
+            pangkat: "Kapten",
+            nrp: "1900056789012",
+            tglLahir: "7 Mei 1983",
+            tglDinas: "7 Mei 2006",
+            korps: "Infanteri (Inf)",
+            jabatan: "Kasdim",
+            tempatDinas: "Kodam V / Sil"
+        },
     ];
+
+    const [dataTable, setDataTable] = useState(initialData);
+    const [search, setSearch] = useState("");
+    const [filterPangkat, setFilterPangkat] = useState("Semua");
+
+    const handleDelete = (row) => {
+        setDataTable(prev => prev.filter(item => item.no !== row.no));
+    };
+
+    const handleEdit = (row) => {
+        alert("Edit data: " + row.nama);
+    };
+
+    const handleFilter = (value) => {
+        setFilterPangkat(value);
+    };
+
+    const filteredData = dataTable.filter((item) => {
+        const matchSearch =
+            item.nama.toLowerCase().includes(search.toLowerCase()) ||
+            item.nrp.includes(search);
+        const matchFilter =
+            filterPangkat === "Semua" ? true : item.pangkat === filterPangkat;
+        return matchSearch && matchFilter;
+    });
 
     return (
         <div>
@@ -79,8 +138,14 @@ export default function Pama() {
             </div>
             <div className="flex gap-3 mb-3 justify-between">
                 <div className="flex items-center gap-3">
-                    <input className="text-sm p-2 bg-white border border-gray-300 rounded-lg w-80" type="text" placeholder="Masukkan Nama Perwira / NRP" />
-                    <Dropdown />
+                    <input
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="text-sm p-2 bg-white border border-gray-300 rounded-lg w-80"
+                        type="text"
+                        placeholder="Masukkan Nama Perwira / NRP"
+                    />
+                    <Dropdown onChange={handleFilter} />
                 </div>
                 <div className="flex items-center gap-3">
                     <button className="text-sm p-2 border-1 border-green-800 text-green-800 rounded-lg flex items-center hover:opacity-50 hover:cursor-pointer transition-all">
@@ -98,7 +163,12 @@ export default function Pama() {
                 </div>
             </div>
             <div>
-                <Table columns={columns} data={dataTable}/>
+                <Table
+                    columns={columns}
+                    data={filteredData}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                />
             </div>
         </div>
     );
