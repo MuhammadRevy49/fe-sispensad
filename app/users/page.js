@@ -7,6 +7,7 @@ import UserHistory from "@/components/users/history";
 import ConfirmModal from "@/components/reusable/modal";
 import { useRouter } from "next/navigation";
 import RequireAdminModal from "@/lib/checkAdmin"; // 🔥
+import { variable } from "@/lib/variable";
 
 function ConfirmDeleteModal({ isOpen, onClose, user, onConfirm }) {
   return (
@@ -53,7 +54,7 @@ export default function UsersPage() {
   const fetchUsers = async () => {
     try {
       setIsLoading(true);
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}`+ variable.users);
       const data = await res.json();
       setUsers(data);
     } catch (err) {
@@ -66,7 +67,7 @@ export default function UsersPage() {
   const fetchAllLogs = async () => {
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/history`
+        `${process.env.NEXT_PUBLIC_BASE_URL}`+ variable.history
       );
       const data = await res.json();
       setLogsAll(data);
@@ -79,7 +80,7 @@ export default function UsersPage() {
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/users/${user.id}`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}${variable.userId(user.id)}`,
         {
           method: "DELETE",
           headers: {

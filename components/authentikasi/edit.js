@@ -37,7 +37,7 @@ export default function EditUserPage() {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}${variable.userId(id)}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

@@ -11,6 +11,7 @@ import {
   ChevronUp,
 } from "lucide-react";
 import Navbar from "./Navbar";
+import { variable } from "@/lib/variable";
 
 export default function Sidebar({ children }) {
   const router = useRouter();
@@ -48,7 +49,7 @@ export default function Sidebar({ children }) {
     const fetchUser = async () => {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getMe`,
+          `${process.env.NEXT_PUBLIC_BASE_URL}`+ variable.getMe,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
