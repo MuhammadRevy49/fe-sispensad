@@ -21,18 +21,27 @@ export default function Sidebar({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const noSidebar = ["/auth/login", "/auth/lupa-password", "/auth/registrasi"];
+  // Path yang tidak ingin menampilkan sidebar
+  const noSidebar = [
+    "/auth/login",
+    "/auth/lupa-password",
+    "/auth/registrasi",
+    "/auth/", // menangani semua /auth/:id/edit
+  ];
+
+  // Periksa apakah sidebar harus disembunyikan
+  const hideSidebar = noSidebar.some(path => pathname.startsWith(path));
 
   useEffect(() => {
-    if (noSidebar.includes(pathname)) {
-      if(loading) setLoading(false);
+    if (hideSidebar) {
+      if (loading) setLoading(false);
       return;
     }
 
     const token = localStorage.getItem("token");
     if (!token) {
       router.replace("/auth/login");
-      if(loading) setLoading(false);
+      if (loading) setLoading(false);
       return;
     }
 
@@ -41,9 +50,7 @@ export default function Sidebar({ children }) {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_BASE_URL}/api/users/getMe`,
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
           }
         );
 
@@ -55,12 +62,24 @@ export default function Sidebar({ children }) {
         console.error(err);
         router.replace("/auth/login");
       } finally {
-        if(loading) setLoading(false);
+        if (loading) setLoading(false);
       }
     };
 
     fetchUser();
-  }, [pathname, router]);
+  }, [pathname, router, hideSidebar, loading]);
+
+  if (loading) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (hideSidebar) {
+    return <>{children}</>;
+  }
 
   const menuItems = [
     { name: "Dashboard", icon: <Home />, href: "/" },
@@ -78,28 +97,14 @@ export default function Sidebar({ children }) {
       name: "Data Warakawuri",
       icon: <Users />,
       isDropdown: true,
-      subMenu: [
-        { name: "Warakawuri", href: "/warakawuri" },
-      ],
+      subMenu: [{ name: "Warakawuri", href: "/warakawuri" }],
     },
     {
       name: "Users",
-      icon: <UserCog/>,
+      icon: <UserCog />,
       href: "/users",
     },
   ];
-
-  if (loading) {
-    return (
-      <div className="w-full h-screen flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  if (noSidebar.includes(pathname)) {
-    return <>{children}</>;
-  }
 
   return (
     <div className="flex h-screen">
@@ -127,7 +132,9 @@ export default function Sidebar({ children }) {
                       }`}
                   >
                     <button
-                      onClick={() => setOpenDropdown(isOpen ? null : item.name)}
+                      onClick={() =>
+                        setOpenDropdown(isOpen ? null : item.name)
+                      }
                       className="flex items-center gap-3 flex-1 text-left"
                     >
                       <span className="text-lg">{item.icon}</span>
@@ -144,11 +151,7 @@ export default function Sidebar({ children }) {
                         }
                         className="p-1 rounded hover:opacity-70"
                       >
-                        {isOpen ? (
-                          <ChevronUp size={16} />
-                        ) : (
-                          <ChevronDown size={16} />
-                        )}
+                        {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                       </button>
                     )}
                   </div>
@@ -198,7 +201,7 @@ export default function Sidebar({ children }) {
         </nav>
       </aside>
 
-      {/* Main */}
+      {/* Main content */}
       <div className="flex-1 flex flex-col overflow-x-hidden">
         <Navbar
           user={user}
@@ -239,9 +242,7 @@ export default function Sidebar({ children }) {
                 href={item.href}
                 prefetch={false}
                 className={`flex flex-col items-center text-sm ${
-                  pathname === item.href
-                    ? "text-[var(--armycolor)]"
-                    : "text-gray-500"
+                  pathname === item.href ? "text-[var(--armycolor)]" : "text-gray-500"
                 }`}
               >
                 {item.icon}
