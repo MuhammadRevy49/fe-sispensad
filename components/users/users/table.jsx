@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { User,ShieldUser  } from "lucide-react";
+import { User, ShieldUser } from "lucide-react";
 
 export default function UserTableBody({ users, isLoading, selectedUser, handleSelectUser, handleEdit, handleDelete }) {
   const [menuOpenId, setMenuOpenId] = useState(null);
@@ -17,16 +17,16 @@ export default function UserTableBody({ users, isLoading, selectedUser, handleSe
   }, []);
 
   return (
-    <div className="pr-4 pt-4 h-[350px] bg-white shadow-lg rounded-[8px] mt-5">
-      <div className="overflow-y-scroll h-[300px] overflow-x-hidden" ref={tableRef}>
-        <table className="w-full">
-          <thead className="sticky top-0 bg-white z-10">
-            <tr>
-              <th className="p-4 font-semibold text-center">User</th>
-              <th className="p-4 font-semibold text-center">Email</th>
-              <th className="p-4 font-semibold text-center">Role</th>
-              <th className="p-4 font-semibold text-center">Created</th>
-              <th className="p-4 font-semibold text-center"></th>
+    <div className="pr-4 pt-4 h-[350px] bg-white shadow-lg rounded-lg mt-5">
+      <div className="overflow-y-scroll h-[300px] overflow-x-auto" ref={tableRef}>
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="divide-y divide-gray-300 sticky top-0 z-10">
+              <th className="px-4 py-3 text-xs text-gray-700 border-b border-gray-300">User</th>
+              <th className="px-4 py-3 text-xs text-gray-700 border-b border-gray-300">Email</th>
+              <th className="px-4 py-3 text-xs text-gray-700 border-b border-gray-300">Role</th>
+              <th className="px-4 py-3 text-xs text-gray-700 border-b border-gray-300">Created</th>
+              <th className="px-4 py-3 text-xs text-gray-700 border-b border-gray-300"></th>
             </tr>
           </thead>
           <tbody>
@@ -46,13 +46,13 @@ export default function UserTableBody({ users, isLoading, selectedUser, handleSe
                 return (
                   <tr
                     key={user.id}
-                    className={`border-t border-gray-200 transition-all duration-200 hover:bg-[var(--armycolor)]/5 ${
+                    className={`border-t border-gray-300 hover:bg-gray-50 transition-all duration-200 ${
                       isSelected ? "border-l-4 border-l-[var(--armycolor)]" : ""
                     }`}
                     onClick={() => handleSelectUser(user)}
                   >
                     {/* Kolom User + Inisial */}
-                    <td className="p-4 cursor-pointer">
+                    <td className="px-4 py-3 cursor-pointer">
                       <div className="flex items-center overflow-x-auto">
                         <div className="h-12 w-12 rounded-full bg-gradient-to-br from-[var(--armycolor)]/20 to-[var(--armycolor)]/30 flex items-center justify-center text-[var(--armycolor)] font-bold text-lg shadow-sm">
                           {user.name.charAt(0).toUpperCase()}
@@ -62,10 +62,10 @@ export default function UserTableBody({ users, isLoading, selectedUser, handleSe
                     </td>
 
                     {/* Email */}
-                    <td className="p-4 cursor-pointer text-[var(--textgray)] text-center">{user.email}</td>
+                    <td className="px-4 py-3 cursor-pointer text-[var(--textgray)]">{user.email}</td>
 
                     {/* Role */}
-                    <td className="p-4 cursor-pointer text-center">
+                    <td className="px-4 py-3 text-center">
                       <span
                         className={`inline-flex items-center px-3 py-1 w-[80px] justify-center rounded-full text-xs font-semibold ${
                           user.role.toLowerCase() === "admin"
@@ -73,33 +73,33 @@ export default function UserTableBody({ users, isLoading, selectedUser, handleSe
                             : "bg-[var(--armycolor)] text-[var(--background)]"
                         }`}
                       >
-                        {user.role.toLowerCase() === "admin" ? <div className="flex"><ShieldUser className="w-4 h-4 mr-1" /> Admin</div> : <div className="flex"><User className="w-4 h-4 mr-1" /> User</div>}
+                        {user.role.toLowerCase() === "admin" ? (
+                          <div className="flex items-center"><ShieldUser className="w-4 h-4 mr-1" /> Admin</div>
+                        ) : (
+                          <div className="flex items-center"><User className="w-4 h-4 mr-1" /> User</div>
+                        )}
                       </span>
                     </td>
 
                     {/* Created */}
-                    <td className="p-4 text-center text-[var(--textgray)]">
+                    <td className="px-4 py-3 text-center text-[var(--textgray)]">
                       {new Date(user.createdAt || Date.now()).toLocaleDateString("id-ID")}
                     </td>
 
                     {/* Aksi */}
-                    <td className="p-4 text-center relative">
-                      {/* Tombol ⋮ hanya bisa membuka menu untuk user yang dipilih */}
-                      {isSelected && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setMenuOpenId(menuOpenId === user.id ? null : user.id);
-                          }}
-                          className="px-2 py-1 text-lg font-bold rounded-full hover:bg-gray-100 transition-colors"
-                        >
-                          ⋮
-                        </button>
-                      )}
+                    <td className="px-4 py-3 text-center relative">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setMenuOpenId(menuOpenId === user.id ? null : user.id);
+                        }}
+                        className="px-2 py-1 text-sm font-bold hover:bg-gray-100 rounded-full transition-colors"
+                      >
+                        ⋮
+                      </button>
 
-                      {/* Menu Edit/Hapus */}
-                      {menuOpenId === user.id && isSelected && (
-                        <div className="absolute z-50 right-10 top-8 bg-white border border-gray-200 rounded-lg shadow-lg flex flex-col w-32">
+                      {menuOpenId === user.id && (
+                        <div className="absolute z-50 right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg flex flex-col w-32">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();

@@ -3,13 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import {
-  Home,
-  Users,
-  UserCog,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react";
+import { Home, Users, UserCog, ChevronDown, ChevronUp } from "lucide-react";
 import Navbar from "./Navbar";
 import { variable } from "@/lib/variable";
 
@@ -22,19 +16,23 @@ export default function Sidebar({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Path yang tidak ingin menampilkan sidebar
-  const noSidebar = [
-    "/auth/login",
-    "/auth/lupa-password",
-    "/auth/registrasi",
-    "/auth/", // menangani semua /auth/:id/edit
+  // Daftar path yang MENAMPILKAN sidebar
+  const sidebarPaths = [
+    "/",
+    "/perwira/pama",
+    "/perwira/pamen",
+    "/perwira/pati",
+    "/warakawuri",
+    "/users",
+    "/perwira",
   ];
 
-  // Periksa apakah sidebar harus disembunyikan
-  const hideSidebar = noSidebar.some(path => pathname.startsWith(path));
+  // Sidebar hanya tampil jika path termasuk sidebarPaths
+  const showSidebar = pathname && sidebarPaths.includes(pathname);
 
+  // Fetch user jika sidebar ditampilkan
   useEffect(() => {
-    if (hideSidebar) {
+    if (!showSidebar) {
       if (loading) setLoading(false);
       return;
     }
@@ -48,12 +46,9 @@ export default function Sidebar({ children }) {
 
     const fetchUser = async () => {
       try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}`+ variable.getMe,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}${variable.getMe}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
         if (!res.ok) throw new Error("Failed to fetch user");
 
@@ -68,7 +63,7 @@ export default function Sidebar({ children }) {
     };
 
     fetchUser();
-  }, [pathname, router, hideSidebar, loading]);
+  }, [pathname, router, showSidebar, loading]);
 
   if (loading) {
     return (
@@ -78,7 +73,8 @@ export default function Sidebar({ children }) {
     );
   }
 
-  if (hideSidebar) {
+  // Jika path bukan sidebarPaths, langsung render children
+  if (!showSidebar) {
     return <>{children}</>;
   }
 
@@ -89,9 +85,10 @@ export default function Sidebar({ children }) {
       icon: <Users />,
       isDropdown: true,
       subMenu: [
-        { name: "Perwira Pertama", href: "/perwira/pama" },
-        { name: "Perwira Menengah", href: "/perwira/pamen" },
-        { name: "Perwira Tinggi", href: "/perwira/pati" },
+        { name: "KeseleruhanPerwira", href: "/perwira?category=all" },
+        { name: "Perwira Pertama", href: "/perwira?category=pama" },
+        { name: "Perwira Menengah", href: "/perwira?category=pamen" },
+        { name: "Perwira Tinggi", href: "/perwira?category=pati" },
       ],
     },
     {
@@ -100,11 +97,7 @@ export default function Sidebar({ children }) {
       isDropdown: true,
       subMenu: [{ name: "Warakawuri", href: "/warakawuri" }],
     },
-    {
-      name: "Users",
-      icon: <UserCog />,
-      href: "/users",
-    },
+    { name: "Users", icon: <UserCog />, href: "/users" },
   ];
 
   return (
@@ -126,30 +119,20 @@ export default function Sidebar({ children }) {
                 <div key={item.name}>
                   <div
                     className={`flex items-center justify-between px-4 py-2 text-white rounded-lg transition whitespace-nowrap
-                      ${
-                        isOpen
-                          ? "bg-[var(--armyhover)]"
-                          : "bg-[var(--armycolor)] hover:bg-[var(--armyhover)]"
-                      }`}
+                      ${isOpen ? "bg-[var(--armyhover)]" : "bg-[var(--armycolor)] hover:bg-[var(--armyhover)]"}`}
                   >
                     <button
-                      onClick={() =>
-                        setOpenDropdown(isOpen ? null : item.name)
-                      }
+                      onClick={() => setOpenDropdown(isOpen ? null : item.name)}
                       className="flex items-center gap-3 flex-1 text-left"
                     >
                       <span className="text-lg">{item.icon}</span>
-                      {isSidebarOpen && (
-                        <span className="font-medium">{item.name}</span>
-                      )}
+                      {isSidebarOpen && <span className="font-medium">{item.name}</span>}
                     </button>
 
                     {isSidebarOpen && (
                       <button
                         type="button"
-                        onClick={() =>
-                          setOpenDropdown(isOpen ? null : item.name)
-                        }
+                        onClick={() => setOpenDropdown(isOpen ? null : item.name)}
                         className="p-1 rounded hover:opacity-70"
                       >
                         {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
@@ -165,11 +148,7 @@ export default function Sidebar({ children }) {
                           href={sub.href}
                           prefetch={false}
                           className={`flex items-center gap-3 px-4 py-2 rounded-lg transition
-                            ${
-                              pathname === sub.href
-                                ? "bg-[var(--armycolor)] text-white"
-                                : "text-white/90 hover:bg-[var(--armyhover)]"
-                            }`}
+                            ${pathname === sub.href ? "bg-[var(--armycolor)] text-white" : "text-white/90 hover:bg-[var(--armyhover)]"}`}
                         >
                           <span className="font-medium">{sub.name}</span>
                         </Link>
@@ -186,16 +165,10 @@ export default function Sidebar({ children }) {
                 href={item.href}
                 prefetch={false}
                 className={`flex items-center gap-3 px-4 py-2 rounded-lg transition
-                  ${
-                    pathname === item.href
-                      ? "bg-white text-[var(--armycolor)] shadow-lg"
-                      : "bg-[var(--armycolor)] text-white hover:bg-[var(--armyhover)]"
-                  }`}
+                  ${pathname === item.href ? "bg-white text-[var(--armycolor)] shadow-lg" : "bg-[var(--armycolor)] text-white hover:bg-[var(--armyhover)]"}`}
               >
                 <span className="text-lg">{item.icon}</span>
-                {isSidebarOpen && (
-                  <span className="font-medium">{item.name}</span>
-                )}
+                {isSidebarOpen && <span className="font-medium">{item.name}</span>}
               </Link>
             );
           })}
@@ -204,54 +177,10 @@ export default function Sidebar({ children }) {
 
       {/* Main content */}
       <div className="flex-1 flex flex-col overflow-x-hidden">
-        <Navbar
-          user={user}
-          isSidebarOpen={isSidebarOpen}
-          setIsSidebarOpen={setIsSidebarOpen}
-        />
-
+        <Navbar user={user} isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
         <main className="p-4 overflow-x-hidden bg-gray-50 flex-1 md:pb-6 pb-[64px]">
           {children}
         </main>
-
-        {/* Bottom Navbar (mobile) */}
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t border-gray-200 flex justify-around py-3 px-3">
-          {menuItems.map((item) => {
-            if (item.isDropdown) {
-              return (
-                <button
-                  key={item.name}
-                  onClick={() =>
-                    setOpenDropdown(
-                      openDropdown === item.name ? null : item.name
-                    )
-                  }
-                  className={`flex flex-col items-center text-sm ${
-                    openDropdown === item.name
-                      ? "text-[var(--armycolor)]"
-                      : "text-gray-500"
-                  }`}
-                >
-                  {item.icon}
-                  <span className="text-xs">{item.name}</span>
-                </button>
-              );
-            }
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                prefetch={false}
-                className={`flex flex-col items-center text-sm ${
-                  pathname === item.href ? "text-[var(--armycolor)]" : "text-gray-500"
-                }`}
-              >
-                {item.icon}
-                <span className="text-xs">{item.name}</span>
-              </Link>
-            );
-          })}
-        </nav>
       </div>
     </div>
   );

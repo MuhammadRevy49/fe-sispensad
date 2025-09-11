@@ -18,6 +18,7 @@ function ConfirmDeleteModal({ isOpen, onClose, user, onConfirm }) {
       message={`Apakah Anda yakin ingin menghapus user "${user?.name}"?`}
       confirmText="Hapus"
       cancelText="Batal"
+      type="error"
       confirmColor="bg-red-600"
       onConfirm={() => onConfirm?.(user)}
     />
@@ -33,6 +34,7 @@ function ConfirmEditModal({ isOpen, onClose, user, onConfirm }) {
       message={`Apakah Anda yakin ingin mengedit data user "${user?.name}"?`}
       confirmText="Edit"
       cancelText="Batal"
+      type="question"
       confirmColor="bg-[var(--armycolor)]"
       onConfirm={() => onConfirm?.(user)}
     />
