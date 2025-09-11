@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Filtering from "./filtering";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { variable } from "@/lib/variable";
 
 export default function TableSection({
   page,
@@ -14,7 +15,9 @@ export default function TableSection({
   setIsExporting,
   setConfirmMessage,
   setConfirmOpen,
-  setConfirmType
+  setConfirmType,
+  setDeleteTarget,
+  refreshTrigger, // Terima trigger dari parent
 }) {
   const router = useRouter();
   const [dataTable, setDataTable] = useState([]);
@@ -36,11 +39,10 @@ export default function TableSection({
       if (search) params.append("nama", search);
 
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/soldier/data?${params.toString()}`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}${variable.personil}?${params.toString()}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       const result = await res.json();
-
       setDataTable(result.data || []);
       setTotalData(result.total || 0);
     } catch (error) {
@@ -50,12 +52,11 @@ export default function TableSection({
 
   useEffect(() => {
     fetchData();
-  }, [page, limit, filterPangkat, group, search]);
+  }, [page, limit, filterPangkat, group, search, refreshTrigger]); // Tambahkan refreshTrigger ke dependency array
 
   const handleSearch = (e) => {
     e.preventDefault();
     setPage(1);
-    fetchData();
   };
 
   const handleAdd = () => router.push(`/perwira/add`);
@@ -63,28 +64,28 @@ export default function TableSection({
   const handleImport = async (file) => {
     if (!file) return;
     setIsImporting(true);
-
     try {
       const formData = new FormData();
       formData.append("file", file);
       const token = localStorage.getItem("token");
 
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/soldier/excel/import`,
-        { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: formData }
-      );
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}${variable.import}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
 
       if (!res.ok) throw new Error(`Import failed: ${res.status}`);
 
       setConfirmMessage("File berhasil diimpor!");
+      setConfirmType("success");
       setConfirmOpen(true);
-        setConfirmType("success");
-      fetchData();
+      fetchData(); // Refresh data setelah import berhasil
     } catch (error) {
       console.error("Error import file:", error);
       setConfirmMessage("Terjadi kesalahan saat impor.");
+      setConfirmType("error");
       setConfirmOpen(true);
-        setConfirmType("error");
     } finally {
       setIsImporting(false);
     }
@@ -92,12 +93,21 @@ export default function TableSection({
 
   const handleExport = async () => {
     setIsExporting(true);
-
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/soldier/excel/export`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      
+      // Tambahkan parameter filter ke ekspor
+      const params = new URLSearchParams();
+      params.append("group", group);
+      if (filterPangkat !== "Semua") params.append("pangkat", filterPangkat);
+      if (search) params.append("nama", search);
+      
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}${variable.export}?${params.toString()}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       if (!res.ok) throw new Error(`Export failed: ${res.status}`);
 
@@ -105,14 +115,16 @@ export default function TableSection({
       const downloadUrl = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = downloadUrl;
-      link.setAttribute("download", "data_soldier.xlsx");
+      link.setAttribute("download", `data_perwira_${group}.xlsx`);
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(downloadUrl);
     } catch (error) {
       console.error("Error exporting data:", error);
-      alert("Gagal mengekspor data. Silakan coba lagi.");
+      setConfirmMessage("Gagal mengekspor data. Silakan coba lagi.");
+      setConfirmType("error");
+      setConfirmOpen(true);
     } finally {
       setIsExporting(false);
     }
@@ -120,19 +132,11 @@ export default function TableSection({
 
   const handleEdit = (soldier) => router.push(`/perwira/${soldier.id}/edit`);
 
-  const handleDelete = async (soldier) => {
-    if (!confirm(`Apakah yakin ingin menghapus ${soldier.NAMA}?`)) return;
-
-    try {
-      const token = localStorage.getItem("token");
-      await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/soldier/${group}/${soldier.id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      fetchData();
-    } catch (error) {
-      console.error("Error deleting soldier:", error);
-    }
+  const handleDelete = (soldier) => {
+    setDeleteTarget(soldier);
+    setConfirmMessage(`Apakah yakin ingin menghapus ${soldier.NAMA}?`);
+    setConfirmType("question");
+    setConfirmOpen(true);
   };
 
   const displayData = dataTable.map((item, index) => ({
@@ -202,7 +206,7 @@ export default function TableSection({
                     </button>
 
                     {menuOpenId === soldier.id && (
-                      <div className="absolute z-50 right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg flex flex-col w-32">
+                      <div className="absolute z-50 right-8 top-8 bg-white border border-gray-200 rounded-lg shadow-lg flex flex-col w-32">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
