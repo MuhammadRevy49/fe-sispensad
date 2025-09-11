@@ -6,8 +6,12 @@ import CardsSection from "@/components/data/card";
 import TableSection from "@/components/data/table";
 import LoadingDots from "@/components/reusable/loading";
 import ConfirmModal from "@/components/reusable/modal";
+import { variable } from "@/lib/variable";
 
 export default function DashboardPage() {
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0); // Tambahkan trigger untuk refresh
+
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -21,7 +25,7 @@ export default function DashboardPage() {
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmMessage, setConfirmMessage] = useState("");
-  const [confirmType, setConfirmType] = useState("success"); // tambahkan state untuk type modal
+  const [confirmType, setConfirmType] = useState("success");
 
   const limit = 50;
 
@@ -29,17 +33,42 @@ export default function DashboardPage() {
     setPage(1);
   }, [category]);
 
-  // Fungsi untuk dipanggil saat import berhasil
-  const handleImportSuccess = () => {
-    setConfirmMessage("File berhasil diimpor!");
-    setConfirmType("success"); // set type
-    setConfirmOpen(true);
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}${variable.personil}/${deleteTarget.id}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setConfirmMessage("Data berhasil dihapus!");
+      setConfirmType("success");
+      
+      // Trigger refresh data setelah penghapusan berhasil
+      setRefreshTrigger(prev => prev + 1);
+    } catch (error) {
+      console.error(error);
+      setConfirmMessage("Terjadi kesalahan saat delete.");
+      setConfirmType("error");
+    } finally {
+      setDeleteTarget(null);
+      setConfirmOpen(true);
+    }
   };
 
   return (
     <div className="p-6 space-y-6 relative">
       {/* Section Cards */}
-      <CardsSection loading={loading} setLoading={setLoading} category={category} />
+      <CardsSection
+        loading={loading}
+        setLoading={setLoading}
+        category={category}
+        refreshTrigger={refreshTrigger} // Kirim trigger ke CardsSection
+      />
 
       {/* Section Table */}
       <TableSection
@@ -51,7 +80,9 @@ export default function DashboardPage() {
         setIsExporting={setIsExporting}
         setConfirmMessage={setConfirmMessage}
         setConfirmOpen={setConfirmOpen}
-        setConfirmType={setConfirmType} // teruskan setter ke TableSection
+        setConfirmType={setConfirmType}
+        setDeleteTarget={setDeleteTarget}
+        refreshTrigger={refreshTrigger} // Kirim trigger ke TableSection
       />
 
       {/* Global Loading overlay */}
@@ -59,7 +90,9 @@ export default function DashboardPage() {
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center space-y-4">
             <LoadingDots color="var(--armycolor)" />
-            <div className="text-[var(--textgray)] font-medium text-center">Memuat data...</div>
+            <div className="text-[var(--textgray)] font-medium text-center">
+              Memuat data...
+            </div>
           </div>
         </div>
       )}
@@ -91,11 +124,21 @@ export default function DashboardPage() {
       {/* Confirm Modal */}
       <ConfirmModal
         isOpen={confirmOpen}
-        onClose={() => setConfirmOpen(false)}
-        title={confirmType === "success" ? "Berhasil" : "Peringatan"}
+        onClose={() => {
+          setConfirmOpen(false);
+          setDeleteTarget(null);
+        }}
+        title={
+          confirmType === "success"
+            ? "Berhasil"
+            : confirmType === "error"
+            ? "Error"
+            : "Konfirmasi"
+        }
         message={confirmMessage}
-        type={confirmType} // gunakan state string, bukan setter
-        confirmText="Tutup"
+        type={confirmType}
+        confirmText={deleteTarget ? "Hapus" : "Tutup"}
+        onConfirm={deleteTarget ? confirmDelete : undefined}
       />
     </div>
   );

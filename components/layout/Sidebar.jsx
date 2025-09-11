@@ -85,7 +85,7 @@ export default function Sidebar({ children }) {
       icon: <Users />,
       isDropdown: true,
       subMenu: [
-        { name: "KeseleruhanPerwira", href: "/perwira?category=all" },
+        { name: "Keseleruhan Perwira", href: "/perwira?category=all" },
         { name: "Perwira Pertama", href: "/perwira?category=pama" },
         { name: "Perwira Menengah", href: "/perwira?category=pamen" },
         { name: "Perwira Tinggi", href: "/perwira?category=pati" },

@@ -99,7 +99,7 @@ export default function UserTableBody({ users, isLoading, selectedUser, handleSe
                       </button>
 
                       {menuOpenId === user.id && (
-                        <div className="absolute z-50 right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg flex flex-col w-32">
+                        <div className="absolute z-50 right-8 top-8 bg-white border border-gray-200 rounded-lg shadow-lg flex flex-col w-32">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
