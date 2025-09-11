@@ -1,58 +1,55 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 
-export default function Dropdown() {
-  const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState("Pilih Pangkat");
-  const dropdownRef = useRef(null);
+/**
+ * Generic Dropdown Component
+ * @param {Array} options - array string, number, atau object {label, value}
+ * @param {any} selected - item yang sedang dipilih
+ * @param {Function} onSelect - callback saat pilih item
+ * @param {String} placeholder - teks default
+ * @param {String} className - tambahan class
+ */
+export default function Dropdown({ options = [], selected, onSelect, placeholder = "Pilih", className = "" }) {
+  const [isOpen, setIsOpen] = useState(false);
 
-  const options = ["Letnan Dua", "Letnan Satu", "Kapten", "Semua Data"];
-
-  // Tutup dropdown kalau klik di luar
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  const handleSelect = (option) => {
+    onSelect?.(option);
+    setIsOpen(false);
+  };
 
   return (
-    <div ref={dropdownRef} className="relative w-44">
+    <div className={`relative w-[140px] ${className}`}>
       <button
-        onClick={() => setOpen((prev) => !prev)}
-        className="text-sm w-full flex items-center justify-between px-4 py-2 bg-[var(--armycolor)] text-white border border-gray-300 rounded-lg shadow-sm hover:border-gray-400 focus:outline-none"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-[140px] flex justify-between items-center p-2 bg-gray-50 border border-gray-300 rounded-lg text-sm shadow-sm hover:bg-gray-100 transition-all duration-150"
       >
-        <span>{selected}</span>
+        {selected?.label || selected || placeholder}
         <ChevronDown
-          className={`w-4 h-4 transition-transform duration-200 ${
-            open ? "rotate-180" : ""
-          }`}
+          className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
         />
       </button>
 
-      {open && (
-        <div className="absolute z-10 mt-2 w-full bg-white border border-gray-300 rounded-lg shadow-lg">
-          {options.map((option, idx) => (
-            <div
-              key={idx}
-              onClick={() => {
-                setSelected(option);
-                setOpen(false);
-              }}
-              className={`px-4 py-2 cursor-pointer transition-colors duration-150 ${
-                selected === option
-                  ? "bg-gray-200 text-gray-900"
-                  : "hover:bg-gray-100 text-gray-700"
-              }`}
-            >
-              {option}
-            </div>
-          ))}
+      {isOpen && (
+        <div className="absolute z-50 w-full bg-white border border-gray-300 rounded-lg mt-1 max-h-60 overflow-y-auto shadow-lg">
+          {options.map((option, index) => {
+            const label = typeof option === "object" ? option.label : option;
+            const value = typeof option === "object" ? option.value : option;
+            const isSelected = selected?.value === value || selected === value;
+
+            return (
+              <div
+                key={index}
+                className={`p-2 cursor-pointer hover:bg-green-50 transition-colors duration-150 text-sm ${
+                  isSelected ? "bg-[var(--armyhover)] font-medium text-[var(--background)] hover:text-[var(--foreground)]" : ""
+                }`}
+                onClick={() => handleSelect(option)}
+              >
+                {label}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
