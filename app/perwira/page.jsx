@@ -7,11 +7,11 @@ import TableSection from "@/components/data/table";
 import LoadingDots from "@/components/reusable/loading";
 import ConfirmModal from "@/components/reusable/modal";
 import { variable } from "@/lib/variable";
+import PageTitle from "@/components/data/pageTitle";
 
 export default function DashboardPage() {
   const [deleteTarget, setDeleteTarget] = useState(null);
-  const [refreshTrigger, setRefreshTrigger] = useState(0); // Tambahkan trigger untuk refresh
-
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -47,7 +47,7 @@ export default function DashboardPage() {
       );
       setConfirmMessage("Data berhasil dihapus!");
       setConfirmType("success");
-      
+
       // Trigger refresh data setelah penghapusan berhasil
       setRefreshTrigger(prev => prev + 1);
     } catch (error) {
@@ -60,8 +60,20 @@ export default function DashboardPage() {
     }
   };
 
+  const categoryMap = {
+    all: "Seluruh Perwira",
+    pama: "Perwira Pertama - PAMA",
+    pamen: "Perwira Menengah - PAMEN",
+    pati: "Perwira Tinggi - PATI"
+  };
+
+  const pageTitle = categoryMap[category.toLowerCase()] || "Data Perwira";
+
+
   return (
-    <div className="p-6 space-y-6 relative">
+    <div className="p-1 space-y-6 relative">
+      {/* Page Title */}
+      <PageTitle title={`Data ${pageTitle}`} desc="Sistem Pensiun Angkatan Darat" />
       {/* Section Cards */}
       <CardsSection
         loading={loading}
@@ -132,8 +144,8 @@ export default function DashboardPage() {
           confirmType === "success"
             ? "Berhasil"
             : confirmType === "error"
-            ? "Error"
-            : "Konfirmasi"
+              ? "Error"
+              : "Konfirmasi"
         }
         message={confirmMessage}
         type={confirmType}

@@ -5,6 +5,7 @@ import Cards from "@/components/reusable/card";
 import Chart from "@/components/dashboard/chart";
 import Activities from "@/components/dashboard/Activities";
 import {variable} from "@/lib/variable";
+import PageTitle from "@/components/data/pageTitle";
 
 export default function Beranda() {
   const [chartData, setChartData] = useState([]);
@@ -105,6 +106,7 @@ export default function Beranda() {
 
   return (
     <div className="p-1 flex flex-col">
+      <PageTitle title="Dashboard Statistik" desc="Sistem Pensiun Angkatan Darat"/>
       <Cards cards={cards} />
       <div className="flex md:flex-row flex-col mt-3 gap-3">
         <Chart chartData={chartData} />
