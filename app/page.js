@@ -39,19 +39,19 @@ export default function Beranda() {
             jumlah: perwiraData.pama,
             label: "Letnan - Kapten",
             sub: "Jumlah Perwira Pertama",
-            iconUrl: "images/pama.png",
+            iconUrl: "images/perwira/letda.png",
           },
           {
             jumlah: perwiraData.pamen,
             label: "Mayor - Kolonel",
             sub: "Jumlah Perwira Menengah",
-            iconUrl: "/images/pamen.png",
+            iconUrl: "images/perwira/mayor.png",
           },
           {
             jumlah: perwiraData.pati,
             label: "Brigjen - Jendral",
             sub: "Jumlah Perwira Tinggi",
-            iconUrl: "images/pati.png",
+            iconUrl: "images/perwira/brigjen.png",
           },
           {
             jumlah: totalData.total,
