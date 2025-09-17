@@ -65,19 +65,19 @@ export default function CardsSection({ loading, setLoading }) {
             jumlah: pamaJumlah,
             label: "Letnan - Kapten",
             sub: "Jumlah Perwira Pertama",
-            iconUrl: "/images/pama.png",
+            iconUrl: "/images/perwira/letda.png",
           },
           {
             jumlah: pamenJumlah,
             label: "Mayor - Kolonel",
             sub: "Jumlah Perwira Menengah",
-            iconUrl: "/images/pamen.png",
+            iconUrl: "/images/perwira/mayor.png",
           },
           {
             jumlah: patiJumlah,
             label: "Brigjen - Jenderal",
             sub: "Jumlah Perwira Tinggi",
-            iconUrl: "/images/pati.png",
+            iconUrl: "/images/perwira/brigjen.png",
           },
           {
             jumlah: totalJumlah,
