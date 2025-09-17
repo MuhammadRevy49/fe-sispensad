@@ -14,24 +14,24 @@ export default function CardsSection({ loading, setLoading }) {
   const categoryMap = {
     pati: {
       ranks: [
-        { name: "brigjen", icon: "/images/pati/brigjen.png" },
-        { name: "letjen", icon: "/images/pati/letjen.png" },
-        { name: "mayjen", icon: "/images/pati/mayjen.png" },
-        { name: "jenderal", icon: "/images/pati/jenderal.png" },
+        { name: "brigjen", icon: "/images/perwira/brigjen.png" },
+        { name: "letjen", icon: "/images/perwira/letjen.png" },
+        { name: "mayjen", icon: "/images/perwira/mayjen.png" },
+        { name: "jenderal", icon: "/images/perwira/jenderal.png" },
       ],
     },
     pamen: {
       ranks: [
-        { name: "mayor", icon: "/images/pamen/mayor.png" },
-        { name: "letkol", icon: "/images/pamen/letkol.png" },
-        { name: "kolonel", icon: "/images/pamen/kolonel.png" },
+        { name: "mayor", icon: "/images/perwira/mayor.png" },
+        { name: "letkol", icon: "/images/perwira/letkol.png" },
+        { name: "kolonel", icon: "/images/perwira/kolonel.png" },
       ],
     },
     pama: {
       ranks: [
-        { name: "letda", icon: "/images/pama/letda.png" },
-        { name: "lettu", icon: "/images/pama/lettu.png" },
-        { name: "kapten", icon: "/images/pama/kapten.png" },
+        { name: "letda", icon: "/images/perwira/letda.png" },
+        { name: "lettu", icon: "/images/perwira/lettu.png" },
+        { name: "kapten", icon: "/images/perwira/kapten.png" },
       ],
     },
   };

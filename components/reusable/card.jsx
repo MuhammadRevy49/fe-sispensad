@@ -44,11 +44,17 @@ export default function Cards({ cards }) {
         >
           <div className="p-3 bg-gray-100 shadow rounded-[5px] flex flex-row items-center gap-3">
             <div className="w-12 h-12 flex items-center justify-center">
-              <img
-                src={card.iconUrl}
-                alt={card.label}
-                className="w-8 h-auto object-contain"
-              />
+              <div
+                className={`p-1 rounded ${
+                  card.iconUrl === "/images/tni.png" ? "bg-gray-100" : "bg-red-700"
+                }`}
+              >
+                <img
+                  src={card.iconUrl}
+                  alt={card.label}
+                  className="w-8 h-auto object-contain"
+                />
+              </div>
             </div>
             <div>
               <p className="text-lg font-bold text-[var(--foreground)]">
