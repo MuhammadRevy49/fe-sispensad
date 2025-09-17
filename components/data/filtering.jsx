@@ -62,9 +62,9 @@ export default function Filtering({
         <input
           value={localSearch}
           onChange={(e) => setLocalSearch(e.target.value)}
-          className="text-sm p-2 bg-white border border-gray-300 rounded-lg w-80"
+          className="text-sm p-2 bg-white border border-gray-300 rounded-lg w-80 focus:outline-2 focus:outline-green-800 focus:ring-1 focus:ring-green-500 transition-all"
           type="text"
-          placeholder="Masukkan Nama Perwira"
+          placeholder="Cari Nama / Nrp disini..."
         />
 
         <Dropdown
