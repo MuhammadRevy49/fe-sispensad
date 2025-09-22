@@ -117,12 +117,12 @@ export default function Sidebar({ children }) {
     { name: "Users", icon: <UserCog />, href: "/users" },
   ];
 
-
-
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen overflow-x-auto">
       {/* Sidebar */}
       <aside
+        onMouseEnter={() => setIsSidebarOpen(true)}
+        onMouseLeave={() => setIsSidebarOpen(false)}
         className={`bg-[var(--background)] shadow-xl flex-col transition-all duration-300 overflow-hidden hidden md:flex
           ${isSidebarOpen ? "w-64" : "w-20"}`}
       >
@@ -142,9 +142,8 @@ export default function Sidebar({ children }) {
           </span>
         </div>
 
-
         {/* Menu */}
-        <nav className="flex-1 p-3 space-y-2 overflow-y-auto">
+        <nav className="flex-1 p-3 space-y-2 overflow-hidden">
           {menuItems.map((item) => {
             if (item.isDropdown) {
               const isOpen = openDropdown === item.name;
@@ -162,10 +161,10 @@ export default function Sidebar({ children }) {
               return (
                 <div key={item.name}>
                   <div
-                    className={`flex items-center justify-between px-4 py-2 text-sm rounded-lg transition whitespace-nowrap
+                    className={`flex items-center justify-between px-4 py-2 rounded-lg text-sm transition whitespace-nowrap
             ${
               isParentActive
-                ? "bg-white text-[var(--armycolor)] shadow-lg border-l-2 border-[var(--armycolor)]"
+                ? "bg-[var(--armycolor)] text-[var(--background)]"
                 : "hover:bg-[var(--armycolor)]/20 hover:text-[var(--armycolor)]"
             }`}
                   >
@@ -217,7 +216,7 @@ export default function Sidebar({ children }) {
                             className={`flex ml-4 items-center gap-3 px-4 py-2 rounded-lg transition text-sm
                     ${
                       isActive
-                        ? "bg-[var(--background)] text-[var(--armycolor)] shadow-lg border-l-2 border-[var(--armycolor)]"
+                        ? "bg-[var(--armycolor)] text-[var(--background)]"
                         : "hover:bg-[var(--armyhover)]/20 hover:text-[var(--armycolor)]"
                     }`}
                           >
@@ -234,6 +233,8 @@ export default function Sidebar({ children }) {
             }
 
             // menu biasa
+            const isActive = pathname === item.href;
+
             return (
               <Link
                 key={item.name}
@@ -241,8 +242,8 @@ export default function Sidebar({ children }) {
                 prefetch={false}
                 className={`flex items-center gap-3 px-4 py-2 rounded-lg transition text-sm
         ${
-          pathname === item.href
-            ? "bg-white text-[var(--armycolor)] shadow-lg border-l-2 border-[var(--armycolor)]"
+          isActive
+            ? "bg-[var(--armycolor)] text-[var(--background)]"
             : "hover:bg-[var(--armycolor)]/20 hover:text-[var(--armycolor)]"
         }`}
               >

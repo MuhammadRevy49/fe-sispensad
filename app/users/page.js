@@ -8,6 +8,7 @@ import ConfirmModal from "@/components/reusable/modal";
 import { useRouter } from "next/navigation";
 import RequireAdminModal from "@/lib/checkAdmin"; // 🔥
 import { variable } from "@/lib/variable";
+import PageTitle from "@/components/reusable/pageTitle";
 
 function ConfirmDeleteModal({ isOpen, onClose, user, onConfirm }) {
   return (
@@ -142,14 +143,7 @@ export default function UsersPage() {
   return (
     <RequireAdminModal>
       <div className="bg-gray-50 px-1 pt-1 pb-5 overflow-y-hidden">
-        <div className="mb-1">
-          <h1 className="text-md font-semibold text-gray-800">
-            User Management
-          </h1>
-          <p className="text-gray-500 text-sm">
-            Kelola pengguna dan lihat aktivitas mereka
-          </p>
-        </div>
+        <PageTitle title="User Management" desc="Kelola pengguna dan lihat aktivitas mereka"/>
 
         <div className="flex flex-col lg:flex-row gap-6">
           <div className="flex-1">

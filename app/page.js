@@ -5,6 +5,7 @@ import Cards from "@/components/reusable/card";
 import Chart from "@/components/dashboard/chart";
 import Activities from "@/components/dashboard/Activities";
 import {variable} from "@/lib/variable";
+import PageTitle from "@/components/reusable/pageTitle";
 
 export default function Beranda() {
   const [chartData, setChartData] = useState([]);
@@ -38,19 +39,19 @@ export default function Beranda() {
             jumlah: perwiraData.pama,
             label: "Letnan - Kapten",
             sub: "Jumlah Perwira Pertama",
-            iconUrl: "images/pama.png",
+            iconUrl: "images/perwira/letda.png",
           },
           {
             jumlah: perwiraData.pamen,
             label: "Mayor - Kolonel",
             sub: "Jumlah Perwira Menengah",
-            iconUrl: "/images/pamen.png",
+            iconUrl: "images/perwira/mayor.png",
           },
           {
             jumlah: perwiraData.pati,
             label: "Brigjen - Jendral",
             sub: "Jumlah Perwira Tinggi",
-            iconUrl: "images/pati.png",
+            iconUrl: "images/perwira/brigjen.png",
           },
           {
             jumlah: totalData.total,
@@ -105,6 +106,7 @@ export default function Beranda() {
 
   return (
     <div className="p-1 flex flex-col">
+      <PageTitle title="Dashboard Statistik" desc="Sistem Pensiun Angkatan Darat"/>
       <Cards cards={cards} />
       <div className="flex md:flex-row flex-col mt-3 gap-3">
         <Chart chartData={chartData} />

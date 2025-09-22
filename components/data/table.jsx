@@ -36,7 +36,17 @@ export default function TableSection({
       params.append("page", page);
       params.append("limit", limit);
       if (filterPangkat !== "Semua") params.append("pangkat", filterPangkat);
-      if (search) params.append("nama", search);
+      if (search) {
+        // cek apakah input hanya digit
+        const isNumericString = /^\d+$/.test(search);
+
+        if (isNumericString) {
+          // kirim sebagai string, bukan number
+          params.append("nrp", search);
+        } else {
+          params.append("nama", search);
+        }
+      }
 
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_URL}${variable.personil}?${params.toString()}`,
@@ -95,13 +105,17 @@ export default function TableSection({
     setIsExporting(true);
     try {
       const token = localStorage.getItem("token");
-      
+
       // Tambahkan parameter filter ke ekspor
       const params = new URLSearchParams();
       params.append("group", group);
       if (filterPangkat !== "Semua") params.append("pangkat", filterPangkat);
-      if (search) params.append("nama", search);
-      
+      if (search) {
+        params.append("nama", search);
+        params.append("NRP", search);
+      }
+
+
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_URL}${variable.export}?${params.toString()}`,
         {
