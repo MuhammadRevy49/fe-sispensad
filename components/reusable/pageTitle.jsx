@@ -2,7 +2,7 @@
 
 export default function PageTitle({ title, desc }) {
     return (
-        <div className="mb-3">
+        <div className="mb-5">
             <h1 className="text-md text-[var(--textgraybold)]">
                 {title}
             </h1>

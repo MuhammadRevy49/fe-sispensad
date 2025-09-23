@@ -5,7 +5,7 @@ import Cards from "@/components/reusable/card";
 import Chart from "@/components/dashboard/chart";
 import Activities from "@/components/dashboard/Activities";
 import {variable} from "@/lib/variable";
-import PageTitle from "@/components/data/pageTitle";
+import PageTitle from "@/components/reusable/pageTitle";
 
 export default function Beranda() {
   const [chartData, setChartData] = useState([]);

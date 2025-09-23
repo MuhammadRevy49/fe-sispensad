@@ -7,7 +7,7 @@ import TableSection from "@/components/data/table";
 import LoadingDots from "@/components/reusable/loading";
 import ConfirmModal from "@/components/reusable/modal";
 import { variable } from "@/lib/variable";
-import PageTitle from "@/components/data/pageTitle";
+import PageTitle from "@/components/reusable/pageTitle";
 
 export default function DashboardPage() {
   const [deleteTarget, setDeleteTarget] = useState(null);

@@ -8,7 +8,7 @@ import ConfirmModal from "@/components/reusable/modal";
 import { useRouter } from "next/navigation";
 import RequireAdminModal from "@/lib/checkAdmin"; // 🔥
 import { variable } from "@/lib/variable";
-import PageTitle from "@/components/data/pageTitle";
+import PageTitle from "@/components/reusable/pageTitle";
 
 function ConfirmDeleteModal({ isOpen, onClose, user, onConfirm }) {
   return (
