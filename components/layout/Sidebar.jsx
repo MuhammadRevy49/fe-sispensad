@@ -17,7 +17,7 @@ import { variable } from "@/lib/variable";
 export default function Sidebar({ children }) {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
+
 
   const [user, setUser] = useState(null);
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -76,7 +76,7 @@ export default function Sidebar({ children }) {
   if (!showSidebar) {
     return <>{children}</>;
   }
-
+  const searchParams = useSearchParams();
   const currentCategory = searchParams.get("category");
 
   const menuItems = [
