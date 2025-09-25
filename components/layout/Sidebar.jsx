@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import {
@@ -14,6 +14,15 @@ import {
 import Navbar from "./Navbar";
 import { variable } from "@/lib/variable";
 
+function CategoryDetector({ setCategory }) {
+  const params = useSearchParams();
+  const category = params.get("category");
+  useEffect(() => {
+    setCategory(category);
+  }, [category, setCategory]);
+  return null;
+}
+
 export default function Sidebar({ children }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -21,6 +30,7 @@ export default function Sidebar({ children }) {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [currentCategory, setCurrentCategory] = useState(null);
 
   // cek apakah sidebar ditampilkan
   const sidebarPaths = ["/", "/perwira", "/warakawuri", "/users"];
@@ -75,13 +85,6 @@ export default function Sidebar({ children }) {
     return <>{children}</>;
   }
 
-  let currentCategory = null;
-
-  if (showSidebar) {
-    const params = useSearchParams();
-    currentCategory = params.get("category");
-  }
-
   const menuItems = [
     { name: "Dashboard", icon: <LayoutGrid />, href: "/" },
     {
@@ -89,26 +92,10 @@ export default function Sidebar({ children }) {
       icon: <Users />,
       isDropdown: true,
       subMenu: [
-        {
-          name: "Keseluruhan Perwira",
-          href: "/perwira?category=all",
-          category: "all",
-        },
-        {
-          name: "Perwira Pertama",
-          href: "/perwira?category=pama",
-          category: "pama",
-        },
-        {
-          name: "Perwira Menengah",
-          href: "/perwira?category=pamen",
-          category: "pamen",
-        },
-        {
-          name: "Perwira Tinggi",
-          href: "/perwira?category=pati",
-          category: "pati",
-        },
+        { name: "Keseluruhan Perwira", href: "/perwira?category=all", category: "all" },
+        { name: "Perwira Pertama", href: "/perwira?category=pama", category: "pama" },
+        { name: "Perwira Menengah", href: "/perwira?category=pamen", category: "pamen" },
+        { name: "Perwira Tinggi", href: "/perwira?category=pati", category: "pati" },
       ],
     },
     {
@@ -145,13 +132,16 @@ export default function Sidebar({ children }) {
           </span>
         </div>
 
+        {/* Suspense hanya jalan kalau showSidebar */}
+        <Suspense fallback={null}>
+          <CategoryDetector setCategory={setCurrentCategory} />
+        </Suspense>
+
         {/* Menu */}
         <nav className="flex-1 p-3 space-y-2 overflow-hidden">
           {menuItems.map((item) => {
             if (item.isDropdown) {
               const isOpen = openDropdown === item.name;
-
-              // cek apakah ada subMenu aktif
               const isParentActive = item.subMenu.some((sub) => {
                 return (
                   (pathname === "/perwira" &&
@@ -165,14 +155,16 @@ export default function Sidebar({ children }) {
                 <div key={item.name}>
                   <div
                     className={`flex items-center justify-between px-4 py-2 rounded-lg text-sm transition whitespace-nowrap
-            ${
-              isParentActive
-                ? "bg-[var(--armycolor)] text-[var(--background)]"
-                : "hover:bg-[var(--armycolor)]/20 hover:text-[var(--armycolor)]"
-            }`}
+                      ${
+                        isParentActive
+                          ? "bg-[var(--armycolor)] text-[var(--background)]"
+                          : "hover:bg-[var(--armycolor)]/20 hover:text-[var(--armycolor)]"
+                      }`}
                   >
                     <button
-                      onClick={() => setOpenDropdown(isOpen ? null : item.name)}
+                      onClick={() =>
+                        setOpenDropdown(isOpen ? null : item.name)
+                      }
                       className="flex items-center gap-3 flex-1 text-left"
                     >
                       <span className="text-lg shrink-0">{item.icon}</span>
@@ -217,11 +209,11 @@ export default function Sidebar({ children }) {
                             href={sub.href}
                             prefetch={false}
                             className={`flex ml-4 items-center gap-3 px-4 py-2 rounded-lg transition text-sm
-                    ${
-                      isActive
-                        ? "bg-[var(--armycolor)] text-[var(--background)]"
-                        : "hover:bg-[var(--armyhover)]/20 hover:text-[var(--armycolor)]"
-                    }`}
+                              ${
+                                isActive
+                                  ? "bg-[var(--armycolor)] text-[var(--background)]"
+                                  : "hover:bg-[var(--armyhover)]/20 hover:text-[var(--armycolor)]"
+                              }`}
                           >
                             <span className="font-medium whitespace-nowrap">
                               {sub.name}
@@ -235,7 +227,6 @@ export default function Sidebar({ children }) {
               );
             }
 
-            // menu biasa
             const isActive = pathname === item.href;
 
             return (
@@ -244,11 +235,11 @@ export default function Sidebar({ children }) {
                 href={item.href}
                 prefetch={false}
                 className={`flex items-center gap-3 px-4 py-2 rounded-lg transition text-sm
-        ${
-          isActive
-            ? "bg-[var(--armycolor)] text-[var(--background)]"
-            : "hover:bg-[var(--armycolor)]/20 hover:text-[var(--armycolor)]"
-        }`}
+                  ${
+                    isActive
+                      ? "bg-[var(--armycolor)] text-[var(--background)]"
+                      : "hover:bg-[var(--armycolor)]/20 hover:text-[var(--armycolor)]"
+                  }`}
               >
                 <span className="text-lg shrink-0">{item.icon}</span>
                 <span
