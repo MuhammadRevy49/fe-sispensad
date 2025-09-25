@@ -17,8 +17,6 @@ import { variable } from "@/lib/variable";
 export default function Sidebar({ children }) {
   const router = useRouter();
   const pathname = usePathname();
-
-
   const [user, setUser] = useState(null);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -76,8 +74,13 @@ export default function Sidebar({ children }) {
   if (!showSidebar) {
     return <>{children}</>;
   }
-  const searchParams = useSearchParams();
-  const currentCategory = searchParams.get("category");
+
+  let currentCategory = null;
+
+  if (showSidebar) {
+    const params = useSearchParams();
+    currentCategory = params.get("category");
+  }
 
   const menuItems = [
     { name: "Dashboard", icon: <LayoutGrid />, href: "/" },
