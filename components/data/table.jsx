@@ -1,10 +1,59 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import ActionDropdown from "./ActionDropdown";
 import Filtering from "./filtering";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { variable } from "@/lib/variable";
+
+function TableActionCell({ soldier, menuOpenId, setMenuOpenId, handleEdit, handleDelete }) {
+  const btnRef = useRef(null);
+  return (
+    <td className="px-4 py-3 border-t border-gray-300 relative" style={{ minWidth: '60px' }}>
+      <button
+        ref={btnRef}
+        onClick={(e) => {
+          e.stopPropagation();
+          setMenuOpenId(menuOpenId === soldier.id ? null : soldier.id);
+        }}
+        className="px-2 py-1 text-sm font-bold"
+        style={{ position: 'relative', zIndex: 2 }}
+      >
+        ⋮
+      </button>
+      <ActionDropdown
+        open={menuOpenId === soldier.id}
+        anchorRef={btnRef}
+        onClose={() => setMenuOpenId(null)}
+        actions={[
+          {
+            label: "Edit",
+            onClick: (e) => {
+              e.stopPropagation();
+              handleEdit(soldier);
+              setMenuOpenId(null);
+            },
+            color: "text-[var(--armycolor)]",
+            hover: "hover:bg-[var(--armycolor)]/10",
+            rounded: "rounded-t-lg"
+          },
+          {
+            label: "Hapus",
+            onClick: (e) => {
+              e.stopPropagation();
+              handleDelete(soldier);
+              setMenuOpenId(null);
+            },
+            color: "text-red-600",
+            hover: "hover:bg-red-100",
+            rounded: "rounded-b-lg"
+          }
+        ]}
+      />
+    </td>
+  );
+}
 
 export default function TableSection({
   page,
@@ -175,20 +224,30 @@ export default function TableSection({
         onSearch={handleSearch}
       />
 
-      <div className="overflow-x-auto bg-white rounded-lg shadow relative">
+      <div
+        className={`overflow-x-auto bg-white rounded-lg shadow relative ${displayData.length > 10 ? 'overflow-y-auto' : ''}`}
+        style={displayData.length > 10 ? { maxHeight: '600px' } : {}}
+      >
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="divide-y divide-gray-300">
-              {["No", "Nama Prajurit", "Pangkat", "NRP", "TTL", "TMT TNI", "Kesatuan", ""].map(
-                (header, idx) => (
-                  <th
-                    key={idx}
-                    className="px-3 py-3 text-xs text-gray-700 border-b border-gray-300"
-                  >
-                    {header}
-                  </th>
-                )
-              )}
+              {[
+                "No",
+                "Nama Prajurit",
+                "Pangkat",
+                "NRP",
+                "TTL",
+                "TMT TNI",
+                "Kesatuan",
+                "",
+              ].map((header, idx) => (
+                <th
+                  key={idx}
+                  className="px-3 py-3 text-xs text-gray-700 border-b border-gray-300"
+                >
+                  {header}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
@@ -200,7 +259,7 @@ export default function TableSection({
               </tr>
             ) : (
               displayData.map((soldier) => (
-                <tr key={soldier.id} className="hover:bg-gray-50 relative">
+                <tr key={soldier.id} className="hover:bg-gray-50 relative text-sm">
                   <td className="px-4 py-3 border-t border-gray-300">{soldier.no}</td>
                   <td className="px-4 py-3 border-t border-gray-300">{soldier.NAMA}</td>
                   <td className="px-4 py-3 border-t border-gray-300">{soldier.PANGKAT}</td>
@@ -208,42 +267,13 @@ export default function TableSection({
                   <td className="px-4 py-3 border-t border-gray-300">{soldier.TTL}</td>
                   <td className="px-4 py-3 border-t border-gray-300">{soldier.TMT_TNI}</td>
                   <td className="px-4 py-3 border-t border-gray-300">{soldier.KESATUAN}</td>
-                  <td className="px-4 py-3 border-t border-gray-300 relative">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setMenuOpenId(menuOpenId === soldier.id ? null : soldier.id);
-                      }}
-                      className="px-2 py-1 text-sm font-bold"
-                    >
-                      ⋮
-                    </button>
-
-                    {menuOpenId === soldier.id && (
-                      <div className="absolute z-50 right-8 top-8 bg-white border border-gray-200 rounded-lg shadow-lg flex flex-col w-32">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEdit(soldier);
-                            setMenuOpenId(null);
-                          }}
-                          className="px-4 py-2 text-sm text-[var(--armycolor)] hover:bg-[var(--armycolor)]/10 rounded-t-lg text-left"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDelete(soldier);
-                            setMenuOpenId(null);
-                          }}
-                          className="px-4 py-2 text-sm text-red-600 hover:bg-red-100 rounded-b-lg text-left"
-                        >
-                          Hapus
-                        </button>
-                      </div>
-                    )}
-                  </td>
+                  <TableActionCell
+                    soldier={soldier}
+                    menuOpenId={menuOpenId}
+                    setMenuOpenId={setMenuOpenId}
+                    handleEdit={handleEdit}
+                    handleDelete={handleDelete}
+                  />
                 </tr>
               ))
             )}

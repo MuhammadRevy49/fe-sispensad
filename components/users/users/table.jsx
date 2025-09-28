@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { User, ShieldUser } from "lucide-react";
+import { createPortal } from "react-dom";
 
 export default function UserTableBody({ users, isLoading, selectedUser, handleSelectUser, handleEdit, handleDelete }) {
   const [menuOpenId, setMenuOpenId] = useState(null);
@@ -21,7 +22,7 @@ export default function UserTableBody({ users, isLoading, selectedUser, handleSe
       <div className="overflow-y-scroll h-[300px] overflow-x-auto" ref={tableRef}>
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="divide-y divide-gray-300 sticky top-0 z-10">
+            <tr className="bg-white divide-y divide-gray-300 sticky top-0 z-10">
               <th className="px-4 py-3 text-xs text-gray-700 border-b border-gray-300">User</th>
               <th className="px-4 py-3 text-xs text-gray-700 border-b border-gray-300">Email</th>
               <th className="px-4 py-3 text-xs text-gray-700 border-b border-gray-300">Role</th>
@@ -42,7 +43,8 @@ export default function UserTableBody({ users, isLoading, selectedUser, handleSe
             ) : users.length > 0 ? (
               users.map((user) => {
                 const isSelected = selectedUser?.id === user.id;
-
+                // Gunakan ref untuk tombol action agar dropdown pakai portal
+                const btnRef = useRef(null);
                 return (
                   <tr
                     key={user.id}
@@ -87,26 +89,40 @@ export default function UserTableBody({ users, isLoading, selectedUser, handleSe
                     </td>
 
                     {/* Aksi */}
-                    <td className="px-4 py-3 text-center relative">
+                    <td className="px-4 py-3 text-center relative" style={{ minWidth: '60px' }}>
                       <button
+                        ref={btnRef}
                         onClick={(e) => {
                           e.stopPropagation();
                           setMenuOpenId(menuOpenId === user.id ? null : user.id);
                         }}
                         className="px-2 py-1 text-sm font-bold hover:bg-gray-100 rounded-full transition-colors"
+                        style={{ position: 'relative', zIndex: 2 }}
                       >
                         ⋮
                       </button>
-
-                      {menuOpenId === user.id && (
-                        <div className="absolute z-50 right-8 top-8 bg-white border border-gray-200 rounded-lg shadow-lg flex flex-col w-32">
+                      {menuOpenId === user.id && btnRef.current && createPortal(
+                        <div
+                          style={{
+                            position: "absolute",
+                            top: btnRef.current.getBoundingClientRect().bottom + window.scrollY,
+                            left: btnRef.current.getBoundingClientRect().left + window.scrollX,
+                            zIndex: 99999,
+                            background: "white",
+                            border: "1px solid #e5e7eb",
+                            borderRadius: "0.5rem",
+                            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                            width: "8rem",
+                          }}
+                          onClick={e => e.stopPropagation()}
+                        >
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               handleEdit(user);
                               setMenuOpenId(null);
                             }}
-                            className="px-4 py-2 text-sm text-[var(--armycolor)] hover:bg-[var(--armycolor)]/10 rounded-t-lg text-left"
+                            className="px-4 py-2 text-sm text-[var(--armycolor)] hover:bg-[var(--armycolor)]/10 rounded-t-lg text-left w-full"
                           >
                             Edit
                           </button>
@@ -116,11 +132,12 @@ export default function UserTableBody({ users, isLoading, selectedUser, handleSe
                               handleDelete(user);
                               setMenuOpenId(null);
                             }}
-                            className="px-4 py-2 text-sm text-red-600 hover:bg-red-100 rounded-b-lg text-left"
+                            className="px-4 py-2 text-sm text-red-600 hover:bg-red-100 rounded-b-lg text-left w-full"
                           >
                             Hapus
                           </button>
-                        </div>
+                        </div>,
+                        document.body
                       )}
                     </td>
                   </tr>
