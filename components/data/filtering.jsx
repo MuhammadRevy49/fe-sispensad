@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Dropdown from "@/components/reusable/dropdown";
 import { Download, Upload, Plus } from "lucide-react";
@@ -45,9 +45,15 @@ export default function Filtering({
     "Mayor",
   ];
 
+
   // State lokal untuk input sementara
   const [localSearch, setLocalSearch] = useState(search);
-  const [localFilter, setLocalFilter] = useState(filterPangkat);
+  const [localFilter, setLocalFilter] = useState(pangkatOptions[0] || "Semua");
+
+  // Reset filter pangkat saat group/category berubah
+  useEffect(() => {
+    setLocalFilter(pangkatOptions[0] || "Semua");
+  }, [group]);
 
   const handleSearchSubmit = () => {
     setSearch(localSearch);

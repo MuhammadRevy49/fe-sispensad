@@ -56,7 +56,6 @@ export default function Register() {
         return;
       }
 
-      localStorage.setItem("token", data.token);
       router.push("/");
     } catch (err) {
       console.error(err);
