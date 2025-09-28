@@ -225,31 +225,31 @@ export default function TableSection({
       />
 
       <div
-        className={`overflow-x-auto bg-white rounded-lg shadow relative ${displayData.length > 10 ? 'overflow-y-auto' : ''}`}
-        style={displayData.length > 10 ? { maxHeight: '600px' } : {}}
+          className={`overflow-x-auto bg-white rounded-lg shadow relative ${displayData.length > 10 ? 'overflow-y-auto' : ''}`}
+          style={displayData.length > 10 ? { maxHeight: '600px' } : {}}
       >
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="divide-y divide-gray-300">
-              {[
-                "No",
-                "Nama Prajurit",
-                "Pangkat",
-                "NRP",
-                "TTL",
-                "TMT TNI",
-                "Kesatuan",
-                "",
-              ].map((header, idx) => (
-                <th
-                  key={idx}
-                  className="px-3 py-3 text-xs text-gray-700 border-b border-gray-300"
-                >
-                  {header}
-                </th>
-              ))}
-            </tr>
-          </thead>
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="divide-y divide-gray-300">
+                {[
+                  "No",
+                  "Nama Prajurit",
+                  "Pangkat",
+                  "NRP",
+                  "TTL",
+                  "TMT TNI",
+                  "Kesatuan",
+                  "",
+                ].map((header, idx) => (
+                  <th
+                    key={idx}
+                    className="px-3 py-3 text-xs text-gray-700 border-b border-gray-300 bg-white sticky top-0 z-10"
+                  >
+                    {header}
+                  </th>
+                ))}
+              </tr>
+            </thead>
           <tbody>
             {displayData.length === 0 ? (
               <tr>

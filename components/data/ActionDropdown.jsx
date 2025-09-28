@@ -11,7 +11,11 @@ export default function ActionDropdown({ open, anchorRef, actions = [], onClose 
     function updatePos() {
       if (open && anchorRef?.current) {
         const rect = anchorRef.current.getBoundingClientRect();
-        setPos({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX });
+        // Geser dropdown ke kiri agar tidak terpotong
+        setPos({
+          top: rect.bottom + window.scrollY,
+          left: rect.left + window.scrollX - 110 // geser 120px ke kiri
+        });
       }
     }
     if (open) {
