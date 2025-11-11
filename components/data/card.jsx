@@ -63,27 +63,27 @@ export default function CardsSection({ loading, setLoading }) {
         formattedCards = [
           {
             jumlah: pamaJumlah,
-            label: "Letnan - Kapten",
-            sub: "Jumlah Perwira Pertama",
-            iconUrl: "/images/perwira/letda.png",
-          },
-          {
-            jumlah: pamenJumlah,
-            label: "Mayor - Kolonel",
-            sub: "Jumlah Perwira Menengah",
-            iconUrl: "/images/perwira/mayor.png",
-          },
-          {
-            jumlah: patiJumlah,
-            label: "Brigjen - Jenderal",
-            sub: "Jumlah Perwira Tinggi",
+            label: "Brigjen",
+            sub: "Jumlah Brigadir Jenderal",
             iconUrl: "/images/perwira/brigjen.png",
           },
           {
+            jumlah: pamenJumlah,
+            label: "Mayjen",
+            sub: "Jumlah Mayor Jenderal",
+            iconUrl: "/images/perwira/mayjen.png",
+          },
+          {
+            jumlah: patiJumlah,
+            label: "Letjen",
+            sub: "Jumlah Letnan Jenderal",
+            iconUrl: "/images/perwira/letjen.png",
+          },
+          {
             jumlah: totalJumlah,
-            label: "Total Prajurit",
-            sub: "Seluruh Prajurit",
-            iconUrl: "/images/tni.png",
+            label: "Jenderal",
+            sub: "Jumlah Jenderal",
+            iconUrl: "/images/perwira/jenderal.png",
           },
         ];
       } else if (categoryFilter in categoryMap) {

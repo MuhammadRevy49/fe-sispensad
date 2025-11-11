@@ -6,10 +6,10 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import {
   LayoutGrid,
   Users,
-  UserCog,
-  ChevronDown,
-  ChevronUp,
-  Venus,
+  ClipboardList,
+  Calculator,
+  FileText,
+  Settings,
 } from "lucide-react";
 import Navbar from "./Navbar";
 import { variable } from "@/lib/variable";
@@ -27,13 +27,11 @@ export default function Sidebar({ children }) {
   const router = useRouter();
   const pathname = usePathname();
   const [user, setUser] = useState(null);
-  const [openDropdown, setOpenDropdown] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [currentCategory, setCurrentCategory] = useState(null);
 
-  // cek apakah sidebar ditampilkan
-  const sidebarPaths = ["/", "/perwira", "/warakawuri", "/users"];
+  // Path yang pakai sidebar
+  const sidebarPaths = ["/", "/perwira", "/peninjauan", "/perhitungan", "/generator", "/pengaturan"];
   const showSidebar = pathname && sidebarPaths.includes(pathname);
 
   useEffect(() => {
@@ -85,27 +83,17 @@ export default function Sidebar({ children }) {
     return <>{children}</>;
   }
 
-  const menuItems = [
+  // Menu utama
+  const mainMenu = [
     { name: "Dashboard", icon: <LayoutGrid />, href: "/" },
-    {
-      name: "Data Perwira",
-      icon: <Users />,
-      isDropdown: true,
-      subMenu: [
-        { name: "Keseluruhan Perwira", href: "/perwira?category=all", category: "all" },
-        { name: "Perwira Pertama", href: "/perwira?category=pama", category: "pama" },
-        { name: "Perwira Menengah", href: "/perwira?category=pamen", category: "pamen" },
-        { name: "Perwira Tinggi", href: "/perwira?category=pati", category: "pati" },
-      ],
-    },
-    {
-      name: "Data Warakawuri",
-      icon: <Venus />,
-      isDropdown: true,
-      subMenu: [{ name: "Warakawuri", href: "/warakawuri" }],
-    },
-    { name: "Users", icon: <UserCog />, href: "/users" },
+    { name: "Data Perwira", icon: <Users />, href: "/perwira" },
+    { name: "Peninjauan", icon: <ClipboardList />, href: "/peninjauan" },
+    { name: "Perhitungan", icon: <Calculator />, href: "/perhitungan" },
+    { name: "Generator", icon: <FileText />, href: "/generator" },
   ];
+
+  // Menu bawah (Pengaturan)
+  const bottomMenu = { name: "Pengaturan", icon: <Settings />, href: "/pengaturan" };
 
   return (
     <div className="flex h-screen overflow-x-auto">
@@ -113,146 +101,82 @@ export default function Sidebar({ children }) {
       <aside
         onMouseEnter={() => setIsSidebarOpen(true)}
         onMouseLeave={() => setIsSidebarOpen(false)}
-        className={`bg-[var(--background)] shadow-xl flex-col transition-all duration-300 overflow-hidden hidden md:flex
+        className={`bg-[var(--armycolor)] shadow-xl flex-col justify-between transition-all duration-300 overflow-hidden hidden md:flex
           ${isSidebarOpen ? "w-64" : "w-20"}`}
       >
         {/* Logo + Nama Aplikasi */}
-        <div className="flex items-center py-3 px-4">
-          <img
-            src="/images/logo1.png"
-            alt="Logo"
-            className="h-12 w-12 shrink-0"
-          />
-          <span
-            className={`text-xl font-bold transition-opacity duration-300 whitespace-nowrap ${
-              isSidebarOpen ? "opacity-100" : "opacity-0"
-            }`}
-          >
-            SispendAD
-          </span>
+        <div>
+          <div className="flex items-center py-3 px-4">
+            <img
+              src="/images/logo1.png"
+              alt="Logo"
+              className="h-12 w-12 shrink-0"
+            />
+            <span
+              className={`text-xl font-bold transition-opacity duration-300 whitespace-nowrap text-[var(--background)] ${
+                isSidebarOpen ? "opacity-100" : "opacity-0"
+              }`}
+            >
+              SispensAD
+            </span>
+          </div>
+
+          <Suspense fallback={null}>
+            <CategoryDetector setCategory={() => {}} />
+          </Suspense>
+
+          {/* Menu Utama */}
+          <nav className="flex flex-col flex-1 p-3 space-y-2 text-white">
+            {mainMenu.map((item) => {
+              const isActive = pathname === item.href;
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  prefetch={false}
+                  className={`flex items-center gap-3 px-4 py-2 rounded-lg transition text-sm
+                    ${
+                      isActive
+                        ? "bg-[var(--armyhover)] text-[var(--background)]"
+                        : "text-white hover:bg-[var(--armyhover)] hover:text-[var(--background)]"
+                    }`}
+                >
+                  <span className="text-lg shrink-0">{item.icon}</span>
+                  <span
+                    className={`font-medium transition-opacity duration-300 whitespace-nowrap ${
+                      isSidebarOpen ? "opacity-100" : "opacity-0"
+                    }`}
+                  >
+                    {item.name}
+                  </span>
+                </Link>
+              );
+            })}
+          </nav>
         </div>
 
-        {/* Suspense hanya jalan kalau showSidebar */}
-        <Suspense fallback={null}>
-          <CategoryDetector setCategory={setCurrentCategory} />
-        </Suspense>
-
-        {/* Menu */}
-        <nav className="flex-1 p-3 space-y-2 overflow-hidden">
-          {menuItems.map((item) => {
-            if (item.isDropdown) {
-              const isOpen = openDropdown === item.name;
-              const isParentActive = item.subMenu.some((sub) => {
-                return (
-                  (pathname === "/perwira" &&
-                    sub.category &&
-                    currentCategory === sub.category) ||
-                  pathname === sub.href
-                );
-              });
-
-              return (
-                <div key={item.name}>
-                  <div
-                    className={`flex items-center justify-between px-4 py-2 rounded-lg text-sm transition whitespace-nowrap
-                      ${
-                        isParentActive
-                          ? "bg-[var(--armycolor)] text-[var(--background)]"
-                          : "hover:bg-[var(--armycolor)]/20 hover:text-[var(--armycolor)]"
-                      }`}
-                  >
-                    <button
-                      onClick={() =>
-                        setOpenDropdown(isOpen ? null : item.name)
-                      }
-                      className="flex items-center gap-3 flex-1 text-left"
-                    >
-                      <span className="text-lg shrink-0">{item.icon}</span>
-                      <span
-                        className={`font-medium transition-opacity duration-300 whitespace-nowrap ${
-                          isSidebarOpen ? "opacity-100" : "opacity-0"
-                        }`}
-                      >
-                        {item.name}
-                      </span>
-                    </button>
-
-                    {isSidebarOpen && (
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setOpenDropdown(isOpen ? null : item.name)
-                        }
-                        className="p-1 rounded hover:opacity-70"
-                      >
-                        {isOpen ? (
-                          <ChevronUp size={16} />
-                        ) : (
-                          <ChevronDown size={16} />
-                        )}
-                      </button>
-                    )}
-                  </div>
-
-                  {isOpen && isSidebarOpen && (
-                    <div className="space-y-1 mt-1 rounded-lg">
-                      {item.subMenu.map((sub) => {
-                        const isActive =
-                          (pathname === "/perwira" &&
-                            sub.category &&
-                            currentCategory === sub.category) ||
-                          pathname === sub.href;
-
-                        return (
-                          <Link
-                            key={sub.name}
-                            href={sub.href}
-                            prefetch={false}
-                            className={`flex ml-4 items-center gap-3 px-4 py-2 rounded-lg transition text-sm
-                              ${
-                                isActive
-                                  ? "bg-[var(--armycolor)] text-[var(--background)]"
-                                  : "hover:bg-[var(--armyhover)]/20 hover:text-[var(--armycolor)]"
-                              }`}
-                          >
-                            <span className="font-medium whitespace-nowrap">
-                              {sub.name}
-                            </span>
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              );
-            }
-
-            const isActive = pathname === item.href;
-
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                prefetch={false}
-                className={`flex items-center gap-3 px-4 py-2 rounded-lg transition text-sm
-                  ${
-                    isActive
-                      ? "bg-[var(--armycolor)] text-[var(--background)]"
-                      : "hover:bg-[var(--armycolor)]/20 hover:text-[var(--armycolor)]"
-                  }`}
-              >
-                <span className="text-lg shrink-0">{item.icon}</span>
-                <span
-                  className={`font-medium transition-opacity duration-300 whitespace-nowrap ${
-                    isSidebarOpen ? "opacity-100" : "opacity-0"
-                  }`}
-                >
-                  {item.name}
-                </span>
-              </Link>
-            );
-          })}
-        </nav>
+        {/* Menu Bawah (Pengaturan) */}
+        <div className="p-3 border-t border-gray-600">
+          <Link
+            href={bottomMenu.href}
+            prefetch={false}
+            className={`flex items-center gap-3 px-4 py-2 rounded-lg transition text-sm
+              ${
+                pathname === bottomMenu.href
+                  ? "bg-[var(--armyhover)] text-[var(--background)]"
+                  : "text-white hover:bg-[var(--armyhover)] hover:text-[var(--background)]"
+              }`}
+          >
+            <span className="text-lg shrink-0">{bottomMenu.icon}</span>
+            <span
+              className={`font-medium transition-opacity duration-300 whitespace-nowrap ${
+                isSidebarOpen ? "opacity-100" : "opacity-0"
+              }`}
+            >
+              {bottomMenu.name}
+            </span>
+          </Link>
+        </div>
       </aside>
 
       {/* Main content */}

@@ -37,27 +37,27 @@ export default function Beranda() {
         const newCards = [
           {
             jumlah: perwiraData.pama,
-            label: "Letnan - Kapten",
-            sub: "Jumlah Perwira Pertama",
-            iconUrl: "images/perwira/letda.png",
-          },
-          {
-            jumlah: perwiraData.pamen,
-            label: "Mayor - Kolonel",
-            sub: "Jumlah Perwira Menengah",
-            iconUrl: "images/perwira/mayor.png",
-          },
-          {
-            jumlah: perwiraData.pati,
-            label: "Brigjen - Jendral",
-            sub: "Jumlah Perwira Tinggi",
+            label: "Brigjen",
+            sub: "Jumlah Brigadir Jenderal",
             iconUrl: "images/perwira/brigjen.png",
           },
           {
+            jumlah: perwiraData.pamen,
+            label: "Mayjen",
+            sub: "Jumlah Mayor Jenderal",
+            iconUrl: "images/perwira/mayjen.png",
+          },
+          {
+            jumlah: perwiraData.pati,
+            label: "Letjen",
+            sub: "Jumlah Letnan Jenderal",
+            iconUrl: "images/perwira/letjen.png",
+          },
+          {
             jumlah: totalData.total,
-            label: "Total Prajurit",
-            sub: "Seluruh Prajurit",
-            iconUrl: "/images/tni.png",
+            label: "Jenderal",
+            sub: "Jumlah Jenderal",
+            iconUrl: "/images/perwira/jenderal.png",
           },
         ];
 

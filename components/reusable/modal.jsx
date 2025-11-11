@@ -46,7 +46,7 @@ export default function ConfirmModal({
       break;
     default:
       icon = <CheckCircle size={72} className="text-green-500" />;
-      defaultColor = "bg-green-500";
+      defaultColor = "bg-green-600";
       break;
   }
 

@@ -61,7 +61,7 @@ export default function DashboardPage() {
   return (
     <div className="p-1 space-y-6 relative">
       {/* Page Title */}
-      <PageTitle title={`Data Perwira Tinggi`} desc="Sistem Pensiun Angkatan Darat" />
+      <PageTitle title={`Peninjauan Pensiun`} desc="Sistem Pensiun Angkatan Darat" />
       {/* Section Cards */}
       <CardsSection
         loading={loading}
@@ -82,7 +82,8 @@ export default function DashboardPage() {
         setConfirmOpen={setConfirmOpen}
         setConfirmType={setConfirmType}
         setDeleteTarget={setDeleteTarget}
-        refreshTrigger={refreshTrigger} // Kirim trigger ke TableSection
+        refreshTrigger={refreshTrigger}
+        showActions={false}
       />
 
       {/* Global Loading overlay */}

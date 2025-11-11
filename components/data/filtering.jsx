@@ -33,6 +33,7 @@ export default function Filtering({
   onImport,
   onExport,
   onAdd,
+  showActions = true,
 }) {
   const searchParams = useSearchParams();
   const rawGroup = searchParams.get("category") || "all";
@@ -45,12 +46,9 @@ export default function Filtering({
     "Mayor",
   ];
 
-
-  // State lokal untuk input sementara
   const [localSearch, setLocalSearch] = useState(search);
   const [localFilter, setLocalFilter] = useState(pangkatOptions[0] || "Semua");
 
-  // Reset filter pangkat saat group/category berubah
   useEffect(() => {
     setLocalFilter(pangkatOptions[0] || "Semua");
   }, [group]);
@@ -58,7 +56,7 @@ export default function Filtering({
   const handleSearchSubmit = () => {
     setSearch(localSearch);
     setFilterPangkat(localFilter);
-    setPage(1); // reset page saat search
+    setPage(1);
   };
 
   return (
@@ -80,7 +78,6 @@ export default function Filtering({
           placeholder="Filter Pangkat"
         />
 
-        {/* Tombol Submit Search */}
         <button
           type="button"
           onClick={handleSearchSubmit}
@@ -90,31 +87,33 @@ export default function Filtering({
         </button>
       </div>
 
-      {/* Bagian tombol Import, Export, Tambah */}
-      <div className="flex items-center gap-3">
-        <label className="text-sm p-2 border border-green-800 text-green-800 rounded-lg flex items-center hover:opacity-50 transition-all cursor-pointer">
-          <Download size={18} className="mr-1" /> Import
-          <input
-            type="file"
-            className="hidden"
-            onChange={(e) => onImport(e.target.files[0])}
-          />
-        </label>
+      {/* Bagian tombol Import, Export, Tambah (opsional) */}
+      {showActions && (
+        <div className="flex items-center gap-3">
+          <label className="text-sm p-2 border border-green-800 text-green-800 rounded-lg flex items-center hover:opacity-50 transition-all cursor-pointer">
+            <Download size={18} className="mr-1" /> Import
+            <input
+              type="file"
+              className="hidden"
+              onChange={(e) => onImport && onImport(e.target.files[0])}
+            />
+          </label>
 
-        <button
-          onClick={onExport}
-          className="text-sm p-2 border border-green-800 text-green-800 rounded-lg flex items-center hover:opacity-50 transition-all"
-        >
-          <Upload size={18} className="mr-1" /> Export
-        </button>
+          <button
+            onClick={onExport}
+            className="text-sm p-2 border border-green-800 text-green-800 rounded-lg flex items-center hover:opacity-50 hover:cursor-pointer transition-all"
+          >
+            <Upload size={18} className="mr-1" /> Export
+          </button>
 
-        <button
-          onClick={onAdd}
-          className="text-sm p-2 bg-[var(--armycolor)] text-white rounded-lg flex items-center hover:opacity-50 transition-all"
-        >
-          <Plus size={18} className="mr-1" /> Tambahkan Data
-        </button>
-      </div>
+          <button
+            onClick={onAdd}
+            className="text-sm p-2 bg-[var(--armycolor)] text-white rounded-lg flex items-center hover:opacity-50 hover:cursor-pointer transition-all"
+          >
+            <Plus size={18} className="mr-1" /> Tambahkan Data
+          </button>
+        </div>
+      )}
     </div>
   );
 }
