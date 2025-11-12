@@ -15,6 +15,17 @@ export default function DashboardPage() {
   const searchParams = useSearchParams();
 
   const category = searchParams.get("category") || "all";
+  let dataTitle = "";
+
+  if (category === "all") {
+    dataTitle = "Seluruh Perwira";
+  } else if (category === "pama") {
+    dataTitle = "Perwira Pertama";
+  } else if (category === "pamen") {
+    dataTitle = "Perwira Menengah";
+  } else if (category === "pati") {
+    dataTitle = "Perwira Tinggi";
+  }
 
   const [loading, setLoading] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
@@ -61,7 +72,7 @@ export default function DashboardPage() {
   return (
     <div className="p-1 space-y-6 relative">
       {/* Page Title */}
-      <PageTitle title={`Data Perwira Tinggi`} desc="Sistem Pensiun Angkatan Darat" />
+      <PageTitle title={`Data ${dataTitle}`} desc="Sistem Pensiun Angkatan Darat" />
       {/* Section Cards */}
       <CardsSection
         loading={loading}
