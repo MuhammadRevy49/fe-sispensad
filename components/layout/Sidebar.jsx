@@ -16,33 +16,28 @@ import {
 import Navbar from "./Navbar";
 import { variable } from "@/lib/variable";
 
-function CategoryDetector({ setCategory }) {
-  const params = useSearchParams();
-  const category = params.get("category");
-  useEffect(() => {
-    setCategory(category);
-  }, [category, setCategory]);
-  return null;
-}
-
 export default function Sidebar({ children }) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const category = searchParams?.get("category") || null;
+
   const [user, setUser] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [isPerwiraOpen, setIsPerwiraOpen] = useState(false); // submenu state
+  const [isPerwiraOpen, setIsPerwiraOpen] = useState(false);
 
-  // Path yang pakai sidebar
   const sidebarPaths = [
-    "/",
     "/perwira",
     "/peninjauan",
     "/perhitungan",
     "/generator",
     "/pengaturan",
   ];
-  const showSidebar = pathname && sidebarPaths.some((p) => pathname.startsWith(p));
+
+  const showSidebar =
+    pathname &&
+    (pathname === "/" || sidebarPaths.some((p) => pathname.startsWith(p)));
 
   useEffect(() => {
     if (!showSidebar) {
@@ -81,25 +76,6 @@ export default function Sidebar({ children }) {
     fetchUser();
   }, [pathname, router, showSidebar, loading]);
 
-  // Auto expand Data Perwira jika route aktif
-  useEffect(() => {
-    if (pathname.startsWith("/perwira")) {
-      setIsPerwiraOpen(true);
-    }
-  }, [pathname]);
-
-  if (loading) {
-    return (
-      <div className="w-full h-screen flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  if (!showSidebar) {
-    return <>{children}</>;
-  }
-
   // Menu utama
   const mainMenu = [
     { name: "Dashboard", icon: <LayoutGrid />, href: "/" },
@@ -120,7 +96,45 @@ export default function Sidebar({ children }) {
     { name: "Generator", icon: <FileText />, href: "/generator" },
   ];
 
-  const bottomMenu = { name: "Pengaturan", icon: <Settings />, href: "/pengaturan" };
+  const bottomMenu = {
+    name: "Pengaturan",
+    icon: <Settings />,
+    href: "/pengaturan",
+  };
+
+  // Tentukan apakah salah satu submenu perwira aktif (berdasarkan pathname + category)
+  const perwiraSubIsActive = (() => {
+    // if pathname bukan perwira, no
+    if (!pathname.startsWith("/perwira")) return false;
+
+    // jika tidak ada category param -> "Semua Perwira" aktif
+    if (!category) return true;
+
+    // ada category -> salah satu sub aktif jika category match
+    const allowed = ["pama", "pamen", "pati"];
+    return allowed.includes(category);
+  })();
+
+  // Auto expand Data Perwira jika route aktif atau category aktif
+  useEffect(() => {
+    if (pathname.startsWith("/perwira") || perwiraSubIsActive) {
+      setIsPerwiraOpen(true);
+    } else {
+      setIsPerwiraOpen(false);
+    }
+  }, [pathname, category, perwiraSubIsActive]);
+
+  if (loading) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!showSidebar) {
+    return <>{children}</>;
+  }
 
   return (
     <div className="flex h-screen overflow-x-auto">
@@ -134,7 +148,11 @@ export default function Sidebar({ children }) {
         {/* Logo */}
         <div>
           <div className="flex items-center py-3 px-4 border-b border-gray-600/30">
-            <img src="/images/logo1.png" alt="Logo" className="h-12 w-12 shrink-0" />
+            <img
+              src="/images/logo1.png"
+              alt="Logo"
+              className="h-12 w-12 shrink-0"
+            />
             <span
               className={`text-xl font-bold transition-opacity duration-300 whitespace-nowrap text-[var(--background)] ${
                 isSidebarOpen ? "opacity-100" : "opacity-0"
@@ -144,20 +162,29 @@ export default function Sidebar({ children }) {
             </span>
           </div>
 
-          <Suspense fallback={null}>
-            <CategoryDetector setCategory={() => {}} />
-          </Suspense>
-
           {/* Menu Utama */}
           <nav className="flex flex-col flex-1 p-3 space-y-2 text-white">
             {mainMenu.map((item) => {
-              const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+              const isActive =
+                pathname === item.href || pathname.startsWith(item.href + "/");
 
               // Menu dengan submenu
               if (item.hasSubmenu) {
-                const isSubActive = item.submenu.some((sub) =>
-                  pathname.startsWith(sub.href)
-                );
+                const isSubActive = item.submenu.some((sub) => {
+                  // Jika sub.href adalah '/perwira' (Semua Perwira)
+                  if (sub.href === "/perwira") {
+                    return pathname.startsWith("/perwira") && !category;
+                  }
+
+                  // Jika sub.href mengandung category param
+                  if (sub.href.includes("category=")) {
+                    const subCat = sub.href.split("category=")[1];
+                    return pathname.startsWith("/perwira") && category === subCat;
+                  }
+
+                  // fallback: match full href
+                  return pathname === sub.href;
+                });
 
                 return (
                   <div key={item.name}>
@@ -198,7 +225,17 @@ export default function Sidebar({ children }) {
                         }`}
                     >
                       {item.submenu.map((sub) => {
-                        const subActive = pathname === sub.href;
+                        // Tentukan active untuk tiap sub
+                        let subActive = false;
+                        if (sub.href === "/perwira") {
+                          subActive = pathname.startsWith("/perwira") && !category;
+                        } else if (sub.href.includes("category=")) {
+                          const subCat = sub.href.split("category=")[1];
+                          subActive = pathname.startsWith("/perwira") && category === subCat;
+                        } else {
+                          subActive = pathname === sub.href;
+                        }
+
                         return (
                           <Link
                             key={sub.name}

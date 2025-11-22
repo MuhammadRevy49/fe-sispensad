@@ -138,7 +138,7 @@ export default function TableSection({
     }
   };
 
-  const handleEdit = (soldier) => router.push(`/perwira/${soldier.id}/edit`);
+  const handleEdit = (soldier) => router.push(`/perwira/edit/${soldier.id}`);
 
   const handleDelete = (soldier) => {
     setDeleteTarget(soldier);

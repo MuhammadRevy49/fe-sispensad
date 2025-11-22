@@ -2,9 +2,21 @@
 
 import { useState } from "react";
 import { X } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 
 export default function AddDataModal({ open, onClose }) {
   const [step, setStep] = useState(1);
+  const searchParams = useSearchParams();
+  const get = searchParams.get("category") || "null";
+  var getParam = "";
+  if (get === "pama") {
+    getParam = "Perwira Pertama";
+  } else if (get === "pamen") {
+    getParam = "Perwira Menengah";
+  } else if (get === "pati") {
+    getParam = "Perwira Tinggi";
+  }
+
   const [formData, setFormData] = useState({
     nama: "",
     pangkat: "",
@@ -57,7 +69,7 @@ export default function AddDataModal({ open, onClose }) {
 
         {/* Judul Modal */}
         <h1 className="text-xl font-bold text-gray-800 text-center mb-4">
-          Tambah Data Perwira Tinggi
+          Tambah Data {getParam}
         </h1>
 
         {/* Step indicator */}
@@ -88,7 +100,6 @@ export default function AddDataModal({ open, onClose }) {
 
         {/* Form container scrollable */}
         <div className="flex-1 overflow-y-auto pr-2 space-y-4">
-          {/* STEP 1 */}
           {step === 1 && (
             <div className="grid grid-cols-2 gap-4">
               {/* Kolom kiri */}
@@ -111,7 +122,6 @@ export default function AddDataModal({ open, onClose }) {
             </div>
           )}
 
-          {/* STEP 2 */}
           {step === 2 && (
             <div className="space-y-4">
               <InputField label="Nama Wari/Istri" name="namaWari" value={formData.namaWari} onChange={handleChange} />
