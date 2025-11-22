@@ -99,7 +99,7 @@ export default function AddDataModal({ open, onClose }) {
         </div>
 
         {/* Form container scrollable */}
-        <div className="flex-1 overflow-y-auto pr-2 space-y-4">
+        <div className="flex-1 overflow-y-auto p-2 space-y-4">
           {step === 1 && (
             <div className="grid grid-cols-2 gap-4">
               {/* Kolom kiri */}
@@ -148,7 +148,7 @@ export default function AddDataModal({ open, onClose }) {
           )}
         </div>
 
-        {/* Tombol navigasi */}
+        {/* Tombol nav */}
         <div className="flex justify-between mt-5">
           <button
             onClick={onClose}

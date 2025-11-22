@@ -20,6 +20,7 @@ export default function TableSection({
   setDeleteTarget,
   refreshTrigger,
   showActions = true,
+  showBup = true,
 }) {
   const router = useRouter();
   const [dataTable, setDataTable] = useState([]);
@@ -147,6 +148,10 @@ export default function TableSection({
     setConfirmOpen(true);
   };
 
+  const handleDetail = (soldier) => {
+    alert(`Alhamdulillah jang sae pisan! = ${soldier.id}`);
+  }
+
   const displayData = dataTable.map((item, index) => ({
     ...item,
     no: (page - 1) * limit + index + 1,
@@ -168,6 +173,7 @@ export default function TableSection({
         onAdd={handleAdd}
         onSearch={handleSearch}
         showActions={showActions}
+        showBup={showBup}
       />
 
       <div
@@ -253,7 +259,7 @@ export default function TableSection({
                       Hapus
                     </button>
                     <button
-                      onClick={() => handleDelete(soldier)}
+                      onClick={() => handleDetail(soldier)}
                       className="flex items-center px-1 py-1 text-xs rounded-md text-blue-700 hover:opacity-50 hover:cursor-pointer transition-all"
                     >
                       <Eye size={12} className="mr-1"/>

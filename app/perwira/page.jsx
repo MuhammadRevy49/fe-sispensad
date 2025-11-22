@@ -93,7 +93,9 @@ export default function DashboardPage() {
         setConfirmOpen={setConfirmOpen}
         setConfirmType={setConfirmType}
         setDeleteTarget={setDeleteTarget}
-        refreshTrigger={refreshTrigger} // Kirim trigger ke TableSection
+        refreshTrigger={refreshTrigger}
+        showActions={true}
+        showBup={false}
       />
 
       {/* Global Loading overlay */}

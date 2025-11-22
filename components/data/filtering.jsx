@@ -34,6 +34,7 @@ export default function Filtering({
   onExport,
   onAdd,
   showActions = true,
+  showBup = true,
 }) {
   const searchParams = useSearchParams();
   const rawGroup = searchParams.get("category") || "all";
@@ -86,6 +87,14 @@ export default function Filtering({
           Submit
         </button>
       </div>
+
+      {showBup && (
+      <div>
+        <div className="bg-white p-2 rounded-lg border border-gray-300 shadow">
+          <p className="text-sm">Jumlah Perwira Mencapai BUP : 0</p>
+        </div>
+      </div>
+      )}
 
       {/* Bagian tombol Import, Export, Tambah (opsional) */}
       {showActions && (

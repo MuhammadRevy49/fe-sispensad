@@ -84,6 +84,7 @@ export default function DashboardPage() {
         setDeleteTarget={setDeleteTarget}
         refreshTrigger={refreshTrigger}
         showActions={false}
+        showBpu={true}
       />
 
       {/* Global Loading overlay */}

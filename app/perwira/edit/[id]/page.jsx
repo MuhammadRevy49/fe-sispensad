@@ -1,35 +1,66 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import PageTitle from "@/components/reusable/pageTitle";
 
 export default function EditCardPerwira({ initialData = {}, onSave, onCancel }) {
-  // kiri 23, kanan 23 (total 46)
-  const leftNames = useMemo(
+  // fields sesuai payload API (menggunakan nama kunci sama persis)
+  const fieldNames = useMemo(
     () => [
-      "nama",
-      "pangkat",
-      "email",
-      ...Array.from({ length: 20 }, (_, i) => `field${i + 4}`),
+      "Nama Perwira",
+      "Pangkat",
+      "NRP",
+      "Kesatuan",
+      "TTL",
+      "TMT TNI",
+      "NKTPA",
+      "NPWP",
+      "Autentik",
+      "MDK",
+      "MKG",
+      "GPT",
+      "NO SKEP",
+      "TGL SKEP",
+      "TMT SKEP",
+      "TMT_MULAI",
+      "Penspok",
+      "Selama",
+      "Pasangan",
+      "TTL Pasangan",
+      "Anak 1",
+      "TTL Anak 1",
+      "STS Anak 1",
+      "Anak 2",
+      "TTL Anak 2",
+      "STS Anak 2",
+      "Anak 3",
+      "TTL Anak 3",
+      "STS Anak 3",
+      "Anak 4",
+      "TTL Anak 4",
+      "STS Anak 4",
+      "Penspok Wari",
+      "RP1",
+      "BRP1",
+      "RP2",
+      "BRP2",
+      "TMB PN",
+      "Alamat",
+      "Alamat Asabri",
+      "Utama",
+      "No Seri",
+      "NO SKEP2",
+      "TGL SKEP2",
     ],
     []
   );
 
-  const rightNames = useMemo(
-    () => [
-      "telepon",
-      "alamat",
-      "catatan",
-      ...Array.from({ length: 20 }, (_, i) => `field${i + 24}`),
-    ],
-    []
-  );
-
-  const allNames = useMemo(() => [...leftNames, ...rightNames], [leftNames, rightNames]);
+  const router = useRouter();
 
   const [form, setForm] = useState(() => {
     const base = {};
-    allNames.forEach((name) => {
+    fieldNames.forEach((name) => {
       base[name] = initialData[name] ?? "";
     });
     return base;
@@ -48,7 +79,9 @@ export default function EditCardPerwira({ initialData = {}, onSave, onCancel }) 
     setError(null);
     try {
       setSaving(true);
-      if (onSave) await onSave(form);
+      if (onSave) {
+        await onSave(form);
+      }
     } catch (err) {
       setError(err?.message || "Gagal menyimpan");
     } finally {
@@ -56,85 +89,142 @@ export default function EditCardPerwira({ initialData = {}, onSave, onCancel }) 
     }
   }
 
+  function handleBack(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    if (onCancel) return onCancel();
+
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+      return;
+    }
+
+    router.push("/perwira");
+  }
+
+  const left = fieldNames.slice(0, Math.ceil(fieldNames.length / 2));
+  const right = fieldNames.slice(Math.ceil(fieldNames.length / 2));
+
+  function renderInput(name) {
+    const value = form[name] ?? "";
+
+    const isDate = /TGL|TTL|TMT|createdAt/i.test(name);
+    const isNumber = /^(MDK|MKG|GPT|PENSPOK|PENSPOK_WARI|RP1|BRP1|RP2|BRP2)$/i.test(name);
+
+    if (name === "id") {
+      return (
+        <input
+          readOnly
+          name={name}
+          value={value}
+          onChange={handleChange}
+          className="mt-1 block w-full rounded-lg border-gray-300 border bg-gray-50 p-2 text-sm"
+        />
+      );
+    }
+
+    if (isDate) {
+      let dateVal = value;
+      try {
+        const d = new Date(value);
+        if (!Number.isNaN(d.getTime())) {
+          const yyyy = d.getFullYear();
+          const mm = String(d.getMonth() + 1).padStart(2, "0");
+          const dd = String(d.getDate()).padStart(2, "0");
+          dateVal = `${yyyy}-${mm}-${dd}`;
+        }
+      } catch (e) {}
+
+      return (
+        <input
+          type="date"
+          name={name}
+          value={dateVal}
+          onChange={handleChange}
+          className="mt-1 block w-full rounded-lg border-gray-300 border p-2"
+        />
+      );
+    }
+
+    if (isNumber) {
+      return (
+        <input
+          type="number"
+          name={name}
+          value={value}
+          onChange={handleChange}
+          className="mt-1 block w-full rounded-lg border-gray-300 border p-2"
+        />
+      );
+    }
+
+    if (name === "ALAMAT" || name === "ALAMAT_ASABRI" || name === "SELAMA" || name === "PASANGAN") {
+      return (
+        <textarea
+          name={name}
+          value={value}
+          onChange={handleChange}
+          className="mt-1 block w-full rounded-lg border-gray-300 border p-2 resize-y"
+          rows={3}
+        />
+      );
+    }
+
+    // default text input
+    return (
+      <input
+        name={name}
+        value={value}
+        onChange={handleChange}
+        className="mt-1 block w-full rounded-lg border-gray-300 border p-2"
+      />
+    );
+  }
+
   return (
     <div className="w-full mx-auto max-w-[98%]">
-      {/* form height => full-ish screen; header & actions fixed, fields scroll */}
-      <form
-        onSubmit={handleSave}
-        className="bg-white rounded-2xl shadow-lg p-6 flex flex-col h-[calc(100vh-140px)]"
-      >
-        {/* Header (tetap di atas) */}
+      <PageTitle title={`Edit Data Perwira`} desc="Sistem Pensiun Angkatan Darat" />
+      <form onSubmit={handleSave} className="bg-white rounded-2xl shadow-lg p-6 flex flex-col h-[calc(100vh-140px)]">
+        {/* Judul */}
         <div className="flex items-center justify-between mb-3 flex-none">
           <h3 className="text-lg font-semibold">Edit Data Perwira</h3>
           <p className="text-sm text-gray-500">Ubah data lalu tekan Simpan</p>
         </div>
 
-        {/* Fields container: scrollable */}
+        {/* Scroll Form */}
         <div className="flex-1 overflow-y-auto pr-2">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Left column */}
             <div className="space-y-3">
-              {leftNames.map((name, idx) => {
-                const id = `input-${name}`;
-                const label =
-                  name === "nama" ? "Nama" : name === "pangkat" ? "Pangkat" : name === "email" ? "Email" : `Field ${idx + 1}`;
-                return (
-                  <label className="block" key={name} htmlFor={id}>
-                    <span className="text-sm text-gray-700">{label}</span>
-                    <input
-                      id={id}
-                      name={name}
-                      value={form[name]}
-                      onChange={handleChange}
-                      className="mt-1 block w-full rounded-lg border-gray-300 border focus:ring-2 focus:ring-opacity-50 focus:ring-green-800 p-2"
-                      placeholder={
-                        name === "nama" ? "Masukkan nama" : name === "email" ? "email@contoh.com" : `Isi ${name}`
-                      }
-                    />
-                  </label>
-                );
-              })}
+              {left.map((name) => (
+                <label className="block" key={name} htmlFor={`input-${name}`}>
+                  <span className="text-sm text-gray-700">{name}</span>
+                  {renderInput(name)}
+                </label>
+              ))}
             </div>
 
-            {/* Right column */}
             <div className="space-y-3">
-              {rightNames.map((name, idx) => {
-                const id = `input-${name}`;
-                const label =
-                  name === "telepon" ? "Telepon" : name === "alamat" ? "Alamat" : name === "catatan" ? "Catatan" : `Field ${idx + 24}`;
-                return (
-                  <label className="block" key={name} htmlFor={id}>
-                    <span className="text-sm text-gray-700">{label}</span>
-                    <input
-                      id={id}
-                      name={name}
-                      value={form[name]}
-                      onChange={handleChange}
-                      className="mt-1 block w-full rounded-lg border-gray-300 border focus:ring-2 focus:ring-opacity-50 focus:ring-green-800 p-2"
-                      placeholder={name === "telepon" ? "0812xxxx" : `Isi ${name}`}
-                    />
-                  </label>
-                );
-              })}
+              {right.map((name) => (
+                <label className="block" key={name} htmlFor={`input-${name}`}>
+                  <span className="text-sm text-gray-700">{name}</span>
+                  {renderInput(name)}
+                </label>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Error */}
+        {/* Jika error ygy */}
         {error && <p className="text-sm text-red-500 mt-3">{error}</p>}
 
-        {/* Actions (sticky bottom) */}
-        <div className="mt-4 flex items-center justify-end gap-3 flex-none sticky bottom-0 bg-white py-3">
-          <Link
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              onCancel && onCancel();
-            }}
+        {/* Aksi */}
+        <div className="mt-4 flex items-center justify-end gap-3 flex-none">
+          <button
+            type="button"
+            onClick={handleBack}
             className="px-4 py-2 rounded-lg border border-gray-200 bg-gray-100 text-sm hover:bg-gray-300 focus:outline-none hover:cursor-pointer transition-all"
           >
             Batal
-          </Link>
+          </button>
 
           <button
             type="submit"
