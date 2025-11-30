@@ -30,28 +30,37 @@ export default function AddDataModal({ open, onClose }) {
     mkg: "",
     namaWari: "",
     tanggalLahirWari: "",
-    jumlahAnak: 0,
+    // ubah jumlahAnak default jadi string agar bisa dikosongkan
+    jumlahAnak: "",
     anak: [],
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleJumlahAnakChange = (e) => {
-    const jumlah = parseInt(e.target.value) || 0;
+    const raw = e.target.value;
+    // biarkan string kosong '' supaya input bisa dihapus
+    if (raw === "") {
+      setFormData((prev) => ({ ...prev, jumlahAnak: "", anak: [] }));
+      return;
+    }
+
+    // jika ada angka, parse dan bangun array anak sesuai jumlah
+    const jumlah = Math.max(0, parseInt(raw) || 0);
     const anakBaru = Array.from({ length: jumlah }, (_, i) => ({
       nama: formData.anak[i]?.nama || "",
       tanggalLahir: formData.anak[i]?.tanggalLahir || "",
     }));
-    setFormData({ ...formData, jumlahAnak: jumlah, anak: anakBaru });
+    setFormData((prev) => ({ ...prev, jumlahAnak: jumlah, anak: anakBaru }));
   };
 
   const handleAnakChange = (index, field, value) => {
     const updatedAnak = [...formData.anak];
-    updatedAnak[index][field] = value;
-    setFormData({ ...formData, anak: updatedAnak });
+    updatedAnak[index] = { ...updatedAnak[index], [field]: value };
+    setFormData((prev) => ({ ...prev, anak: updatedAnak }));
   };
 
   if (!open) return null;
@@ -72,29 +81,40 @@ export default function AddDataModal({ open, onClose }) {
           Tambah Data {getParam}
         </h1>
 
+        {/* Step indicator: gunakan garis sebagai elemen belakang yang menyatu */}
         {/* Step indicator */}
-        <div className="flex justify-center items-center mb-4">
-          <div className="flex items-center space-x-4">
-            {[1, 2].map((s) => (
-              <div key={s} className="flex items-center">
-                <div
-                  className={`w-8 h-8 flex items-center justify-center rounded-full border-2 font-semibold ${
-                    step === s
-                      ? "border-[var(--armycolor)] text-white bg-[var(--armycolor)]"
-                      : "border-gray-300 text-gray-500"
-                  }`}
-                >
-                  {s}
-                </div>
-                {s < 2 && (
-                  <div
-                    className={`w-12 h-[2px] ${
-                      step > s ? "bg-[var(--armycolor)]" : "bg-gray-300"
-                    }`}
-                  ></div>
-                )}
-              </div>
-            ))}
+        <div className="mb-4 flex justify-center">
+          <div className="flex items-center space-x-6 relative">
+            {/* Lingkaran Step 1 */}
+            <div
+              className={`w-8 h-8 flex items-center justify-center rounded-full border-2 font-semibold
+            ${
+              step === 1
+                ? "border-[var(--armycolor)] bg-[var(--armycolor)] text-white"
+                : "border-gray-300 text-gray-500 bg-white"
+            }`}
+            >
+              1
+            </div>
+
+            {/* Garis antar lingkaran (tidak melebihi kiri & kanan) */}
+            <div
+              className={`w-14 h-[2px] transition-all
+        ${step > 1 ? "bg-[var(--armycolor)]" : "bg-gray-300"}
+      `}
+            ></div>
+
+            {/* Lingkaran Step 2 */}
+            <div
+              className={`w-8 h-8 flex items-center justify-center rounded-full border-2 font-semibold
+      ${
+        step === 2
+          ? "border-[var(--armycolor)] bg-[var(--armycolor)] text-white"
+          : "border-gray-300 text-gray-500 bg-white"
+      }`}
+            >
+              2
+            </div>
           </div>
         </div>
 
@@ -104,46 +124,122 @@ export default function AddDataModal({ open, onClose }) {
             <div className="grid grid-cols-2 gap-4">
               {/* Kolom kiri */}
               <div className="space-y-3">
-                <InputField label="Nama" name="nama" value={formData.nama} onChange={handleChange} />
-                <InputField label="Pangkat" name="pangkat" value={formData.pangkat} onChange={handleChange} />
-                <InputField label="NRP" name="nrp" value={formData.nrp} onChange={handleChange} />
-                <InputField label="Tanggal Lahir" name="tanggalLahir" type="date" value={formData.tanggalLahir} onChange={handleChange} />
-                <InputField label="Kesatuan Terakhir" name="kesatuanTerakhir" value={formData.kesatuanTerakhir} onChange={handleChange} />
+                <InputField
+                  label="Nama"
+                  name="nama"
+                  value={formData.nama}
+                  onChange={handleChange}
+                />
+                <InputField
+                  label="Pangkat"
+                  name="pangkat"
+                  value={formData.pangkat}
+                  onChange={handleChange}
+                />
+                <InputField
+                  label="NRP"
+                  name="nrp"
+                  value={formData.nrp}
+                  onChange={handleChange}
+                />
+                <InputField
+                  label="Tanggal Lahir"
+                  name="tanggalLahir"
+                  type="date"
+                  value={formData.tanggalLahir}
+                  onChange={handleChange}
+                />
+                <InputField
+                  label="Kesatuan Terakhir"
+                  name="kesatuanTerakhir"
+                  value={formData.kesatuanTerakhir}
+                  onChange={handleChange}
+                />
               </div>
 
               {/* Kolom kanan */}
               <div className="space-y-3">
-                <InputField label="TMT TNI" name="tmtTni" type="date" value={formData.tmtTni} onChange={handleChange} />
-                <InputField label="No. KTPA" name="noKtpa" value={formData.noKtpa} onChange={handleChange} />
-                <InputField label="No. NPWP" name="noNpwp" value={formData.noNpwp} onChange={handleChange} />
-                <InputField label="Masa Dinas Kerja (MDK)" name="mdk" value={formData.mdk} onChange={handleChange} />
-                <InputField label="Masa Kerja Gaji (MKG)" name="mkg" value={formData.mkg} onChange={handleChange} />
+                <InputField
+                  label="TMT TNI"
+                  name="tmtTni"
+                  type="date"
+                  value={formData.tmtTni}
+                  onChange={handleChange}
+                />
+                <InputField
+                  label="No. KTPA"
+                  name="noKtpa"
+                  value={formData.noKtpa}
+                  onChange={handleChange}
+                />
+                <InputField
+                  label="No. NPWP"
+                  name="noNpwp"
+                  value={formData.noNpwp}
+                  onChange={handleChange}
+                />
+                <InputField
+                  label="Masa Dinas Kerja (MDK)"
+                  name="mdk"
+                  value={formData.mdk}
+                  onChange={handleChange}
+                />
+                <InputField
+                  label="Masa Kerja Gaji (MKG)"
+                  name="mkg"
+                  value={formData.mkg}
+                  onChange={handleChange}
+                />
               </div>
             </div>
           )}
 
           {step === 2 && (
             <div className="space-y-4">
-              <InputField label="Nama Wari/Istri" name="namaWari" value={formData.namaWari} onChange={handleChange} />
-              <InputField label="Tanggal Lahir" name="tanggalLahirWari" type="date" value={formData.tanggalLahirWari} onChange={handleChange} />
-              <InputField label="Jumlah Anak" name="jumlahAnak" type="number" value={formData.jumlahAnak} onChange={handleJumlahAnakChange} />
+              <InputField
+                label="Nama Wari/Istri"
+                name="namaWari"
+                value={formData.namaWari}
+                onChange={handleChange}
+              />
+              <InputField
+                label="Tanggal Lahir"
+                name="tanggalLahirWari"
+                type="date"
+                value={formData.tanggalLahirWari}
+                onChange={handleChange}
+              />
+
+              {/* Jumlah Anak: sekarang bisa dikosongkan */}
+              <InputField
+                label="Jumlah Anak"
+                name="jumlahAnak"
+                type="number"
+                value={formData.jumlahAnak}
+                onChange={handleJumlahAnakChange}
+              />
 
               {/* Anak dinamis */}
-              {formData.anak.map((anak, i) => (
-                <div key={i} className="grid grid-cols-2 gap-4">
-                  <InputField
-                    label={`Nama Anak ${i + 1}`}
-                    value={anak.nama}
-                    onChange={(e) => handleAnakChange(i, "nama", e.target.value)}
-                  />
-                  <InputField
-                    label={`Tanggal Lahir Anak ${i + 1}`}
-                    type="date"
-                    value={anak.tanggalLahir}
-                    onChange={(e) => handleAnakChange(i, "tanggalLahir", e.target.value)}
-                  />
-                </div>
-              ))}
+              {Array.isArray(formData.anak) &&
+                formData.anak.map((anak, i) => (
+                  <div key={i} className="grid grid-cols-2 gap-4">
+                    <InputField
+                      label={`Nama Anak ${i + 1}`}
+                      value={anak.nama}
+                      onChange={(e) =>
+                        handleAnakChange(i, "nama", e.target.value)
+                      }
+                    />
+                    <InputField
+                      label={`Tanggal Lahir Anak ${i + 1}`}
+                      type="date"
+                      value={anak.tanggalLahir}
+                      onChange={(e) =>
+                        handleAnakChange(i, "tanggalLahir", e.target.value)
+                      }
+                    />
+                  </div>
+                ))}
             </div>
           )}
         </div>

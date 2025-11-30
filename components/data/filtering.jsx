@@ -1,28 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
 import Dropdown from "@/components/reusable/dropdown";
 import { Download, Upload, Plus } from "lucide-react";
-
-const pangkatOptionsMap = {
-  pati: ["Semua", "Brigjen", "Letjen", "Mayjen", "Jenderal"],
-  pamen: ["Semua", "Mayor", "Letkol", "Kolonel"],
-  pama: ["Semua", "Letda", "Lettu", "Kapten"],
-  all: [
-    "Semua",
-    "Brigjen",
-    "Letjen",
-    "Mayjen",
-    "Jenderal",
-    "Mayor",
-    "Letkol",
-    "Kolonel",
-    "Letda",
-    "Lettu",
-    "Kapten",
-  ],
-};
 
 export default function Filtering({
   search,
@@ -36,23 +16,18 @@ export default function Filtering({
   showActions = true,
   showBup = true,
 }) {
-  const searchParams = useSearchParams();
-  const rawGroup = searchParams.get("category") || "all";
-  const group = rawGroup.replace(/"/g, "");
-
-  const pangkatOptions = pangkatOptionsMap[group] || [
-    "Semua",
-    "Letnan",
-    "Kapten",
-    "Mayor",
-  ];
+  // Hanya pangkat Pati (plus opsi 'Semua' untuk reset)
+  const pangkatOptions = ["Semua", "Brigjen", "Letjen", "Mayjen", "Jenderal"];
 
   const [localSearch, setLocalSearch] = useState(search);
-  const [localFilter, setLocalFilter] = useState(pangkatOptions[0] || "Semua");
+  const [localFilter, setLocalFilter] = useState(pangkatOptions[0]);
 
   useEffect(() => {
-    setLocalFilter(pangkatOptions[0] || "Semua");
-  }, [group]);
+    // Jika nilai luar berubah (mis. dari parent), sinkronkan lokal
+    setLocalSearch(search);
+    setLocalFilter(filterPangkat || pangkatOptions[0]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search, filterPangkat]);
 
   const handleSearchSubmit = () => {
     setSearch(localSearch);
@@ -89,11 +64,11 @@ export default function Filtering({
       </div>
 
       {showBup && (
-      <div>
-        <div className="bg-white p-2 rounded-lg border border-gray-300 shadow">
-          <p className="text-sm">Jumlah Perwira Mencapai BUP : 0</p>
+        <div>
+          <div className="bg-white p-2 rounded-lg border border-gray-300 shadow">
+            <p className="text-sm">Jumlah Perwira Mencapai BUP : 0</p>
+          </div>
         </div>
-      </div>
       )}
 
       {/* Bagian tombol Import, Export, Tambah (opsional) */}

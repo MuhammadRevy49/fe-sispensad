@@ -10,8 +10,6 @@ import {
   Calculator,
   FileText,
   Settings,
-  ChevronDown,
-  ChevronUp,
 } from "lucide-react";
 import Navbar from "./Navbar";
 import { variable } from "@/lib/variable";
@@ -25,7 +23,6 @@ export default function Sidebar({ children }) {
   const [user, setUser] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [isPerwiraOpen, setIsPerwiraOpen] = useState(false);
 
   const sidebarPaths = [
     "/perwira",
@@ -76,21 +73,10 @@ export default function Sidebar({ children }) {
     fetchUser();
   }, [pathname, router, showSidebar, loading]);
 
-  // Menu utama
+  // Menu utama: Data Perwira sekarang jadi menu tunggal tanpa submenu
   const mainMenu = [
     { name: "Dashboard", icon: <LayoutGrid />, href: "/" },
-    {
-      name: "Data Perwira",
-      icon: <Users />,
-      href: "/perwira",
-      hasSubmenu: true,
-      submenu: [
-        { name: "Semua Perwira", href: "/perwira" },
-        { name: "Perwira Pertama", href: "/perwira?category=pama" },
-        { name: "Perwira Menengah", href: "/perwira?category=pamen" },
-        { name: "Perwira Tinggi", href: "/perwira?category=pati" },
-      ],
-    },
+    { name: "Data Perwira", icon: <Users />, href: "/perwira" },
     { name: "Peninjauan", icon: <ClipboardList />, href: "/peninjauan" },
     { name: "Perhitungan", icon: <Calculator />, href: "/perhitungan" },
     { name: "Generator", icon: <FileText />, href: "/generator" },
@@ -101,28 +87,6 @@ export default function Sidebar({ children }) {
     icon: <Settings />,
     href: "/pengaturan",
   };
-
-  // Tentukan apakah salah satu submenu perwira aktif (berdasarkan pathname + category)
-  const perwiraSubIsActive = (() => {
-    // if pathname bukan perwira, no
-    if (!pathname.startsWith("/perwira")) return false;
-
-    // jika tidak ada category param -> "Semua Perwira" aktif
-    if (!category) return true;
-
-    // ada category -> salah satu sub aktif jika category match
-    const allowed = ["pama", "pamen", "pati"];
-    return allowed.includes(category);
-  })();
-
-  // Auto expand Data Perwira jika route aktif atau category aktif
-  useEffect(() => {
-    if (pathname.startsWith("/perwira") || perwiraSubIsActive) {
-      setIsPerwiraOpen(true);
-    } else {
-      setIsPerwiraOpen(false);
-    }
-  }, [pathname, category, perwiraSubIsActive]);
 
   if (loading) {
     return (
@@ -168,96 +132,6 @@ export default function Sidebar({ children }) {
               const isActive =
                 pathname === item.href || pathname.startsWith(item.href + "/");
 
-              // Menu dengan submenu
-              if (item.hasSubmenu) {
-                const isSubActive = item.submenu.some((sub) => {
-                  // Jika sub.href adalah '/perwira' (Semua Perwira)
-                  if (sub.href === "/perwira") {
-                    return pathname.startsWith("/perwira") && !category;
-                  }
-
-                  // Jika sub.href mengandung category param
-                  if (sub.href.includes("category=")) {
-                    const subCat = sub.href.split("category=")[1];
-                    return pathname.startsWith("/perwira") && category === subCat;
-                  }
-
-                  // fallback: match full href
-                  return pathname === sub.href;
-                });
-
-                return (
-                  <div key={item.name}>
-                    <button
-                      onClick={() => setIsPerwiraOpen((prev) => !prev)}
-                      className={`flex items-center justify-between w-full gap-3 px-4 py-2 rounded-lg transition text-sm
-                        ${
-                          isSubActive
-                            ? "bg-[var(--armyhover)] text-[var(--background)]"
-                            : "text-white hover:bg-[var(--armyhover)] hover:text-[var(--background)]"
-                        }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="text-lg shrink-0">{item.icon}</span>
-                        <span
-                          className={`font-normal transition-opacity duration-300 whitespace-nowrap ${
-                            isSidebarOpen ? "opacity-100" : "opacity-0"
-                          }`}
-                        >
-                          {item.name}
-                        </span>
-                      </div>
-
-                      {isSidebarOpen && (
-                        <span className="shrink-0">
-                          {isPerwiraOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                        </span>
-                      )}
-                    </button>
-
-                    {/* Submenu (rata kiri dan hilang kalau sidebar tertutup) */}
-                    <div
-                      className={`mt-1 space-y-1 transition-all duration-300 overflow-hidden
-                        ${
-                          isPerwiraOpen && isSidebarOpen
-                            ? "max-h-40 opacity-100"
-                            : "max-h-0 opacity-0"
-                        }`}
-                    >
-                      {item.submenu.map((sub) => {
-                        // Tentukan active untuk tiap sub
-                        let subActive = false;
-                        if (sub.href === "/perwira") {
-                          subActive = pathname.startsWith("/perwira") && !category;
-                        } else if (sub.href.includes("category=")) {
-                          const subCat = sub.href.split("category=")[1];
-                          subActive = pathname.startsWith("/perwira") && category === subCat;
-                        } else {
-                          subActive = pathname === sub.href;
-                        }
-
-                        return (
-                          <Link
-                            key={sub.name}
-                            href={sub.href}
-                            prefetch={false}
-                            className={`flex items-center gap-3 px-4 py-1.5 rounded-md text-sm transition
-                              ${
-                                subActive
-                                  ? "bg-[var(--armyhover)] text-[var(--background)]"
-                                  : "text-white hover:bg-[var(--armyhover)] hover:text-[var(--background)]"
-                              }`}
-                          >
-                            <span>{sub.name}</span>
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              }
-
-              // Menu biasa
               return (
                 <Link
                   key={item.name}
