@@ -1,10 +1,11 @@
 "use client";
 
-import { React, useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import PageTitle from "@/components/reusable/pageTitle";
 import { variable } from "@/lib/variable";
 import LoadingDots from "@/components/reusable/loading";
+import ConfirmModal from "@/components/reusable/modal";
 
 export default function EditCardPerwira({ initialData = {}, onSave, onCancel }) {
   // Mapping antara label di UI dan key di API
@@ -54,10 +55,6 @@ export default function EditCardPerwira({ initialData = {}, onSave, onCancel }) 
       { label: "No Seri", key: "NO_SERI" },
       { label: "NO SKEP2", key: "NO_SKEP2" },
       { label: "TGL SKEP2", key: "TGL_SKEP2" },
-      // kalau mau tambahin PENSIUN, status_bup, createdAt, bisa di sini
-      // { label: "Pensiun", key: "PENSIUN" },
-      // { label: "Status BUP", key: "status_bup" },
-      // { label: "Dibuat Pada", key: "createdAt" },
     ],
     []
   );
@@ -66,7 +63,6 @@ export default function EditCardPerwira({ initialData = {}, onSave, onCancel }) 
   const params = useParams();
   const perwiraId = params.id;
 
-  // state form disimpan pakai key API (NAMA, PANGKAT, dst.)
   const [form, setForm] = useState(() => {
     const base = {};
     fields.forEach((f) => {
@@ -78,12 +74,17 @@ export default function EditCardPerwira({ initialData = {}, onSave, onCancel }) 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+  const [successOpen, setSuccessOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("Data berhasil disimpan");
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
-    if (!perwiraId) return;
+    if (!perwiraId) {
+      setLoading(false);
+      return;
+    }
 
     const fetchPerwiraData = async () => {
-      const token = localStorage.getItem("token");
       if (!token) {
         setError("Token autentikasi tidak ditemukan.");
         setLoading(false);
@@ -109,7 +110,6 @@ export default function EditCardPerwira({ initialData = {}, onSave, onCancel }) 
         }
 
         const json = await response.json();
-        // API Anda: { data: { ... } }
         const data = json.data ?? json;
 
         setForm((prev) => {
@@ -137,13 +137,46 @@ export default function EditCardPerwira({ initialData = {}, onSave, onCancel }) 
 
   async function handleSave(e) {
     e.preventDefault();
-    // di sini nanti tinggal kirim `form` langsung ke API (key-nya sudah sama)
-    // contoh:
-    // setSaving(true);
-    // try {
-    //   await fetch(..., { method: "PUT", body: JSON.stringify(form) })
-    //   ...
-    // } finally { setSaving(false); }
+    if (!perwiraId) {
+      setError("ID perwira tidak ditemukan.");
+      return;
+    }
+    setSaving(true);
+    setError(null);
+
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}${variable.detailPersonil(perwiraId)}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(form),
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || `Gagal menyimpan data (${res.status})`);
+      }
+
+      let payload = null;
+      try {
+        const json = await res.json();
+        payload = json?.data ?? json;
+      } catch {
+        payload = form;
+      }
+
+      if (onSave) {
+        await onSave(payload);
+      }
+      setSuccessMessage("Data berhasil disimpan.");
+      setSuccessOpen(true);
+    } catch (err) {
+      setError(err?.message || "Gagal menyimpan data perwira.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   function handleBack() {
@@ -157,12 +190,12 @@ export default function EditCardPerwira({ initialData = {}, onSave, onCancel }) 
 
   function renderInput(field) {
     const rawValue = form[field.key] ?? "";
-
-    // Deteksi field tanggal & angka berdasarkan key API
     const dateKeys = [
       "TTL",
+      "TMT_TNI",
       "TGL_SKEP",
       "TMT_SKEP",
+      "TGL_SKEP2",
       "TTL_PASANGAN",
       "TTL_ANAK_1",
       "TTL_ANAK_2",
@@ -170,10 +203,7 @@ export default function EditCardPerwira({ initialData = {}, onSave, onCancel }) 
       "TTL_ANAK_4",
     ];
     const isDate = dateKeys.includes(field.key);
-    // const isDate = /(TGL|TTL|TMT|PENSIUN|createdAt)/i.test(field.key);
     const isNumber = /^(MDK|MKG|GPT|PENSPOK(_WARI)?|RP[12]|BRP[12])$/i.test(field.key);
-
-    // Normalisasi value tanggal yang formatnya ISO (contoh: 1966-05-27T00:00:00.000Z)
     let value = rawValue;
     if (isDate && typeof rawValue === "string" && rawValue.length >= 10) {
       value = rawValue.substring(0, 10);
@@ -183,7 +213,7 @@ export default function EditCardPerwira({ initialData = {}, onSave, onCancel }) 
       <input
         id={`input-${field.key}`}
         type={isNumber ? "number" : isDate ? "date" : "text"}
-        name={field.key} // penting: pakai key API
+        name={field.key}
         value={value}
         onChange={handleChange}
         className="mt-1 block w-full rounded-lg border-gray-300 border p-2"
@@ -193,7 +223,7 @@ export default function EditCardPerwira({ initialData = {}, onSave, onCancel }) 
   }
 
   if (loading) {
-  return (
+    return (
       <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
         <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center space-y-4">
           <LoadingDots color="var(--armycolor)" />
@@ -222,10 +252,9 @@ export default function EditCardPerwira({ initialData = {}, onSave, onCancel }) 
 
         {/* Scroll Form */}
         <div className="flex-1 overflow-y-auto pr-2">
-          {/* Tampilkan error jika gagal fetch data */}
           {error && (
             <p className="text-sm text-red-500 mb-3 p-2 bg-red-50 border border-red-200 rounded-lg">
-              <strong>Error memuat data:</strong> {error}
+              <strong>Error:</strong> {error}
             </p>
           )}
 
@@ -245,11 +274,7 @@ export default function EditCardPerwira({ initialData = {}, onSave, onCancel }) 
 
             <div className="space-y-3">
               {right.map((field) => (
-                <label
-                  className="block"
-                  key={field.key}
-                  htmlFor={`input-${field.key}`}
-                >
+                <label className="block" key={field.key} htmlFor={`input-${field.key}`}>
                   <span className="text-sm text-gray-700">{field.label}</span>
                   {renderInput(field)}
                 </label>
@@ -257,9 +282,6 @@ export default function EditCardPerwira({ initialData = {}, onSave, onCancel }) 
             </div>
           </div>
         </div>
-
-        {/* Jika error ygy */}
-        {error && <p className="text-sm text-red-500 mt-3">{error}</p>}
 
         {/* Aksi */}
         <div className="mt-4 flex items-center justify-end gap-3 flex-none">
@@ -279,6 +301,17 @@ export default function EditCardPerwira({ initialData = {}, onSave, onCancel }) 
           </button>
         </div>
       </form>
+      <ConfirmModal
+        isOpen={successOpen}
+        onClose={() => setSuccessOpen(false)}
+        title="Berhasil"
+        message={successMessage}
+        type="success"
+        confirmText="OK"
+        onConfirm={() => {
+          router.push("/perwira");
+        }}
+      />
     </div>
   );
 }

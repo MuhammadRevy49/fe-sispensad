@@ -16,7 +16,7 @@ export default function ConfirmModal({
   message,
   confirmText = "Ya",
   confirmColor,
-  type = "success", // success / warning / error / info / question
+  type = "success",
   onConfirm,
 }) {
   if (!isOpen) return null;
