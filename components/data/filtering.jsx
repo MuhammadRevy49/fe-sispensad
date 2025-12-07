@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Dropdown from "@/components/reusable/dropdown";
 import { Download, Upload, Plus } from "lucide-react";
+import { variable } from "@/lib/variable";
 
 export default function Filtering({
   search,
@@ -16,17 +17,18 @@ export default function Filtering({
   showActions = true,
   showBup = true,
 }) {
-  // Hanya pangkat Pati (plus opsi 'Semua' untuk reset)
   const pangkatOptions = ["Semua", "Brigjen", "Letjen", "Mayjen", "Jenderal"];
-
   const [localSearch, setLocalSearch] = useState(search);
   const [localFilter, setLocalFilter] = useState(pangkatOptions[0]);
 
+  // state untuk BUP count
+  const [bupCount, setBupCount] = useState(null);
+  const [bupLoading, setBupLoading] = useState(false);
+  const [bupError, setBupError] = useState(null);
+
   useEffect(() => {
-    // Jika nilai luar berubah (mis. dari parent), sinkronkan lokal
     setLocalSearch(search);
     setLocalFilter(filterPangkat || pangkatOptions[0]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, filterPangkat]);
 
   const handleSearchSubmit = () => {
@@ -34,6 +36,34 @@ export default function Filtering({
     setFilterPangkat(localFilter);
     setPage(1);
   };
+
+  useEffect(() => {
+    if (!showBup) return;
+    const fetchBupCount = async () => {
+      try {
+        setBupLoading(true);
+        setBupError(null);
+
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}${variable.countPersonilBup}`);
+
+        if (!res.ok) {
+          throw new Error(`Gagal mengambil data BUP (${res.status})`);
+        }
+
+        const json = await res.json();
+        const total = json?.sudah_bup ?? json?.total ?? 0;
+
+        setBupCount(total);
+      } catch (err) {
+        setBupError(err?.message || "Gagal memuat data BUP");
+        setBupCount(null);
+      } finally {
+        setBupLoading(false);
+      }
+    };
+
+    fetchBupCount();
+  }, [showBup]);
 
   return (
     <div className="flex justify-between gap-3 mb-3">
@@ -65,8 +95,23 @@ export default function Filtering({
 
       {showBup && (
         <div>
-          <div className="bg-white p-2 rounded-lg border border-gray-300 shadow">
-            <p className="text-sm">Jumlah Perwira Mencapai BUP : 0</p>
+          <div className="bg-white p-2 rounded-lg border border-gray-300 shadow min-w-[260px]">
+            {bupLoading ? (
+              <p className="text-sm text-gray-500">
+                Memuat jumlah perwira BUP...
+              </p>
+            ) : bupError ? (
+              <p className="text-sm text-red-500">
+                {bupError}
+              </p>
+            ) : (
+              <p className="text-sm">
+                Jumlah Perwira Mencapai BUP :{" "}
+                <span className="font-semibold">
+                  {bupCount ?? 0}
+                </span>
+              </p>
+            )}
           </div>
         </div>
       )}

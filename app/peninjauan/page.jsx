@@ -14,11 +14,7 @@ export default function DashboardPage() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const searchParams = useSearchParams();
 
-  const category = searchParams.get("category") || "all";
-
   const [loading, setLoading] = useState(false);
-  const [isImporting, setIsImporting] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
   const [page, setPage] = useState(1);
 
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -26,10 +22,6 @@ export default function DashboardPage() {
   const [confirmType, setConfirmType] = useState("success");
 
   const limit = 50;
-
-  useEffect(() => {
-    setPage(1);
-  }, [category]);
 
   const confirmDelete = async () => {
     if (!deleteTarget) return;
@@ -45,8 +37,6 @@ export default function DashboardPage() {
       );
       setConfirmMessage("Data berhasil dihapus!");
       setConfirmType("success");
-
-      // Trigger refresh data setelah penghapusan berhasil
       setRefreshTrigger(prev => prev + 1);
     } catch (error) {
       console.error(error);
@@ -66,7 +56,6 @@ export default function DashboardPage() {
       <CardsSection
         loading={loading}
         setLoading={setLoading}
-        category={category}
         refreshTrigger={refreshTrigger}
       />
 
@@ -75,9 +64,6 @@ export default function DashboardPage() {
         page={page}
         setPage={setPage}
         limit={limit}
-        category={category}
-        setIsImporting={setIsImporting}
-        setIsExporting={setIsExporting}
         setConfirmMessage={setConfirmMessage}
         setConfirmOpen={setConfirmOpen}
         setConfirmType={setConfirmType}
@@ -85,6 +71,7 @@ export default function DashboardPage() {
         refreshTrigger={refreshTrigger}
         showActions={false}
         showBpu={true}
+        mode="peninjauan"
       />
 
       {/* Global Loading overlay */}
@@ -95,30 +82,6 @@ export default function DashboardPage() {
             <div className="text-[var(--textgray)] font-medium text-center">
               Memuat data...
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Global Importing overlay */}
-      {isImporting && (
-        <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center">
-          <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center space-y-4">
-            <LoadingDots color="var(--armycolor)" />
-            <p className="text-[var(--textgray)] font-medium text-center">
-              Sedang mengimpor data, mohon tunggu...
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Global Exporting overlay */}
-      {isExporting && (
-        <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center">
-          <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center space-y-4">
-            <LoadingDots color="var(--armycolor)" />
-            <p className="text-[var(--textgray)] font-medium text-center">
-              Sedang mengekspor data, mohon tunggu...
-            </p>
           </div>
         </div>
       )}

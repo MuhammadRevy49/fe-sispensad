@@ -21,6 +21,7 @@ export default function TableSection({
   refreshTrigger,
   showActions = true,
   showBup = true,
+  mode = "default",
 }) {
   const router = useRouter();
   const [dataTable, setDataTable] = useState([]);
@@ -30,36 +31,48 @@ export default function TableSection({
   const [modalAdd, setModalAdd] = useState(false);
 
   const group = category || "all";
+  const isPeninjauan = mode === "peninjauan";
 
   const fetchData = async () => {
     try {
       const token = localStorage.getItem("token");
       const params = new URLSearchParams();
-      params.append("group", group);
       params.append("page", page);
       params.append("limit", limit);
+
+      params.append("group", group);
       if (filterPangkat !== "Semua") params.append("pangkat", filterPangkat);
+
       if (search) {
         const isNumericString = /^\d+$/.test(search);
         if (isNumericString) params.append("nrp", search);
         else params.append("nama", search);
       }
 
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}${variable.personil}?${params.toString()}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      let res;
+
+      if (isPeninjauan) {
+        // peninjauan
+        res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}${variable.personilBup}?${params.toString()}`);
+      } else {
+        // default
+        res = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}${variable.personil}?${params.toString()}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      }
+
       const result = await res.json();
       setDataTable(result.data || []);
       setTotalData(result.total || 0);
     } catch (error) {
-      console.error("Error fetch data:", error);
+      throw error;
     }
   };
 
   useEffect(() => {
     fetchData();
-  }, [page, limit, filterPangkat, group, search, refreshTrigger]);
+  }, [page, limit, filterPangkat, group, search, refreshTrigger, mode]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -71,18 +84,21 @@ export default function TableSection({
   };
 
   const handleImport = async (file) => {
-    if (!file) return;
+    if (!file || !setIsImporting) return;
     setIsImporting(true);
     try {
       const formData = new FormData();
       formData.append("file", file);
       const token = localStorage.getItem("token");
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}${variable.import}`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}${variable.import}`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData,
+        }
+      );
 
       if (!res.ok) throw new Error(`Import failed: ${res.status}`);
 
@@ -91,7 +107,6 @@ export default function TableSection({
       setConfirmOpen(true);
       fetchData();
     } catch (error) {
-      console.error("Error import file:", error);
       setConfirmMessage("Terjadi kesalahan saat impor.");
       setConfirmType("error");
       setConfirmOpen(true);
@@ -101,6 +116,7 @@ export default function TableSection({
   };
 
   const handleExport = async () => {
+    if (!setIsExporting) return;
     setIsExporting(true);
     try {
       const token = localStorage.getItem("token");
@@ -130,7 +146,6 @@ export default function TableSection({
       link.remove();
       window.URL.revokeObjectURL(downloadUrl);
     } catch (error) {
-      console.error("Error exporting data:", error);
       setConfirmMessage("Gagal mengekspor data. Silakan coba lagi.");
       setConfirmType("error");
       setConfirmOpen(true);
@@ -140,17 +155,15 @@ export default function TableSection({
   };
 
   const handleEdit = (soldier) => router.push(`/perwira/edit/${soldier.id}`);
-
   const handleDelete = (soldier) => {
     setDeleteTarget(soldier);
     setConfirmMessage(`Apakah yakin ingin menghapus ${soldier.NAMA}?`);
     setConfirmType("question");
     setConfirmOpen(true);
   };
-
   const handleDetail = (soldier) => {
     router.push(`/perwira/detail/${soldier.id}`);
-  }
+  };
 
   const displayData = dataTable.map((item, index) => ({
     ...item,
@@ -159,6 +172,16 @@ export default function TableSection({
   }));
 
   const totalPages = Math.ceil(totalData / limit);
+  const headers = [
+    "No",
+    "Nama Prajurit",
+    "Pangkat",
+    "NRP",
+    "TTL",
+    "TMT TNI",
+    isPeninjauan ? "Status" : "Kesatuan",
+    "Aksi",
+  ];
 
   return (
     <div className="relative">
@@ -185,16 +208,7 @@ export default function TableSection({
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="divide-y divide-gray-300">
-              {[
-                "No",
-                "Nama Prajurit",
-                "Pangkat",
-                "NRP",
-                "TTL",
-                "TMT TNI",
-                "Kesatuan",
-                "Aksi",
-              ].map((header, idx) => (
+              {headers.map((header, idx) => (
                 <th
                   key={idx}
                   className="px-3 py-3 text-xs text-gray-700 border-b border-gray-300 bg-white sticky top-0 z-10"
@@ -241,30 +255,55 @@ export default function TableSection({
                     {soldier.TMT_TNI}
                   </td>
                   <td className="px-4 py-3 border-t border-gray-300">
-                    {soldier.KESATUAN}
+                    <p className={`${isPeninjauan ? "p-1 border border-yellow-500 rounded-full text-yellow-500 text-center" : "rounded"}`}>
+                    {isPeninjauan
+                      ? soldier.status_bup || soldier.STATUS || "-"
+                      : soldier.KESATUAN}
+                    </p>
                   </td>
-                  <td className="px-4 py-3 border-t border-gray-300 flex gap-2">
-                    <button
-                      onClick={() => handleEdit(soldier)}
-                      className="flex items-center px-1 py-1 text-xs rounded-md text-yellow-600 hover:opacity-50 hover:cursor-pointer transition-all"
-                    >
-                      <Pencil size={12} className="mr-1"/>
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(soldier)}
-                      className="flex items-center px-1 py-1 text-xs rounded-md text-red-500 hover:opacity-50 hover:cursor-pointer transition-all"
-                    >
-                      <Trash2 size={12} className="mr-1"/>
-                      Hapus
-                    </button>
-                    <button
-                      onClick={() => handleDetail(soldier)}
-                      className="flex items-center px-1 py-1 text-xs rounded-md text-blue-700 hover:opacity-50 hover:cursor-pointer transition-all"
-                    >
-                      <Eye size={12} className="mr-1"/>
-                      Detail
-                    </button>
+
+                  <td className="px-4 py-3 border-t border-gray-300">
+                    {isPeninjauan ? (
+                      <button
+                        onClick={() => handleDetail(soldier)}
+                        className="flex items-center px-1 py-1 text-xs rounded-md text-blue-700 hover:opacity-50 hover:cursor-pointer transition-all"
+                      >
+                        <Eye size={12} className="mr-1" />
+                        Lihat Detail
+                      </button>
+                    ) : showActions ? (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleEdit(soldier)}
+                          className="flex items-center px-1 py-1 text-xs rounded-md text-yellow-600 hover:opacity-50 hover:cursor-pointer transition-all"
+                        >
+                          <Pencil size={12} className="mr-1" />
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(soldier)}
+                          className="flex items-center px-1 py-1 text-xs rounded-md text-red-500 hover:opacity-50 hover:cursor-pointer transition-all"
+                        >
+                          <Trash2 size={12} className="mr-1" />
+                          Hapus
+                        </button>
+                        <button
+                          onClick={() => handleDetail(soldier)}
+                          className="flex items-center px-1 py-1 text-xs rounded-md text-blue-700 hover:opacity-50 hover:cursor-pointer transition-all"
+                        >
+                          <Eye size={12} className="mr-1" />
+                          Detail
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handleDetail(soldier)}
+                        className="flex items-center px-1 py-1 text-xs rounded-md text-blue-700 hover:opacity-50 hover:cursor-pointer transition-all"
+                      >
+                        <Eye size={12} className="mr-1" />
+                        Detail
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))
@@ -295,7 +334,10 @@ export default function TableSection({
           <ChevronRight className="w-4 h-4 ml-1" />
         </button>
       </div>
-      <AddDataModal open={modalAdd} onClose={() => setModalAdd(false)} />
+
+      {showActions && !isPeninjauan && (
+        <AddDataModal open={modalAdd} onClose={() => setModalAdd(false)} />
+      )}
     </div>
   );
 }
