@@ -1,40 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
 import Cards from "@/components/reusable/card";
 import { variable } from "@/lib/variable";
 
 export default function CardsSection({ loading, setLoading }) {
   const [cards, setCards] = useState([]);
-  const searchParams = useSearchParams();
-  const categoryFilter = (searchParams.get("category") || "all").toLowerCase();
 
-  // Mapping kategori → pangkat → icon
-  const categoryMap = {
-    pati: {
-      ranks: [
-        { name: "brigjen", icon: "/images/perwira/brigjen.png" },
-        { name: "letjen", icon: "/images/perwira/letjen.png" },
-        { name: "mayjen", icon: "/images/perwira/mayjen.png" },
-        { name: "jenderal", icon: "/images/perwira/jenderal.png" },
-      ],
-    },
-    pamen: {
-      ranks: [
-        { name: "mayor", icon: "/images/perwira/mayor.png" },
-        { name: "letkol", icon: "/images/perwira/letkol.png" },
-        { name: "kolonel", icon: "/images/perwira/kolonel.png" },
-      ],
-    },
-    pama: {
-      ranks: [
-        { name: "letda", icon: "/images/perwira/letda.png" },
-        { name: "lettu", icon: "/images/perwira/lettu.png" },
-        { name: "kapten", icon: "/images/perwira/kapten.png" },
-      ],
-    },
-  };
+  // Hanya pangkat Pati (brigjen, letjen, mayjen, jenderal)
+  const patiRanks = [
+    { name: "brigjen", icon: "/images/perwira/brigjen.png" },
+    { name: "letjen", icon: "/images/perwira/letjen.png" },
+    { name: "mayjen", icon: "/images/perwira/mayjen.png" },
+    { name: "jenderal", icon: "/images/perwira/jenderal.png" },
+  ];
 
   const fetchCards = async () => {
     try {
@@ -51,65 +30,18 @@ export default function CardsSection({ loading, setLoading }) {
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       const data = await res.json();
 
-      let formattedCards = [];
+      const formattedCards = [];
 
-      if (categoryFilter === "all") {
-        // Summary kategori: Pama, Pamen, Pati + Total Prajurit
-        const pamaJumlah = data.kapten + data.lettu + data.letda;
-        const pamenJumlah = data.mayor + data.letkol + data.kolonel;
-        const patiJumlah = data.brigjen + data.mayjen + data.letjen + data.jenderal;
-        const totalJumlah = Object.values(data).reduce((a, b) => a + b, 0);
-
-        formattedCards = [
-          {
-            jumlah: pamaJumlah,
-            label: "Letnan - Kapten",
-            sub: "Jumlah Perwira Pertama",
-            iconUrl: "/images/perwira/letda.png",
-          },
-          {
-            jumlah: pamenJumlah,
-            label: "Mayor - Kolonel",
-            sub: "Jumlah Perwira Menengah",
-            iconUrl: "/images/perwira/mayor.png",
-          },
-          {
-            jumlah: patiJumlah,
-            label: "Brigjen - Jenderal",
-            sub: "Jumlah Perwira Tinggi",
-            iconUrl: "/images/perwira/brigjen.png",
-          },
-          {
-            jumlah: totalJumlah,
-            label: "Total Prajurit",
-            sub: "Seluruh Prajurit",
-            iconUrl: "/images/tni.png",
-          },
-        ];
-      } else if (categoryFilter in categoryMap) {
-        // Detail per pangkat sesuai kategori
-        const { ranks } = categoryMap[categoryFilter];
-        ranks.forEach(({ name, icon }) => {
-          if (name in data) {
-            formattedCards.push({
-              label: name.charAt(0).toUpperCase() + name.slice(1),
-              jumlah: data[name],
-              sub: `Jumlah ${name.charAt(0).toUpperCase() + name.slice(1)}`,
-              iconUrl: icon,
-            });
-          }
+      // Buat cards hanya untuk pangkat Pati
+      patiRanks.forEach(({ name, icon }) => {
+        const jumlah = typeof data[name] === "number" ? data[name] : 0;
+        formattedCards.push({
+          label: name.charAt(0).toUpperCase() + name.slice(1),
+          jumlah,
+          sub: `Jumlah ${name.charAt(0).toUpperCase() + name.slice(1)}`,
+          iconUrl: icon,
         });
-      } else {
-        // Fallback: tampil semua pangkat default
-        for (let key in data) {
-          formattedCards.push({
-            label: key.charAt(0).toUpperCase() + key.slice(1),
-            jumlah: data[key],
-            sub: `Jumlah ${key.charAt(0).toUpperCase() + key.slice(1)}`,
-            iconUrl: "/images/default.png",
-          });
-        }
-      }
+      });
 
       setCards(formattedCards);
     } catch (error) {
@@ -129,7 +61,7 @@ export default function CardsSection({ loading, setLoading }) {
 
   useEffect(() => {
     fetchCards();
-  }, [categoryFilter]);
+  }, []);
 
   return <Cards cards={cards} loading={loading} />;
 }

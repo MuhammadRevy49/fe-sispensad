@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Cards from "@/components/reusable/card";
 import Chart from "@/components/dashboard/chart";
 import Activities from "@/components/dashboard/Activities";
-import {variable} from "@/lib/variable";
+import { variable } from "@/lib/variable";
 import PageTitle from "@/components/reusable/pageTitle";
 
 export default function Beranda() {
@@ -17,54 +17,40 @@ export default function Beranda() {
       try {
         const token = localStorage.getItem("token");
 
-        // Ambil data cards dari API
-        const resTotal = await fetch(
-       `${process.env.NEXT_PUBLIC_BASE_URL}${variable.totalSoldier}?category=all`,
+        // Ambil data rank (hanya pangkat Pati)
+        const resRank = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}${variable.totalSoldier}?category=rank`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        const totalData = await resTotal.json();
 
-        const resPerwira = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}${variable.totalSoldier}?category=group`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        const perwiraData = await resPerwira.json();
+        if (!resRank.ok) throw new Error(`HTTP error! status: ${resRank.status}`);
+        const rankData = await resRank.json();
 
-        const newCards = [
-          {
-            jumlah: perwiraData.pama,
-            label: "Letnan - Kapten",
-            sub: "Jumlah Perwira Pertama",
-            iconUrl: "images/perwira/letda.png",
-          },
-          {
-            jumlah: perwiraData.pamen,
-            label: "Mayor - Kolonel",
-            sub: "Jumlah Perwira Menengah",
-            iconUrl: "images/perwira/mayor.png",
-          },
-          {
-            jumlah: perwiraData.pati,
-            label: "Brigjen - Jendral",
-            sub: "Jumlah Perwira Tinggi",
-            iconUrl: "images/perwira/brigjen.png",
-          },
-          {
-            jumlah: totalData.total,
-            label: "Total Prajurit",
-            sub: "Seluruh Prajurit",
-            iconUrl: "/images/tni.png",
-          },
+        // Definisikan hanya pangkat Pati
+        const patiRanks = [
+          { name: "brigjen", icon: "/images/perwira/brigjen.png" },
+          { name: "letjen", icon: "/images/perwira/letjen.png" },
+          { name: "mayjen", icon: "/images/perwira/mayjen.png" },
+          { name: "jenderal", icon: "/images/perwira/jenderal.png" },
         ];
+
+        const newCards = patiRanks.map(({ name, icon }) => {
+          const jumlah = typeof rankData[name] === "number" ? rankData[name] : 0;
+          return {
+            jumlah,
+            label: name.charAt(0).toUpperCase() + name.slice(1),
+            sub: `Jumlah ${name.charAt(0).toUpperCase() + name.slice(1)}`,
+            iconUrl: icon,
+          };
+        });
 
         setCards(newCards);
 
+        // Ambil data chart (tahun)
         const resChart = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}`+ variable.historyYear,
+          `${process.env.NEXT_PUBLIC_BASE_URL}${variable.historyYear}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -89,15 +75,28 @@ export default function Beranda() {
             desember: item.desember,
           }));
           setChartData(formattedData);
+        } else {
+          setChartData([]);
         }
 
-        const resHistory = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}`+ variable.history, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        // Ambil activity/history
+        const resHistory = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}${variable.history}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         const data = await resHistory.json();
         setActivities(data);
       } catch (error) {
         console.error("Error fetching dashboard:", error);
+        // Jika error, tampilkan cards default kosong agar UI tetap stabil
+        setCards([
+          { jumlah: 0, label: "Brigjen", sub: "Jumlah Brigjen", iconUrl: "/images/perwira/brigjen.png" },
+          { jumlah: 0, label: "Letjen", sub: "Jumlah Letjen", iconUrl: "/images/perwira/letjen.png" },
+          { jumlah: 0, label: "Mayjen", sub: "Jumlah Mayjen", iconUrl: "/images/perwira/mayjen.png" },
+          { jumlah: 0, label: "Jenderal", sub: "Jumlah Jenderal", iconUrl: "/images/perwira/jenderal.png" },
+        ]);
       }
     };
 
@@ -106,7 +105,7 @@ export default function Beranda() {
 
   return (
     <div className="p-1 flex flex-col">
-      <PageTitle title="Dashboard Statistik" desc="Sistem Pensiun Angkatan Darat"/>
+      <PageTitle title="Dashboard Statistik" desc="Sistem Pensiun Angkatan Darat" />
       <Cards cards={cards} />
       <div className="flex md:flex-row flex-col mt-3 gap-3">
         <Chart chartData={chartData} />

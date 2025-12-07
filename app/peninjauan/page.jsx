@@ -1,37 +1,27 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import CardsSection from "@/components/data/card";
 import TableSection from "@/components/data/table";
 import LoadingDots from "@/components/reusable/loading";
 import ConfirmModal from "@/components/reusable/modal";
 import { variable } from "@/lib/variable";
 import PageTitle from "@/components/reusable/pageTitle";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
 
 export default function DashboardPage() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const searchParams = useSearchParams();
-  const refreshParam = searchParams.get("refresh");
-  const category = "pati";
-  const router = useRouter();
-  const pathname = usePathname();
+
   const [loading, setLoading] = useState(false);
-  const [isImporting, setIsImporting] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
   const [page, setPage] = useState(1);
+
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmMessage, setConfirmMessage] = useState("");
   const [confirmType, setConfirmType] = useState("success");
-  const limit = 50;
 
-  useEffect(() => {
-    if (refreshParam) {
-      setRefreshTrigger(prev => prev + 1);
-      router.replace(pathname);
-    }
-  }, [refreshParam]);
+  const limit = 50;
 
   const confirmDelete = async () => {
     if (!deleteTarget) return;
@@ -47,7 +37,7 @@ export default function DashboardPage() {
       );
       setConfirmMessage("Data berhasil dihapus!");
       setConfirmType("success");
-      setRefreshTrigger((prev) => prev + 1);
+      setRefreshTrigger(prev => prev + 1);
     } catch (error) {
       console.error(error);
       setConfirmMessage("Terjadi kesalahan saat delete.");
@@ -61,16 +51,11 @@ export default function DashboardPage() {
   return (
     <div className="p-1 space-y-6 relative">
       {/* Page Title */}
-      <PageTitle
-        title="Data Perwira Tinggi"
-        desc="Sistem Pensiun Angkatan Darat"
-      />
-
+      <PageTitle title={`Peninjauan Pensiun`} desc="Sistem Pensiun Angkatan Darat" />
       {/* Section Cards */}
       <CardsSection
         loading={loading}
         setLoading={setLoading}
-        category={category}
         refreshTrigger={refreshTrigger}
       />
 
@@ -79,16 +64,14 @@ export default function DashboardPage() {
         page={page}
         setPage={setPage}
         limit={limit}
-        category={category}
-        setIsImporting={setIsImporting}
-        setIsExporting={setIsExporting}
         setConfirmMessage={setConfirmMessage}
         setConfirmOpen={setConfirmOpen}
         setConfirmType={setConfirmType}
         setDeleteTarget={setDeleteTarget}
         refreshTrigger={refreshTrigger}
-        showActions={true}
-        showBup={false}
+        showActions={false}
+        showBpu={true}
+        mode="peninjauan"
       />
 
       {/* Global Loading overlay */}
@@ -99,30 +82,6 @@ export default function DashboardPage() {
             <div className="text-[var(--textgray)] font-medium text-center">
               Memuat data...
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Global Importing overlay */}
-      {isImporting && (
-        <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center">
-          <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center space-y-4">
-            <LoadingDots color="var(--armycolor)" />
-            <p className="text-[var(--textgray)] font-medium text-center">
-              Sedang mengimpor data, mohon tunggu...
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Global Exporting overlay */}
-      {isExporting && (
-        <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center">
-          <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center space-y-4">
-            <LoadingDots color="var(--armycolor)" />
-            <p className="text-[var(--textgray)] font-medium text-center">
-              Sedang mengekspor data, mohon tunggu...
-            </p>
           </div>
         </div>
       )}
@@ -138,8 +97,8 @@ export default function DashboardPage() {
           confirmType === "success"
             ? "Berhasil"
             : confirmType === "error"
-            ? "Error"
-            : "Konfirmasi"
+              ? "Error"
+              : "Konfirmasi"
         }
         message={confirmMessage}
         type={confirmType}

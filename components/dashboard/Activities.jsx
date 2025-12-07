@@ -39,8 +39,8 @@ export default function Activities({ activities }) {
           <File className="text-[var(--armycolor)]" size={20} />
         </div>
         <div>
-          <p className="text-lg font-semibold text-gray-800">Aktivitas Terbaru</p>
-          <p className="text-sm text-gray-500">Log aktivitas pengguna sistem</p>
+          <p className="text-lg font-semibold text-gray-800">Aktivitas dan Peninjauan</p>
+          <p className="text-sm text-gray-500">Log aktivitas dan info peninjauan</p>
         </div>
       </div>
 
@@ -73,7 +73,7 @@ export default function Activities({ activities }) {
         ) : (
           <div className="text-center py-8 text-gray-400">
             <File size={48} className="mx-auto mb-2 opacity-50" />
-            <p>Tidak ada aktivitas</p>
+            <p>Tidak ada informasi.</p>
           </div>
         )}
       </div>

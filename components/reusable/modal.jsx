@@ -16,7 +16,7 @@ export default function ConfirmModal({
   message,
   confirmText = "Ya",
   confirmColor,
-  type = "success", // success / warning / error / info / question
+  type = "success",
   onConfirm,
 }) {
   if (!isOpen) return null;
@@ -46,7 +46,7 @@ export default function ConfirmModal({
       break;
     default:
       icon = <CheckCircle size={72} className="text-green-500" />;
-      defaultColor = "bg-green-500";
+      defaultColor = "bg-green-600";
       break;
   }
 

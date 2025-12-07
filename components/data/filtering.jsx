@@ -1,28 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
 import Dropdown from "@/components/reusable/dropdown";
 import { Download, Upload, Plus } from "lucide-react";
-
-const pangkatOptionsMap = {
-  pati: ["Semua", "Brigjen", "Letjen", "Mayjen", "Jenderal"],
-  pamen: ["Semua", "Mayor", "Letkol", "Kolonel"],
-  pama: ["Semua", "Letda", "Lettu", "Kapten"],
-  all: [
-    "Semua",
-    "Brigjen",
-    "Letjen",
-    "Mayjen",
-    "Jenderal",
-    "Mayor",
-    "Letkol",
-    "Kolonel",
-    "Letda",
-    "Lettu",
-    "Kapten",
-  ],
-};
+import { variable } from "@/lib/variable";
 
 export default function Filtering({
   search,
@@ -33,33 +14,56 @@ export default function Filtering({
   onImport,
   onExport,
   onAdd,
+  showActions = true,
+  showBup = true,
 }) {
-  const searchParams = useSearchParams();
-  const rawGroup = searchParams.get("category") || "all";
-  const group = rawGroup.replace(/"/g, "");
-
-  const pangkatOptions = pangkatOptionsMap[group] || [
-    "Semua",
-    "Letnan",
-    "Kapten",
-    "Mayor",
-  ];
-
-
-  // State lokal untuk input sementara
+  const pangkatOptions = ["Semua", "Brigjen", "Letjen", "Mayjen", "Jenderal"];
   const [localSearch, setLocalSearch] = useState(search);
-  const [localFilter, setLocalFilter] = useState(pangkatOptions[0] || "Semua");
+  const [localFilter, setLocalFilter] = useState(pangkatOptions[0]);
 
-  // Reset filter pangkat saat group/category berubah
+  // state untuk BUP count
+  const [bupCount, setBupCount] = useState(null);
+  const [bupLoading, setBupLoading] = useState(false);
+  const [bupError, setBupError] = useState(null);
+
   useEffect(() => {
-    setLocalFilter(pangkatOptions[0] || "Semua");
-  }, [group]);
+    setLocalSearch(search);
+    setLocalFilter(filterPangkat || pangkatOptions[0]);
+  }, [search, filterPangkat]);
 
   const handleSearchSubmit = () => {
     setSearch(localSearch);
     setFilterPangkat(localFilter);
-    setPage(1); // reset page saat search
+    setPage(1);
   };
+
+  useEffect(() => {
+    if (!showBup) return;
+    const fetchBupCount = async () => {
+      try {
+        setBupLoading(true);
+        setBupError(null);
+
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}${variable.countPersonilBup}`);
+
+        if (!res.ok) {
+          throw new Error(`Gagal mengambil data BUP (${res.status})`);
+        }
+
+        const json = await res.json();
+        const total = json?.sudah_bup ?? json?.total ?? 0;
+
+        setBupCount(total);
+      } catch (err) {
+        setBupError(err?.message || "Gagal memuat data BUP");
+        setBupCount(null);
+      } finally {
+        setBupLoading(false);
+      }
+    };
+
+    fetchBupCount();
+  }, [showBup]);
 
   return (
     <div className="flex justify-between gap-3 mb-3">
@@ -80,7 +84,6 @@ export default function Filtering({
           placeholder="Filter Pangkat"
         />
 
-        {/* Tombol Submit Search */}
         <button
           type="button"
           onClick={handleSearchSubmit}
@@ -90,31 +93,56 @@ export default function Filtering({
         </button>
       </div>
 
-      {/* Bagian tombol Import, Export, Tambah */}
-      <div className="flex items-center gap-3">
-        <label className="text-sm p-2 border border-green-800 text-green-800 rounded-lg flex items-center hover:opacity-50 transition-all cursor-pointer">
-          <Download size={18} className="mr-1" /> Import
-          <input
-            type="file"
-            className="hidden"
-            onChange={(e) => onImport(e.target.files[0])}
-          />
-        </label>
+      {showBup && (
+        <div>
+          <div className="bg-white p-2 rounded-lg border border-gray-300 shadow min-w-[260px]">
+            {bupLoading ? (
+              <p className="text-sm text-gray-500">
+                Memuat jumlah perwira BUP...
+              </p>
+            ) : bupError ? (
+              <p className="text-sm text-red-500">
+                {bupError}
+              </p>
+            ) : (
+              <p className="text-sm">
+                Jumlah Perwira Mencapai BUP :{" "}
+                <span className="font-semibold">
+                  {bupCount ?? 0}
+                </span>
+              </p>
+            )}
+          </div>
+        </div>
+      )}
 
-        <button
-          onClick={onExport}
-          className="text-sm p-2 border border-green-800 text-green-800 rounded-lg flex items-center hover:opacity-50 transition-all"
-        >
-          <Upload size={18} className="mr-1" /> Export
-        </button>
+      {/* Bagian tombol Import, Export, Tambah (opsional) */}
+      {showActions && (
+        <div className="flex items-center gap-3">
+          <label className="text-sm p-2 border border-green-800 text-green-800 rounded-lg flex items-center hover:opacity-50 transition-all cursor-pointer">
+            <Download size={18} className="mr-1" /> Import
+            <input
+              type="file"
+              className="hidden"
+              onChange={(e) => onImport && onImport(e.target.files[0])}
+            />
+          </label>
 
-        <button
-          onClick={onAdd}
-          className="text-sm p-2 bg-[var(--armycolor)] text-white rounded-lg flex items-center hover:opacity-50 transition-all"
-        >
-          <Plus size={18} className="mr-1" /> Tambahkan Data
-        </button>
-      </div>
+          <button
+            onClick={onExport}
+            className="text-sm p-2 border border-green-800 text-green-800 rounded-lg flex items-center hover:opacity-50 hover:cursor-pointer transition-all"
+          >
+            <Upload size={18} className="mr-1" /> Export
+          </button>
+
+          <button
+            onClick={onAdd}
+            className="text-sm p-2 bg-[var(--armycolor)] text-white rounded-lg flex items-center hover:opacity-50 hover:cursor-pointer transition-all"
+          >
+            <Plus size={18} className="mr-1" /> Tambahkan Data
+          </button>
+        </div>
+      )}
     </div>
   );
 }
