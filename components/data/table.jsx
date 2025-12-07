@@ -149,7 +149,7 @@ export default function TableSection({
   };
 
   const handleDetail = (soldier) => {
-    alert(`Alhamdulillah jang sae pisan! = ${soldier.id}`);
+    router.push(`/perwira/detail/${soldier.id}`);
   }
 
   const displayData = dataTable.map((item, index) => ({

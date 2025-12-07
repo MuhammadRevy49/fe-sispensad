@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useSearchParams, usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 import CardsSection from "@/components/data/card";
 import TableSection from "@/components/data/table";
 import LoadingDots from "@/components/reusable/loading";
@@ -12,20 +11,9 @@ import PageTitle from "@/components/reusable/pageTitle";
 export default function DashboardPage() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const searchParams = useSearchParams();
 
-  const category = searchParams.get("category") || "all";
-  let dataTitle = "";
-
-  if (category === "all") {
-    dataTitle = "Seluruh Perwira";
-  } else if (category === "pama") {
-    dataTitle = "Perwira Pertama";
-  } else if (category === "pamen") {
-    dataTitle = "Perwira Menengah";
-  } else if (category === "pati") {
-    dataTitle = "Perwira Tinggi";
-  }
+  // Halaman ini khusus Perwira Tinggi
+  const category = "pati"; // kalau nanti benar-benar nggak perlu, bisa dihapus & sesuaikan di child component
 
   const [loading, setLoading] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
@@ -37,10 +25,6 @@ export default function DashboardPage() {
   const [confirmType, setConfirmType] = useState("success");
 
   const limit = 50;
-
-  useEffect(() => {
-    setPage(1);
-  }, [category]);
 
   const confirmDelete = async () => {
     if (!deleteTarget) return;
@@ -58,7 +42,7 @@ export default function DashboardPage() {
       setConfirmType("success");
 
       // Trigger refresh data setelah penghapusan berhasil
-      setRefreshTrigger(prev => prev + 1);
+      setRefreshTrigger((prev) => prev + 1);
     } catch (error) {
       console.error(error);
       setConfirmMessage("Terjadi kesalahan saat delete.");
@@ -72,7 +56,11 @@ export default function DashboardPage() {
   return (
     <div className="p-1 space-y-6 relative">
       {/* Page Title */}
-      <PageTitle title={`Data ${dataTitle}`} desc="Sistem Pensiun Angkatan Darat" />
+      <PageTitle
+        title="Data Perwira Tinggi"
+        desc="Sistem Pensiun Angkatan Darat"
+      />
+
       {/* Section Cards */}
       <CardsSection
         loading={loading}
@@ -145,8 +133,8 @@ export default function DashboardPage() {
           confirmType === "success"
             ? "Berhasil"
             : confirmType === "error"
-              ? "Error"
-              : "Konfirmasi"
+            ? "Error"
+            : "Konfirmasi"
         }
         message={confirmMessage}
         type={confirmType}
