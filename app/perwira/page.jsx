@@ -1,30 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CardsSection from "@/components/data/card";
 import TableSection from "@/components/data/table";
 import LoadingDots from "@/components/reusable/loading";
 import ConfirmModal from "@/components/reusable/modal";
 import { variable } from "@/lib/variable";
 import PageTitle from "@/components/reusable/pageTitle";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 
 export default function DashboardPage() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-
-  // Halaman ini khusus Perwira Tinggi
-  const category = "pati"; // kalau nanti benar-benar nggak perlu, bisa dihapus & sesuaikan di child component
-
+  const searchParams = useSearchParams();
+  const refreshParam = searchParams.get("refresh");
+  const category = "pati";
+  const router = useRouter();
+  const pathname = usePathname();
   const [loading, setLoading] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [page, setPage] = useState(1);
-
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmMessage, setConfirmMessage] = useState("");
   const [confirmType, setConfirmType] = useState("success");
-
   const limit = 50;
+
+  useEffect(() => {
+    if (refreshParam) {
+      setRefreshTrigger(prev => prev + 1);
+      router.replace(pathname);
+    }
+  }, [refreshParam]);
 
   const confirmDelete = async () => {
     if (!deleteTarget) return;
@@ -40,8 +47,6 @@ export default function DashboardPage() {
       );
       setConfirmMessage("Data berhasil dihapus!");
       setConfirmType("success");
-
-      // Trigger refresh data setelah penghapusan berhasil
       setRefreshTrigger((prev) => prev + 1);
     } catch (error) {
       console.error(error);
