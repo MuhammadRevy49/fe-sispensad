@@ -28,7 +28,7 @@ export default function Sidebar({ children }) {
     "/perwira",
     "/peninjauan",
     "/perhitungan",
-    "/generator",
+    "/generate_skep",
     "/pengaturan",
   ];
 
@@ -79,7 +79,7 @@ export default function Sidebar({ children }) {
     { name: "Data Perwira", icon: <Users />, href: "/perwira" },
     { name: "Peninjauan", icon: <ClipboardList />, href: "/peninjauan" },
     { name: "Perhitungan", icon: <Calculator />, href: "/perhitungan" },
-    { name: "Generator", icon: <FileText />, href: "/generator" },
+    { name: "Generate Skep", icon: <FileText />, href: "/generate_skep" },
   ];
 
   const bottomMenu = {
