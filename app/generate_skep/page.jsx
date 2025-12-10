@@ -393,7 +393,7 @@ export default function GenerateSKEPPage() {
       <div className="p-1 space-y-6 relative">
         <PageTitle
           title="Generate Surat Keputusan (SKEP)"
-          desc="Buat dan generate SKEP pensiun Perwira TNI AD"
+          desc="Sistem Pensiun Angkatan Darat"
         />
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
@@ -410,7 +410,7 @@ export default function GenerateSKEPPage() {
       {/* Page Title */}
       <PageTitle
         title="Generate Surat Keputusan (SKEP)"
-        desc="Buat dan generate SKEP pensiun Perwira TNI AD"
+        desc="Sistem Pensiun Angkatan Darat"
       />
 
       {/* Error Alert */}
