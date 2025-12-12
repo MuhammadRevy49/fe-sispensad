@@ -77,7 +77,6 @@ export default function Sidebar({ children }) {
   const mainMenu = [
     { name: "Dashboard", icon: <LayoutGrid />, href: "/" },
     { name: "Data Perwira", icon: <Users />, href: "/perwira" },
-    { name: "Peninjauan", icon: <ClipboardList />, href: "/peninjauan" },
     { name: "Perhitungan", icon: <Calculator />, href: "/perhitungan" },
     { name: "Generate Skep", icon: <FileText />, href: "/generate_skep" },
   ];
