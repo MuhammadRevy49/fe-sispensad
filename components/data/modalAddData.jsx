@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import ConfirmModal from "@/components/reusable/modal";
+import Dropdown from "@/components/reusable/dropdown";
 import { variable } from "@/lib/variable";
 import { useRouter } from "next/navigation";
 
@@ -27,6 +28,8 @@ export default function AddDataModal({ open, onClose, onSuccess }) {
     jumlahAnak: "",
     anak: [],
   });
+
+  const pangkatOptions = ["Brigjen", "Letjen", "Mayjen", "Jenderal"];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -136,7 +139,19 @@ export default function AddDataModal({ open, onClose, onSuccess }) {
             {step === 1 && (
               <div className="grid grid-cols-2 gap-4">
                 <InputField label="Nama" name="nama" value={formData.nama} onChange={handleChange} />
-                <InputField label="Pangkat" name="pangkat" value={formData.pangkat} onChange={handleChange} />
+                {/* Pangkat: dropdown */}
+                <div className="flex flex-col">
+                  <label className="text-sm font-medium text-gray-700 mb-1">Pangkat</label>
+                  <Dropdown
+                    options={pangkatOptions}
+                    selected={formData.pangkat || null}
+                    onSelect={(value) => setFormData(prev => ({ ...prev, pangkat: value }))}
+                    placeholder="Pilih Pangkat"
+                    className="w-full"
+                    bgColor="white"
+                  />
+                </div>
+
                 <InputField label="NRP" name="nrp" value={formData.nrp} onChange={handleChange} />
                 <InputField label="Tanggal Lahir" type="date" name="tanggalLahir" value={formData.tanggalLahir} onChange={handleChange} />
                 <InputField label="Kesatuan Terakhir" name="kesatuanTerakhir" value={formData.kesatuanTerakhir} onChange={handleChange} />

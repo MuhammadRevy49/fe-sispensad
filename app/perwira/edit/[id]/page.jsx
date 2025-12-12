@@ -6,6 +6,7 @@ import PageTitle from "@/components/reusable/pageTitle";
 import { variable } from "@/lib/variable";
 import LoadingDots from "@/components/reusable/loading";
 import ConfirmModal from "@/components/reusable/modal";
+import Dropdown from "@/components/reusable/dropdown";
 
 export default function EditCardPerwira({ initialData = {}, onSave, onCancel }) {
   // Mapping antara label di UI dan key di API
@@ -76,7 +77,7 @@ export default function EditCardPerwira({ initialData = {}, onSave, onCancel }) 
   const [error, setError] = useState(null);
   const [successOpen, setSuccessOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState("Data berhasil disimpan");
-  const token = localStorage.getItem("token");
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   useEffect(() => {
     if (!perwiraId) {
@@ -128,10 +129,11 @@ export default function EditCardPerwira({ initialData = {}, onSave, onCancel }) 
     };
 
     fetchPerwiraData();
-  }, [perwiraId, fields]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [perwiraId]);
 
   function handleChange(e) {
-    const { name, value } = e.target; // name = key API (mis. "NAMA")
+    const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   }
 
@@ -188,6 +190,9 @@ export default function EditCardPerwira({ initialData = {}, onSave, onCancel }) 
   const left = fields.slice(0, middle);
   const right = fields.slice(middle);
 
+  // daftar opsi pangkat (sesuaikan kalau perlu)
+  const pangkatOptions = ["Brigjen", "Letjen", "Mayjen", "Jenderal"];
+
   function renderInput(field) {
     const rawValue = form[field.key] ?? "";
     const dateKeys = [
@@ -209,6 +214,20 @@ export default function EditCardPerwira({ initialData = {}, onSave, onCancel }) 
       value = rawValue.substring(0, 10);
     }
 
+    // jika field pangkat -> render Dropdown
+    if (field.key === "PANGKAT") {
+      return (
+        <Dropdown
+          options={pangkatOptions}
+          selected={form.PANGKAT || null}
+          onSelect={(val) => setForm((prev) => ({ ...prev, PANGKAT: val }))}
+          placeholder="Pilih Pangkat"
+          className="w-full"
+          bgColor="white"
+        />
+      );
+    }
+
     return (
       <input
         id={`input-${field.key}`}
@@ -227,9 +246,7 @@ export default function EditCardPerwira({ initialData = {}, onSave, onCancel }) 
       <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
         <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center space-y-4">
           <LoadingDots color="var(--armycolor)" />
-          <div className="text-[var(--textgray)] font-medium text-center">
-            Memuat data...
-          </div>
+          <div className="text-[var(--textgray)] font-medium text-center">Memuat data...</div>
         </div>
       </div>
     );
@@ -237,14 +254,8 @@ export default function EditCardPerwira({ initialData = {}, onSave, onCancel }) 
 
   return (
     <div className="w-full mx-auto max-w-[98%]">
-      <PageTitle
-        title={`Edit Data Perwira`}
-        desc="Sistem Pensiun Angkatan Darat"
-      />
-      <form
-        onSubmit={handleSave}
-        className="bg-white rounded-2xl shadow-lg p-6 flex flex-col h-[calc(100vh-140px)]"
-      >
+      <PageTitle title={`Edit Data Perwira`} desc="Sistem Pensiun Angkatan Darat" />
+      <form onSubmit={handleSave} className="bg-white rounded-2xl shadow-lg p-6 flex flex-col h-[calc(100vh-140px)]">
         {/* Judul */}
         <div className="flex items-center">
           <h3 className="text-lg font-semibold">Edit Data Perwira</h3>
@@ -261,11 +272,7 @@ export default function EditCardPerwira({ initialData = {}, onSave, onCancel }) 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-3">
               {left.map((field) => (
-                <label
-                  className="block"
-                  key={field.key}
-                  htmlFor={`input-${field.key}`}
-                >
+                <label className="block" key={field.key} htmlFor={`input-${field.key}`}>
                   <span className="text-sm text-gray-700">{field.label}</span>
                   {renderInput(field)}
                 </label>
