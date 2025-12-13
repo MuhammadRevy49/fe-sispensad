@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import Filtering from "./filtering";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, ChevronRight, Eye, Pencil, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye, Pencil, Trash2, MoreVertical } from "lucide-react";
 import { variable } from "@/lib/variable";
 import AddDataModal from "./modalAddData";
 
@@ -20,7 +21,6 @@ export default function TableSection({
   setDeleteTarget,
   refreshTrigger,
   showActions = true,
-  showBup = true,
   mode = "default",
 }) {
   const router = useRouter();
@@ -29,6 +29,12 @@ export default function TableSection({
   const [search, setSearch] = useState("");
   const [filterPangkat, setFilterPangkat] = useState("Semua");
   const [modalAdd, setModalAdd] = useState(false);
+
+  // open dropdown id + position for portal menu
+  const [openDropdownId, setOpenDropdownId] = useState(null);
+  const [dropdownPos, setDropdownPos] = useState(null); // { top, left }
+
+  const tableContainerRef = useRef(null);
 
   const group = category || "all";
   const isPeninjauan = mode === "peninjauan";
@@ -73,6 +79,37 @@ export default function TableSection({
   useEffect(() => {
     fetchData();
   }, [page, limit, filterPangkat, group, search, refreshTrigger, mode]);
+
+  useEffect(() => {
+    const handleDocClick = (e) => {
+      const target = e.target;
+      if (!target.closest?.(".row-action-toggle") && !target.closest?.(".row-action-dropdown-portal")) {
+        setOpenDropdownId(null);
+        setDropdownPos(null);
+      }
+    };
+    document.addEventListener("click", handleDocClick);
+    return () => document.removeEventListener("click", handleDocClick);
+  }, []);
+
+  // close dropdown when user scrolls the table container or the window
+  useEffect(() => {
+    const onScroll = () => {
+      if (openDropdownId !== null) {
+        setOpenDropdownId(null);
+        setDropdownPos(null);
+      }
+    };
+
+    const container = tableContainerRef.current;
+    if (container) container.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("scroll", onScroll, { passive: true });
+
+    return () => {
+      if (container) container.removeEventListener("scroll", onScroll);
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, [openDropdownId]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -178,10 +215,99 @@ export default function TableSection({
     "Pangkat",
     "NRP",
     "TTL",
-    "TMT TNI",
-    isPeninjauan ? "Status" : "Kesatuan",
+    "Status",
     "Aksi",
   ];
+
+  const openRowDropdown = (e, soldierId) => {
+    e.stopPropagation();
+    const btn = e.currentTarget;
+    const rect = btn.getBoundingClientRect();
+    const MENU_WIDTH = 144;
+    const MENU_HEIGHT = 120;
+    const GAP = 8;
+
+    let top = rect.bottom + window.scrollY + GAP;
+    let left = rect.right - MENU_WIDTH + window.scrollX;
+
+    // if not enough space below, place above the button
+    const spaceBelow = window.innerHeight - rect.bottom;
+    if (spaceBelow < MENU_HEIGHT + GAP) {
+      top = rect.top + window.scrollY - MENU_HEIGHT - GAP;
+    }
+
+    // clamp left so menu won't overflow viewport
+    if (left < 8) left = 8;
+    const maxLeft = window.innerWidth - MENU_WIDTH - 8;
+    if (left > maxLeft) left = maxLeft;
+
+    setDropdownPos({ left, top });
+    setOpenDropdownId((prev) => (prev === soldierId ? null : soldierId));
+
+    // if closing, clear pos
+    if (openDropdownId === soldierId) {
+      setDropdownPos(null);
+    }
+  };
+
+  // portal menu renderer
+  const renderPortalMenu = (soldier) => {
+    if (!dropdownPos) return null;
+    const menu = (
+      <div
+        className="row-action-dropdown-portal"
+        style={{
+          position: "absolute",
+          top: dropdownPos.top,
+          left: dropdownPos.left,
+          width: 144,
+          zIndex: 9999,
+          boxShadow: "0 6px 18px rgba(15, 23, 42, 0.08)",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="bg-white border border-gray-200 rounded-lg py-1">
+          <button
+            onClick={() => {
+              setOpenDropdownId(null);
+              setDropdownPos(null);
+              handleEdit(soldier);
+            }}
+            className="w-full text-left px-3 py-2 text-xs flex items-center gap-2 hover:bg-gray-50"
+          >
+            <Pencil size={14} className="mr-1 text-yellow-600" />
+            <span className="text-yellow-600">Edit</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setOpenDropdownId(null);
+              setDropdownPos(null);
+              handleDelete(soldier);
+            }}
+            className="w-full text-left px-3 py-2 text-xs flex items-center gap-2 hover:bg-gray-50"
+          >
+            <Trash2 size={14} className="mr-1 text-red-500" />
+            <span className="text-red-500">Hapus</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setOpenDropdownId(null);
+              setDropdownPos(null);
+              handleDetail(soldier);
+            }}
+            className="w-full text-left px-3 py-2 text-xs flex items-center gap-2 hover:bg-gray-50"
+          >
+            <Eye size={14} className="mr-1 text-blue-700" />
+            <span className="text-blue-700">Detail</span>
+          </button>
+        </div>
+      </div>
+    );
+
+    return typeof document !== "undefined" ? createPortal(menu, document.body) : null;
+  };
 
   return (
     <div className="relative">
@@ -196,13 +322,11 @@ export default function TableSection({
         onAdd={handleAdd}
         onSearch={handleSearch}
         showActions={showActions}
-        showBup={showBup}
       />
 
       <div
-        className={`overflow-x-auto bg-white rounded-lg shadow relative ${
-          displayData.length > 10 ? "overflow-y-auto" : ""
-        }`}
+        ref={tableContainerRef}
+        className={`overflow-x-auto bg-white rounded-lg shadow relative ${displayData.length > 10 ? "overflow-y-auto" : ""}`}
         style={displayData.length > 10 ? { maxHeight: "600px" } : {}}
       >
         <table className="w-full text-left border-collapse">
@@ -222,12 +346,10 @@ export default function TableSection({
             {displayData.length === 0 ? (
               <tr>
                 <td
-                  colSpan={8}
+                  colSpan={7}
                   className="px-4 py-3 text-center text-gray-500 border-t border-gray-300"
                 >
-                  {search
-                    ? "Tidak ada data yang sesuai dengan pencarian"
-                    : "Tidak ada data"}
+                  {search ? "Tidak ada data yang sesuai dengan pencarian" : "Tidak ada data"}
                 </td>
               </tr>
             ) : (
@@ -236,74 +358,45 @@ export default function TableSection({
                   key={soldier.id}
                   className="hover:bg-gray-50 relative text-sm transition-colors"
                 >
-                  <td className="px-4 py-3 border-t border-gray-300">
-                    {soldier.no}
-                  </td>
-                  <td className="px-4 py-3 border-t border-gray-300">
-                    {soldier.NAMA}
-                  </td>
-                  <td className="px-4 py-3 border-t border-gray-300">
-                    {soldier.PANGKAT}
-                  </td>
-                  <td className="px-4 py-3 border-t border-gray-300">
-                    {soldier.NRP}
-                  </td>
-                  <td className="px-4 py-3 border-t border-gray-300">
-                    {soldier.TTL}
-                  </td>
-                  <td className="px-4 py-3 border-t border-gray-300">
-                    {soldier.TMT_TNI}
-                  </td>
-                  <td className="px-4 py-3 border-t border-gray-300">
-                    <p className={`${isPeninjauan ? "p-1 border border-yellow-500 rounded-full text-yellow-500 text-center" : "rounded"}`}>
-                    {isPeninjauan
-                      ? soldier.status_bup || soldier.STATUS || "-"
-                      : soldier.KESATUAN}
-                    </p>
-                  </td>
+                  <td className="px-4 py-3 border-t border-gray-300">{soldier.no}</td>
+                  <td className="px-4 py-3 border-t border-gray-300">{soldier.NAMA}</td>
+                  <td className="px-4 py-3 border-t border-gray-300">{soldier.PANGKAT}</td>
+                  <td className="px-4 py-3 border-t border-gray-300">{soldier.NRP}</td>
+                  <td className="px-4 py-3 border-t border-gray-300">{soldier.TTL}</td>
 
                   <td className="px-4 py-3 border-t border-gray-300">
-                    {isPeninjauan ? (
+                    {(() => {
+                      const raw = String(soldier.status_bup || soldier.STATUS || "");
+                      const key = raw.trim().toLowerCase();
+                      let cls = "text-gray-500 border-gray-300";
+                      if (key.includes("mencapai bup")) cls = "text-green-600 border-green-600";
+                      else if (key.includes("belum")) cls = "text-red-600 border-red-400";
+                      else if (key.includes("akan")) cls = "text-yellow-600 border-yellow-600";
+                      const label = raw || "-";
+                      return (
+                        <span className={`inline-block px-2 py-1 text-xs rounded-full border ${cls} text-center`}>
+                          {label}
+                        </span>
+                      );
+                    })()}
+                  </td>
+
+                  <td className="px-4 py-3 border-t border-gray-300 relative">
+                    {/* action: three-dot toggle (we capture rect and render portal menu) */}
+                    <div className="inline-block relative">
                       <button
-                        onClick={() => handleDetail(soldier)}
-                        className="flex items-center px-1 py-1 text-xs rounded-md text-blue-700 hover:opacity-50 hover:cursor-pointer transition-all"
+                        type="button"
+                        className="row-action-toggle flex items-center p-1 rounded hover:bg-gray-100"
+                        onClick={(e) => openRowDropdown(e, soldier.id)}
+                        aria-haspopup="true"
+                        aria-expanded={openDropdownId === soldier.id}
                       >
-                        <Eye size={12} className="mr-1" />
-                        Lihat Detail
+                        <MoreVertical size={16} />
                       </button>
-                    ) : showActions ? (
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleEdit(soldier)}
-                          className="flex items-center px-1 py-1 text-xs rounded-md text-yellow-600 hover:opacity-50 hover:cursor-pointer transition-all"
-                        >
-                          <Pencil size={12} className="mr-1" />
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(soldier)}
-                          className="flex items-center px-1 py-1 text-xs rounded-md text-red-500 hover:opacity-50 hover:cursor-pointer transition-all"
-                        >
-                          <Trash2 size={12} className="mr-1" />
-                          Hapus
-                        </button>
-                        <button
-                          onClick={() => handleDetail(soldier)}
-                          className="flex items-center px-1 py-1 text-xs rounded-md text-blue-700 hover:opacity-50 hover:cursor-pointer transition-all"
-                        >
-                          <Eye size={12} className="mr-1" />
-                          Detail
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => handleDetail(soldier)}
-                        className="flex items-center px-1 py-1 text-xs rounded-md text-blue-700 hover:opacity-50 hover:cursor-pointer transition-all"
-                      >
-                        <Eye size={12} className="mr-1" />
-                        Detail
-                      </button>
-                    )}
+
+                      {/* If this row is open, render portal menu */}
+                      {openDropdownId === soldier.id && renderPortalMenu(soldier)}
+                    </div>
                   </td>
                 </tr>
               ))

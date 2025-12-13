@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import Dropdown from "@/components/reusable/dropdown";
 import { Download, Upload, Plus } from "lucide-react";
-import { variable } from "@/lib/variable";
 
 export default function Filtering({
   search,
@@ -15,55 +14,33 @@ export default function Filtering({
   onExport,
   onAdd,
   showActions = true,
-  showBup = true,
+  statusFilter,
+  setStatusFilter,
 }) {
   const pangkatOptions = ["Semua", "Brigjen", "Letjen", "Mayjen", "Jenderal"];
-  const [localSearch, setLocalSearch] = useState(search);
-  const [localFilter, setLocalFilter] = useState(pangkatOptions[0]);
+  const statusOptions = ["Semua", "Mencapai BUP", "Belum Mencapai BUP", "Akan Mencapai BUP"];
 
-  // state untuk BUP count
-  const [bupCount, setBupCount] = useState(null);
-  const [bupLoading, setBupLoading] = useState(false);
-  const [bupError, setBupError] = useState(null);
+  const [localSearch, setLocalSearch] = useState(search || "");
+  const [localFilter, setLocalFilter] = useState(filterPangkat || null);
+  const [localStatus, setLocalStatus] = useState(statusFilter || null);
+
+  const [openDropdown, setOpenDropdown] = useState(null);
 
   useEffect(() => {
-    setLocalSearch(search);
-    setLocalFilter(filterPangkat || pangkatOptions[0]);
-  }, [search, filterPangkat]);
+    setLocalSearch(search || "");
+    setLocalFilter(filterPangkat || null);
+    setLocalStatus(statusFilter || null);
+  }, [search, filterPangkat, statusFilter]);
 
   const handleSearchSubmit = () => {
     setSearch(localSearch);
-    setFilterPangkat(localFilter);
+    setFilterPangkat(localFilter ?? "Semua");
+    if (typeof setStatusFilter === "function") {
+      setStatusFilter(localStatus ?? "");
+    }
     setPage(1);
+    setOpenDropdown(null);
   };
-
-  useEffect(() => {
-    if (!showBup) return;
-    const fetchBupCount = async () => {
-      try {
-        setBupLoading(true);
-        setBupError(null);
-
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}${variable.countPersonilBup}`);
-
-        if (!res.ok) {
-          throw new Error(`Gagal mengambil data BUP (${res.status})`);
-        }
-
-        const json = await res.json();
-        const total = json?.sudah_bup ?? json?.total ?? 0;
-
-        setBupCount(total);
-      } catch (err) {
-        setBupError(err?.message || "Gagal memuat data BUP");
-        setBupCount(null);
-      } finally {
-        setBupLoading(false);
-      }
-    };
-
-    fetchBupCount();
-  }, [showBup]);
 
   return (
     <div className="flex justify-between gap-3 mb-3">
@@ -81,7 +58,19 @@ export default function Filtering({
           options={pangkatOptions}
           selected={localFilter}
           onSelect={(value) => setLocalFilter(value)}
-          placeholder="Filter Pangkat"
+          placeholder="Pilih Pangkat"
+          isOpen={openDropdown === 'pangkat'}
+          onToggle={(next) => setOpenDropdown(next ? 'pangkat' : null)}
+        />
+
+        <Dropdown
+          options={statusOptions}
+          selected={localStatus}
+          onSelect={(value) => setLocalStatus(value)}
+          placeholder="Pilih Status"
+          isOpen={openDropdown === 'status'}
+          onToggle={(next) => setOpenDropdown(next ? 'status' : null)}
+          className="w-46"
         />
 
         <button
@@ -92,29 +81,6 @@ export default function Filtering({
           Submit
         </button>
       </div>
-
-      {showBup && (
-        <div>
-          <div className="bg-white p-2 rounded-lg border border-gray-300 shadow min-w-[260px]">
-            {bupLoading ? (
-              <p className="text-sm text-gray-500">
-                Memuat jumlah perwira BUP...
-              </p>
-            ) : bupError ? (
-              <p className="text-sm text-red-500">
-                {bupError}
-              </p>
-            ) : (
-              <p className="text-sm">
-                Jumlah Perwira Mencapai BUP :{" "}
-                <span className="font-semibold">
-                  {bupCount ?? 0}
-                </span>
-              </p>
-            )}
-          </div>
-        </div>
-      )}
 
       {/* Bagian tombol Import, Export, Tambah (opsional) */}
       {showActions && (

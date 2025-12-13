@@ -110,6 +110,19 @@ export default function DetailCardPerwira({ initialData = {}, onCancel }) {
     );
   }
 
+  // helper ambil nilai pasangan / anak dengan fallback
+  const pasanganName = data?.PASANGAN || data?.NAMA_PASANGAN || "-";
+  const pasanganTTL = data?.TTL_PASANGAN || "-";
+  const penspokWari = data?.PENSPOK_WARI || "-";
+
+  const anakList = [1, 2, 3, 4].map((i) => {
+    return {
+      nama: data?.[`ANAK_${i}`] || "",
+      ttl: data?.[`TTL_ANAK_${i}`] || "",
+      status: data?.[`STS_ANAK_${i}`] || "",
+    };
+  }).filter((a) => a.nama || a.ttl || a.status);
+
   return (
     <div className="p-1">
       <PageTitle
@@ -117,7 +130,7 @@ export default function DetailCardPerwira({ initialData = {}, onCancel }) {
         desc="Sistem Pensiun Angkatan Darat"
       />
 
-      <div className="bg-white rounded-2xl shadow p-6">
+      <div className="bg-white rounded-2xl shadow p-6 space-y-6">
         {error && (
           <p className="mb-4 text-sm text-red-600">
             Error memuat data: {error}
@@ -132,14 +145,14 @@ export default function DetailCardPerwira({ initialData = {}, onCancel }) {
             </div>
             <button
               type="button"
-              className="mt-auto px-5 py-2 rounded-full w-full bg-gray-300 text-gray-800 text-xs md:text-sm hover:bg-gray-400 transition"
+              className="mt-auto px-5 py-2 rounded-full w-full bg-gray-200 text-gray-800 text-xs md:text-sm hover:bg-gray-400 transition"
             >
               Upload Pas Foto
             </button>
           </div>
 
           {/* Kanan: Detail Prajurit */}
-          <div className="flex-col">
+          <div className="flex-1">
             <h3 className="text-lg font-semibold text-left mb-4">
               Detail Prajurit
             </h3>
@@ -147,11 +160,12 @@ export default function DetailCardPerwira({ initialData = {}, onCancel }) {
             <div className="grid grid-cols-[auto_auto_minmax(0,1fr)] gap-y-1 text-sm">
               {fields.map((f) => {
                 const raw = data[f.key];
-                const value = f.formatter
-                  ? f.formatter(raw)
-                  : raw || raw === 0
-                  ? `${raw}${f.suffix ?? ""}`
-                  : "-";
+                const value =
+                  f.formatter
+                    ? f.formatter(raw)
+                    : raw || raw === 0
+                    ? `${raw}${f.suffix ?? ""}`
+                    : "-";
 
                 return (
                   <React.Fragment key={f.key}>
@@ -165,8 +179,64 @@ export default function DetailCardPerwira({ initialData = {}, onCancel }) {
           </div>
         </div>
 
+        {/* Kartu Pasangan & Anak */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Card Pasangan */}
+          <div className="bg-white border border-gray-200 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-md font-semibold">Istri / Pasangan</h4>
+            </div>
+
+            <div className="text-sm space-y-2">
+              <div className="flex items-center gap-2">
+                <div className="w-36 text-gray-600">Nama</div>
+                <div className="font-medium">{pasanganName || "-"}</div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <div className="w-36 text-gray-600">Tanggal Lahir</div>
+                <div className="font-medium">{pasanganTTL ? formatDate(pasanganTTL) : "-"}</div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <div className="w-36 text-gray-600">Penspok Wari</div>
+                <div className="font-medium">{penspokWari || "-"}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Card Anak-anak */}
+          <div className="bg-white border border-gray-200 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-md font-semibold">Anak</h4>
+            </div>
+
+            <div className="text-sm">
+              {anakList.length === 0 ? (
+                <div className="text-gray-500">Tidak ada anak terdaftar.</div>
+              ) : (
+                <div className="space-y-3">
+                  {anakList.map((anak, idx) => (
+                    <div key={idx} className="grid grid-cols-[auto_auto_minmax(0,1fr)] items-center gap-y-1">
+                      <div className="pr-2">Anak {idx + 1}</div>
+                      <div className="px-1">:</div>
+                      <div className="font-medium">
+                        <div>{anak.nama || "-"}</div>
+                        <div className="text-xs text-gray-500">
+                          {anak.ttl ? `TTL: ${formatDate(anak.ttl)}` : "TTL: -"}
+                          {anak.status ? ` • Status: ${anak.status}` : ""}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
         {/* tombol kembali */}
-        <div className="mt-6 flex justify-end">
+        <div className="mt-2 flex justify-end">
           <Link
             href="/perwira"
             className="px-5 py-2 rounded-lg border border-gray-300 bg-white text-sm text-gray-700 hover:bg-gray-100 transition"
