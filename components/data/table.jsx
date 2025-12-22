@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import Filtering from "./filtering";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, ChevronRight, Eye, Pencil, Trash2, MoreVertical } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye, Pencil, Trash2, MoreVertical, Calculator, FileText } from "lucide-react";
 import { variable } from "@/lib/variable";
 import AddDataModal from "./modalAddData";
 
@@ -29,15 +29,44 @@ export default function TableSection({
   const [search, setSearch] = useState("");
   const [filterPangkat, setFilterPangkat] = useState("Semua");
   const [modalAdd, setModalAdd] = useState(false);
-
-  // open dropdown id + position for portal menu
+  const [selectedRowId, setSelectedRowId] = useState(null);
   const [openDropdownId, setOpenDropdownId] = useState(null);
-  const [dropdownPos, setDropdownPos] = useState(null); // { top, left }
-
+  const [dropdownPos, setDropdownPos] = useState(null);
   const tableContainerRef = useRef(null);
 
   const group = category || "all";
   const isPeninjauan = mode === "peninjauan";
+
+  const openDropdownFromRow = (soldierId, anchorEl) => {
+    if (!anchorEl) return;
+    if (openDropdownId === soldierId) {
+      setOpenDropdownId(null);
+      setDropdownPos(null);
+      setSelectedRowId(null);
+      return;
+    }
+
+    const rect = anchorEl.getBoundingClientRect();
+    const MENU_WIDTH = 144;
+    const MENU_HEIGHT = 120;
+    const GAP = 8;
+
+    let top = rect.bottom + window.scrollY + GAP;
+    let left = rect.right - MENU_WIDTH + window.scrollX;
+
+    const spaceBelow = window.innerHeight - rect.bottom;
+    if (spaceBelow < MENU_HEIGHT + GAP) {
+      top = rect.top + window.scrollY - MENU_HEIGHT - GAP;
+    }
+
+    if (left < 8) left = 8;
+    const maxLeft = window.innerWidth - MENU_WIDTH - 8;
+    if (left > maxLeft) left = maxLeft;
+
+    setSelectedRowId(soldierId);
+    setDropdownPos({ top, left });
+    setOpenDropdownId(soldierId);
+  };
 
   const fetchData = async () => {
     try {
@@ -83,21 +112,26 @@ export default function TableSection({
   useEffect(() => {
     const handleDocClick = (e) => {
       const target = e.target;
-      if (!target.closest?.(".row-action-toggle") && !target.closest?.(".row-action-dropdown-portal")) {
+      if (
+        !target.closest?.(".row-action-toggle") &&
+        !target.closest?.(".row-action-dropdown-portal") &&
+        !target.closest?.(".row-action-anchor")
+      ) {
         setOpenDropdownId(null);
         setDropdownPos(null);
+        setSelectedRowId(null);
       }
     };
     document.addEventListener("click", handleDocClick);
     return () => document.removeEventListener("click", handleDocClick);
   }, []);
 
-  // close dropdown when user scrolls the table container or the window
   useEffect(() => {
     const onScroll = () => {
       if (openDropdownId !== null) {
         setOpenDropdownId(null);
         setDropdownPos(null);
+        setSelectedRowId(null);
       }
     };
 
@@ -212,43 +246,14 @@ export default function TableSection({
   const headers = [
     "No",
     "Nama Prajurit",
-    "Pangkat",
     "NRP",
+    "Pangkat",
+    "Usia",
+    "Kesatuan",
     "TTL",
-    "Status",
+    "Status BUP",
     "Aksi",
   ];
-
-  const openRowDropdown = (e, soldierId) => {
-    e.stopPropagation();
-    const btn = e.currentTarget;
-    const rect = btn.getBoundingClientRect();
-    const MENU_WIDTH = 144;
-    const MENU_HEIGHT = 120;
-    const GAP = 8;
-
-    let top = rect.bottom + window.scrollY + GAP;
-    let left = rect.right - MENU_WIDTH + window.scrollX;
-
-    // if not enough space below, place above the button
-    const spaceBelow = window.innerHeight - rect.bottom;
-    if (spaceBelow < MENU_HEIGHT + GAP) {
-      top = rect.top + window.scrollY - MENU_HEIGHT - GAP;
-    }
-
-    // clamp left so menu won't overflow viewport
-    if (left < 8) left = 8;
-    const maxLeft = window.innerWidth - MENU_WIDTH - 8;
-    if (left > maxLeft) left = maxLeft;
-
-    setDropdownPos({ left, top });
-    setOpenDropdownId((prev) => (prev === soldierId ? null : soldierId));
-
-    // if closing, clear pos
-    if (openDropdownId === soldierId) {
-      setDropdownPos(null);
-    }
-  };
 
   // portal menu renderer
   const renderPortalMenu = (soldier) => {
@@ -273,7 +278,7 @@ export default function TableSection({
               setDropdownPos(null);
               handleEdit(soldier);
             }}
-            className="w-full text-left px-3 py-2 text-xs flex items-center gap-2 hover:bg-gray-50"
+            className="w-full text-left px-3 py-2 text-xs flex items-center gap-2 hover:bg-gray-50 hover:cursor-pointer"
           >
             <Pencil size={14} className="mr-1 text-yellow-600" />
             <span className="text-yellow-600">Edit</span>
@@ -285,7 +290,7 @@ export default function TableSection({
               setDropdownPos(null);
               handleDelete(soldier);
             }}
-            className="w-full text-left px-3 py-2 text-xs flex items-center gap-2 hover:bg-gray-50"
+            className="w-full text-left px-3 py-2 text-xs flex items-center gap-2 hover:bg-gray-50 hover:cursor-pointer"
           >
             <Trash2 size={14} className="mr-1 text-red-500" />
             <span className="text-red-500">Hapus</span>
@@ -297,10 +302,28 @@ export default function TableSection({
               setDropdownPos(null);
               handleDetail(soldier);
             }}
-            className="w-full text-left px-3 py-2 text-xs flex items-center gap-2 hover:bg-gray-50"
-          >
-            <Eye size={14} className="mr-1 text-blue-700" />
-            <span className="text-blue-700">Detail</span>
+            className="w-full text-left px-3 py-2 text-xs flex items-center gap-2 hover:bg-gray-50 hover:cursor-pointer"
+            >
+            <Eye size={14} className="mr-1 text-cyan-500" />
+            <span className="text-cyan-500">Detail</span>
+          </button>
+          <button
+            onClick={() => {
+              router.push('/perhitungan');
+            }}
+            className="w-full text-left px-3 py-2 text-xs flex items-center gap-2 hover:bg-gray-50 hover:cursor-pointer"
+            >
+            <Calculator size={14} className="mr-1 text-blue-600" />
+            <span className="text-blue-600">Hitung GPP</span>
+          </button>
+          <button
+            onClick={() => {
+              router.push('/generate_skep');
+            }}
+            className="w-full text-left px-3 py-2 text-xs flex items-center gap-2 hover:bg-gray-50 hover:cursor-pointer"
+            >
+            <FileText size={14} className="mr-1 text-slate-600" />
+            <span className="text-slate-600">Cetak SKEP</span>
           </button>
         </div>
       </div>
@@ -356,22 +379,36 @@ export default function TableSection({
               displayData.map((soldier) => (
                 <tr
                   key={soldier.id}
-                  className="hover:bg-gray-50 relative text-sm transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openDropdownFromRow(soldier.id, e.currentTarget);
+                  }}
+                  className={`row-action-anchor relative text-sm cursor-pointer transition-colors
+                    ${selectedRowId === soldier.id
+                      ? "bg-green-100 hover:bg-green-100"
+                      : "bg-white hover:bg-gray-50"}
+                  `}
                 >
-                  <td className="px-4 py-3 border-t border-gray-300">{soldier.no}</td>
-                  <td className="px-4 py-3 border-t border-gray-300">{soldier.NAMA}</td>
-                  <td className="px-4 py-3 border-t border-gray-300">{soldier.PANGKAT}</td>
-                  <td className="px-4 py-3 border-t border-gray-300">{soldier.NRP}</td>
-                  <td className="px-4 py-3 border-t border-gray-300">{soldier.TTL}</td>
+                  <td className="px-4 py-3 border-t border-gray-300">
+                    <span
+                      className="absolute right-4 top-1/2 -translate-y-1/2 w-1 h-1"
+                    />
+                    {soldier.no}
+                  </td>
+                  <td className="px-4 py-3 border-t border-gray-300">{soldier.NAMA || "-"}</td>
+                  <td className="px-4 py-3 border-t border-gray-300">{soldier.NRP || "-"}</td>
+                  <td className="px-4 py-3 border-t border-gray-300">{soldier.PANGKAT || "-"}</td>
+                  <td className="px-4 py-3 border-t border-gray-300">{soldier.USIA || "-"}</td>
+                  <td className="px-4 py-3 border-t border-gray-300">{soldier.KESATUAN || "-"}</td>
+                  <td className="px-4 py-3 border-t border-gray-300">{soldier.TTL || "-"}</td>
 
                   <td className="px-4 py-3 border-t border-gray-300">
                     {(() => {
-                      const raw = String(soldier.status_bup || soldier.STATUS || "");
+                      const raw = String(soldier.status_bup || soldier.STATUS || "-");
                       const key = raw.trim().toLowerCase();
                       let cls = "text-gray-500 border-gray-300";
                       if (key.includes("mencapai bup")) cls = "text-green-600 border-green-600";
-                      else if (key.includes("belum")) cls = "text-red-600 border-red-400";
-                      else if (key.includes("akan")) cls = "text-yellow-600 border-yellow-600";
+                      else if (key.includes("lagi")) cls = "text-yellow-600 border-yellow-600";
                       const label = raw || "-";
                       return (
                         <span className={`inline-block px-2 py-1 text-xs rounded-full border ${cls} text-center`}>
@@ -382,20 +419,17 @@ export default function TableSection({
                   </td>
 
                   <td className="px-4 py-3 border-t border-gray-300 relative">
-                    {/* action: three-dot toggle (we capture rect and render portal menu) */}
                     <div className="inline-block relative">
                       <button
                         type="button"
                         className="row-action-toggle flex items-center p-1 rounded hover:bg-gray-100"
-                        onClick={(e) => openRowDropdown(e, soldier.id)}
-                        aria-haspopup="true"
-                        aria-expanded={openDropdownId === soldier.id}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openDropdownFromRow(soldier.id, e.currentTarget);
+                        }}
                       >
                         <MoreVertical size={16} />
                       </button>
-
-                      {/* If this row is open, render portal menu */}
-                      {openDropdownId === soldier.id && renderPortalMenu(soldier)}
                     </div>
                   </td>
                 </tr>
@@ -403,6 +437,10 @@ export default function TableSection({
             )}
           </tbody>
         </table>
+        {openDropdownId &&
+          renderPortalMenu(
+            displayData.find((s) => s.id === openDropdownId)
+        )}
       </div>
 
       {/* Pagination */}

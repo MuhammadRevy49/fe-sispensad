@@ -41,13 +41,6 @@ export default function PerhitunganGaji() {
     }).format(number);
   };
 
-  // Logika perhitungan:
-  // - Gaji pokok pensiun dasar diasumsikan = GPT x (2.5% x MKG)
-  //   => dasar = GPT * 0.025 * MKG
-  // - Tunjangan istri = GPT * (persIstri / 100)
-  // - Tunjangan anak = GPT * (persAnak / 100) * numAnak
-  // - Tunjangan lain: jika dimasukkan sebagai nominal, langsung dijumlahkan
-  // Catatan: formula ini bersifat contoh/estimasi sesuai permintaan UI.
   const hitung = () => {
     const gptNum = parseNumber(gpt);
     const mkgNum = parseNumber(mkg);
@@ -120,13 +113,11 @@ export default function PerhitunganGaji() {
 
   // Auto hitung tiap kali input diubah (opsional)
   useEffect(() => {
-    // jangan otomatis kalau GPT atau MKG belum diisi
     if (!gpt || !mkg) {
       setHasil({ dasar: 0, tunIstri: 0, tunAnak: 0, tunLain: 0, total: 0 });
       return;
     }
     hitung();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gpt, mkg, persIstri, numAnak, persAnak, lainList]);
 
   return (
@@ -135,35 +126,6 @@ export default function PerhitunganGaji() {
         title="Perhitungan Gaji Pokok Pensiun"
         desc="Sistem Pensiun Angkatan Darat"
       />
-
-      <div className="flex items-center gap-3 mb-6">
-        <div className="relative w-96">
-          <input
-            type="text"
-            placeholder="Masukan Nama / NRP"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg p-3 pl-10 text-sm outline-none"
-          />
-          <div className="absolute left-3 top-3.5 text-gray-400"><Search size={16}/></div>
-          {search && (
-            <button
-              onClick={() => setSearch("")}
-              className="absolute right-3 top-3 text-gray-500"
-            >
-              ✖
-            </button>
-          )}
-        </div>
-
-        <button
-          onClick={() => alert("Fungsi pencarian belum terhubung ke backend")}
-          className="bg-[var(--armycolor)] text-white p-2 rounded-lg"
-        >
-          Submit
-        </button>
-      </div>
-
       <div className="grid grid-cols-12 gap-6">
         {/* Kiri: Form kalkulator */}
         <div className="col-span-12 md:col-span-4">
@@ -282,13 +244,13 @@ export default function PerhitunganGaji() {
             <div className="flex gap-3 mt-6">
               <button
                 onClick={handleReset}
-                className="px-4 py-2 bg-gray-200 rounded"
+                className="px-4 py-2 bg-gray-200 rounded-lg hover:cursor-pointer hover:bg-gray-300 transition-all"
               >
                 Reset
               </button>
               <button
                 onClick={hitung}
-                className="px-4 py-2 bg-[var(--armycolor)] text-white rounded"
+                className="px-4 py-2 bg-[var(--armycolor)] text-white rounded-lg hover:cursor-pointer hover:bg-[var(--armyhover)] transition-all"
               >
                 Hitung
               </button>
@@ -349,7 +311,7 @@ export default function PerhitunganGaji() {
             <div className="flex justify-end mt-6">
               <button
                 onClick={simpanPerhitungan}
-                className="bg-blue-600 text-white px-4 py-2 rounded"
+                className="bg-[var(--armycolor)] text-white px-4 py-2 rounded-lg hover:cursor-pointer hover:bg-[var(--armyhover)] transition-all"
               >
                 Simpan Perhitungan
               </button>

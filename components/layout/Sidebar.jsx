@@ -1,15 +1,13 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import {
   LayoutGrid,
   Users,
-  ClipboardList,
-  Calculator,
-  FileText,
   Settings,
+  UserCog,
 } from "lucide-react";
 import Navbar from "./Navbar";
 import { variable } from "@/lib/variable";
@@ -17,9 +15,6 @@ import { variable } from "@/lib/variable";
 export default function Sidebar({ children }) {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const category = searchParams?.get("category") || null;
-
   const [user, setUser] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -30,6 +25,7 @@ export default function Sidebar({ children }) {
     "/perhitungan",
     "/generate_skep",
     "/pengaturan",
+    "/users",
   ];
 
   const showSidebar =
@@ -62,6 +58,7 @@ export default function Sidebar({ children }) {
 
         const data = await res.json();
         setUser(data.user);
+        localStorage.setItem("role", data.user.role);
       } catch (err) {
         console.error(err);
         router.replace("/auth/login");
@@ -75,17 +72,16 @@ export default function Sidebar({ children }) {
 
   // Menu utama: Data Perwira sekarang jadi menu tunggal tanpa submenu
   const mainMenu = [
-    { name: "Dashboard", icon: <LayoutGrid />, href: "/" },
-    { name: "Data Perwira", icon: <Users />, href: "/perwira" },
-    { name: "Perhitungan", icon: <Calculator />, href: "/perhitungan" },
-    { name: "Generate Skep", icon: <FileText />, href: "/generate_skep" },
+    { name: "Dashboard", icon: <LayoutGrid />, href: "/", roles: ["admin", "user"] },
+    { name: "Data Perwira", icon: <Users />, href: "/perwira", roles: ["admin", "user"] },
+    { name: "User Management", icon: <UserCog />, href: "/users", roles: ["admin"] },
+    { name: "Pengaturan", icon: <Settings />, href: "/pengaturan", roles: ["admin", "user"] },
   ];
 
-  const bottomMenu = {
-    name: "Pengaturan",
-    icon: <Settings />,
-    href: "/pengaturan",
-  };
+  const userRole = user?.role?.toLowerCase();
+  const filteredMenu = mainMenu.filter(
+    (item) => item.roles.includes(userRole)
+  );
 
   if (loading) {
     return (
@@ -127,7 +123,7 @@ export default function Sidebar({ children }) {
 
           {/* Menu Utama */}
           <nav className="flex flex-col flex-1 p-3 space-y-2 text-white">
-            {mainMenu.map((item) => {
+            {filteredMenu.map((item) => {
               const isActive =
                 pathname === item.href || pathname.startsWith(item.href + "/");
 
@@ -155,29 +151,6 @@ export default function Sidebar({ children }) {
               );
             })}
           </nav>
-        </div>
-
-        {/* Menu bawah */}
-        <div className="p-3 border-t border-gray-600/30">
-          <Link
-            href={bottomMenu.href}
-            prefetch={false}
-            className={`flex items-center gap-3 px-4 py-2 rounded-lg transition text-sm
-              ${
-                pathname === bottomMenu.href
-                  ? "bg-[var(--armyhover)] text-[var(--background)]"
-                  : "text-white hover:bg-[var(--armyhover)] hover:text-[var(--background)]"
-              }`}
-          >
-            <span className="text-lg shrink-0">{bottomMenu.icon}</span>
-            <span
-              className={`font-normal transition-opacity duration-300 whitespace-nowrap ${
-                isSidebarOpen ? "opacity-100" : "opacity-0"
-              }`}
-            >
-              {bottomMenu.name}
-            </span>
-          </Link>
         </div>
       </aside>
 
