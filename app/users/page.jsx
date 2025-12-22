@@ -6,7 +6,7 @@ import UserTableBody from "@/components/users/users/table";
 import UserHistory from "@/components/users/history";
 import ConfirmModal from "@/components/reusable/modal";
 import { useRouter } from "next/navigation";
-import RequireAdminModal from "@/lib/checkAdmin"; // 🔥
+import RequireAdminModal from "@/lib/checkAdmin";
 import { variable } from "@/lib/variable";
 import PageTitle from "@/components/reusable/pageTitle";
 

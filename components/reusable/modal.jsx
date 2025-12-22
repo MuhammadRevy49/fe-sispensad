@@ -25,12 +25,12 @@ export default function ConfirmModal({
   let icon, defaultColor;
   switch (type) {
     case "success":
-      icon = <CheckCircle size={72} className="text-green-500" />;
-      defaultColor = "bg-green-500";
+      icon = <CheckCircle size={72} className="text-[var(--armycolor)] mr-2" />;
+      defaultColor = "bg-[var(--armycolor)]";
       break;
     case "warning":
-      icon = <AlertCircle size={72} className="text-yellow-500" />;
-      defaultColor = "bg-yellow-500";
+      icon = <AlertCircle size={72} className="text-yellow-600" />;
+      defaultColor = "bg-yellow-600";
       break;
     case "error":
       icon = <XCircle size={72} className="text-red-500" />;
@@ -41,8 +41,8 @@ export default function ConfirmModal({
       defaultColor = "bg-blue-500";
       break;
     case "question":
-      icon = <HelpCircle size={72} className="text-purple-500" />;
-      defaultColor = "bg-purple-500";
+      icon = <HelpCircle size={49} className="text-red-500 mr-2" />;
+      defaultColor = "bg-red-500";
       break;
     default:
       icon = <CheckCircle size={72} className="text-green-500" />;
@@ -61,23 +61,23 @@ export default function ConfirmModal({
           <X size={20} />
         </button>
         
-        {/* Icon */}
-        <div className="flex justify-center mb-4">{icon}</div>
-
-        {/* Judul */}
-        <h2 className="text-3xl font-bold text-center mb-2">{title}</h2>
+        {/* Icon dan judul */}
+        <div className="flex flex-col justify-center items-center mb-4">
+          {icon}
+          <h2 className="text-3xl font-bold mt-2 mb-2">{title}</h2>
+        </div>
 
         {/* Pesan */}
         <p className="text-gray-600 text-center mb-6">{message}</p>
 
         {/* Tombol konfirmasi */}
-        <div className="flex justify-center">
+        <div className="flex flex-row w-full justify-end gap-2">
           <button
             onClick={() => {
               onConfirm?.();
               onClose();
             }}
-            className={`px-6 py-2 rounded-lg text-white hover:opacity-90 ${
+            className={`px-6 py-2 rounded-lg text-white w-full hover:opacity-50 transition-all hover:cursor-pointer ${
               confirmColor || defaultColor
             }`}
           >

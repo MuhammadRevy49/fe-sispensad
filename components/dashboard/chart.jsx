@@ -13,7 +13,7 @@ import {
   Cell,
 } from "recharts";
 import { File } from "lucide-react";
-import Dropdown from "@/components/reusable/dropdown"; // import generic dropdown
+import Dropdown from "@/components/reusable/dropdown";
 
 // Custom Tooltip
 function CustomTooltip({ active, payload, selectedYear }) {
@@ -82,15 +82,6 @@ export default function Chart({ chartData }) {
     <div className="flex-1 bg-white shadow-lg p-4 rounded-xl flex flex-col border border-gray-100">
       {/* Header */}
       <div className="flex items-center border-b border-gray-200 pb-3 mb-4">
-        <div className="rounded-lg mr-3">
-          <Image
-            src="/images/chart.png"
-            width={34}
-            height={34}
-            alt="chart-bar"
-            className="rounded-[8px]"
-          />
-        </div>
         <div>
           <p className="text-lg font-semibold text-gray-800">
             Jumlah Pensiun Perwira TNI AD

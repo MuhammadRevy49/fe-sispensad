@@ -12,7 +12,7 @@ export default function UserHeader({ roleFilter, setRoleFilter, searchTerm, setS
   ];
 
   return (
-    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 p-2 bg-white rounded-[8px] shadow-sm">
+    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mt-3 rounded-[8px]">
       {/* Search & Filter */}
       <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
         <SearchInput

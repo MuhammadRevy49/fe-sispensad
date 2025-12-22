@@ -18,7 +18,6 @@ export default function Filtering({
   setStatusFilter,
 }) {
   const pangkatOptions = ["Semua", "Brigjen", "Letjen", "Mayjen", "Jenderal"];
-  const statusOptions = ["Semua", "Mencapai BUP", "Belum Mencapai BUP", "Akan Mencapai BUP"];
 
   const [localSearch, setLocalSearch] = useState(search || "");
   const [localFilter, setLocalFilter] = useState(filterPangkat || null);
@@ -61,16 +60,6 @@ export default function Filtering({
           placeholder="Pilih Pangkat"
           isOpen={openDropdown === 'pangkat'}
           onToggle={(next) => setOpenDropdown(next ? 'pangkat' : null)}
-        />
-
-        <Dropdown
-          options={statusOptions}
-          selected={localStatus}
-          onSelect={(value) => setLocalStatus(value)}
-          placeholder="Pilih Status"
-          isOpen={openDropdown === 'status'}
-          onToggle={(next) => setOpenDropdown(next ? 'status' : null)}
-          className="w-46"
         />
 
         <button
