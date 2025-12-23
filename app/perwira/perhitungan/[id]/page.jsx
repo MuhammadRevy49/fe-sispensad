@@ -1,31 +1,21 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
 import PageTitle from "@/components/reusable/pageTitle";
-import { Search } from "lucide-react";
 
 export default function PerhitunganGaji() {
-  // Input utama
-  const [search, setSearch] = useState("");
-  const [gpt, setGpt] = useState(0); // Gaji Pokok Terakhir
-  const [mkg, setMkg] = useState(0); // Masa Kerja Gaji (tahun)
-  const [persIstri, setPersIstri] = useState(10); // persen default 10%
+  const router = useRouter();
+  const [gpt, setGpt] = useState(0);
+  const [mkg, setMkg] = useState(0);
+  const [persIstri, setPersIstri] = useState(35);
   const [numAnak, setNumAnak] = useState(1);
-  const [persAnak, setPersAnak] = useState(5); // persen per anak
-  const [lainList, setLainList] = useState([]); // daftar tunjangan lain {label, persen, nominal}
-  const [newLainLabel, setNewLainLabel] = useState("");
-  const [newLainValue, setNewLainValue] = useState(0);
+  const [persAnak, setPersAnak] = useState(10);
+  const [lainList, setLainList] = useState([]);
+  const [hasil, setHasil] = useState({ dasar: 0, tunIstri: 0, tunAnak: 0, total: 0 });
 
-  // Hasil
-  const [hasil, setHasil] = useState({
-    dasar: 0,
-    tunIstri: 0,
-    tunAnak: 0,
-    tunLain: 0,
-    total: 0,
-  });
-
-  // Helper untuk parse angka dari input (menghilangkan comma/dots)
+  // Helper untuk parse angka dari input
   const parseNumber = (v) => {
     if (typeof v === "number") return v;
     if (!v) return 0;
@@ -59,40 +49,12 @@ export default function PerhitunganGaji() {
     setHasil({ dasar, tunIstri, tunAnak, tunLain, total });
   };
 
-  const handleReset = () => {
-    setGpt(0);
-    setMkg(0);
-    setPersIstri(10);
-    setNumAnak(1);
-    setPersAnak(5);
-    setLainList([]);
-    setNewLainLabel("");
-    setNewLainValue(0);
-    setHasil({ dasar: 0, tunIstri: 0, tunAnak: 0, tunLain: 0, total: 0 });
-  };
-
-  const addLain = () => {
-    const nominal = parseNumber(newLainValue);
-    if (!newLainLabel) return alert("Isi label tunjangan lain terlebih dahulu");
-    if (nominal <= 0)
-      return alert("Masukkan nominal yang valid (lebih dari 0)");
-
-    setLainList((prev) => [...prev, { label: newLainLabel, nominal }]);
-    setNewLainLabel("");
-    setNewLainValue(0);
-  };
-
-  const removeLain = (idx) => {
-    setLainList((prev) => prev.filter((_, i) => i !== idx));
-  };
-
-  // Simpan perhitungan (mock) - menyimpan ke localStorage sebagai history
+  // Simpan perhitungan
   const simpanPerhitungan = () => {
     const history = JSON.parse(localStorage.getItem("simulasi_history")) || [];
     const entry = {
       id: Date.now(),
       createdAt: new Date().toISOString(),
-      search,
       input: {
         gpt: parseNumber(gpt),
         mkg: parseNumber(mkg),
@@ -111,7 +73,7 @@ export default function PerhitunganGaji() {
     alert("Perhitungan berhasil disimpan (lokal)");
   };
 
-  // Auto hitung tiap kali input diubah (opsional)
+  // Auto hitung tiap kali input diubah
   useEffect(() => {
     if (!gpt || !mkg) {
       setHasil({ dasar: 0, tunIstri: 0, tunAnak: 0, tunLain: 0, total: 0 });
@@ -122,10 +84,21 @@ export default function PerhitunganGaji() {
 
   return (
     <div className="p-1">
-      <PageTitle
-        title="Perhitungan Gaji Pokok Pensiun"
-        desc="Sistem Pensiun Angkatan Darat"
-      />
+      <div className="flex flex-row items-center justify-between">
+        <PageTitle
+          title="Perhitungan Gaji Pokok Pensiun"
+          desc="Sistem Pensiun Angkatan Darat"
+        />
+        <div className="mt-2 flex justify-end">
+          <button
+            onClick={() => router.push("/perwira")}
+            className="px-5 py-2 mb-3 rounded-lg bg-[var(--armycolor)] text-sm text-white hover:bg-[var(--armyhover)] transition-all"
+          >
+            <ArrowLeft className="inline mr-2" size={16} />
+            Kembali
+          </button>
+        </div>
+      </div>
       <div className="grid grid-cols-12 gap-6">
         {/* Kiri: Form kalkulator */}
         <div className="col-span-12 md:col-span-4">
@@ -135,7 +108,7 @@ export default function PerhitunganGaji() {
             </h3>
 
             <label className="text-sm text-gray-600">
-              Masukan Gaji Pokok Terakhir (GPT)
+              Gaji Pokok Terakhir (GPT)
             </label>
             <input
               type="text"
@@ -146,7 +119,7 @@ export default function PerhitunganGaji() {
             />
 
             <label className="text-sm text-gray-600">
-              Masukan Masa Kerja Gaji (MKG)
+              Masa Kerja Gaji (MKG)
             </label>
             <input
               type="number"
@@ -174,7 +147,7 @@ export default function PerhitunganGaji() {
             <label className="text-sm text-gray-600 mb-2">Masukkan Jumlah Anak</label>
             <input type="number" className="p-2 rounded border border-gray-300"/>
 
-            <label className="text-sm text-gray-600">
+            <label className="text-sm text-gray-600 mt-3">
               Persentase Tunjangan Anak ({persAnak}%)
             </label>
             <input
@@ -189,70 +162,12 @@ export default function PerhitunganGaji() {
               berdasarkan gaji pokok terakhir
             </div>
 
-            <div className="border-t pt-3 mt-3">
-              <h4 className="text-sm font-medium mb-2">Tunjangan Lain</h4>
-              {lainList.length === 0 && (
-                <div className="text-xs text-gray-400 mb-2">
-                  Belum ada tunjangan lain
-                </div>
-              )}
-              <div className="space-y-2">
-                {lainList.map((l, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-between bg-gray-50 p-2 rounded"
-                  >
-                    <div>
-                      <div className="text-sm">{l.label}</div>
-                      <div className="text-xs text-gray-500">
-                        {formatRupiah(l.nominal)}
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => removeLain(idx)}
-                      className="text-red-500 text-sm"
-                    >
-                      Hapus
-                    </button>
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex gap-2 mt-3 flex-col">
-                <input
-                  type="text"
-                  placeholder="Masukkan Nama Tunjangan Lain"
-                  value={newLainLabel}
-                  onChange={(e) => setNewLainLabel(e.target.value)}
-                  className="flex-1 border border-gray-300 rounded px-3 py-2"
-                />
-                <input
-                  type="text"
-                  placeholder="Nominal"
-                  value={newLainValue}
-                  onChange={(e) =>
-                    setNewLainValue(e.target.value.replace(/[^0-9]/g, ""))
-                  }
-                  className="w-36 border border-gray-300 rounded px-3 py-2 w-full"
-                />
-                <button onClick={addLain} className="bg-gray-100 p-2 rounded">
-                  + Tambah
-                </button>
-              </div>
-            </div>
-
             <div className="flex gap-3 mt-6">
-              <button
-                onClick={handleReset}
-                className="px-4 py-2 bg-gray-200 rounded-lg hover:cursor-pointer hover:bg-gray-300 transition-all"
-              >
-                Reset
-              </button>
               <button
                 onClick={hitung}
                 className="px-4 py-2 bg-[var(--armycolor)] text-white rounded-lg hover:cursor-pointer hover:bg-[var(--armyhover)] transition-all"
               >
-                Hitung
+                Edit Data
               </button>
             </div>
           </div>
@@ -263,7 +178,7 @@ export default function PerhitunganGaji() {
           <div className="bg-white rounded-lg p-6 shadow min-h-[420px] flex flex-col justify-between">
             <div>
               <h3 className="font-semibold mb-4">
-                Hasil Simulasi Perhitungan Gaji Pokok Pensiun
+                Rincian Perhitungan Gaji Pokok Pensiun
               </h3>
 
               <div className="grid grid-cols-3 gap-2 text-sm text-gray-600">
@@ -291,14 +206,6 @@ export default function PerhitunganGaji() {
                     : "Rp..."}
                 </div>
 
-                <div>Nilai Tunjangan Lain</div>
-                <div className="text-right">:</div>
-                <div className="text-right">
-                  {hasil.tunLain
-                    ? formatRupiah(Math.round(hasil.tunLain))
-                    : "Rp..."}
-                </div>
-
                 <div className="col-span-2 border-t pt-3">
                   Total Gaji Pokok Pensiun
                 </div>
@@ -306,15 +213,6 @@ export default function PerhitunganGaji() {
                   {hasil.total ? formatRupiah(hasil.total) : "Rp..."}
                 </div>
               </div>
-            </div>
-
-            <div className="flex justify-end mt-6">
-              <button
-                onClick={simpanPerhitungan}
-                className="bg-[var(--armycolor)] text-white px-4 py-2 rounded-lg hover:cursor-pointer hover:bg-[var(--armyhover)] transition-all"
-              >
-                Simpan Perhitungan
-              </button>
             </div>
           </div>
         </div>

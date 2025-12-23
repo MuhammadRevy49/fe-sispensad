@@ -117,7 +117,7 @@ export default function Sidebar({ children }) {
                 isSidebarOpen ? "opacity-100" : "opacity-0"
               }`}
             >
-              SispensAD
+              Sispens<span className="text-yellow-400">AD</span>
             </span>
           </div>
 

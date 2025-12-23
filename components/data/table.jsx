@@ -236,6 +236,14 @@ export default function TableSection({
     router.push(`/perwira/detail/${soldier.id}`);
   };
 
+  const handlePerhitungan = (soldier) => {
+    router.push(`/perwira/perhitungan/${soldier.id}`);
+  };
+
+  const handleGenerateSkep = (soldier) => {
+    router.push(`/perwira/generate_skep/${soldier.id}`);
+  };
+
   const displayData = dataTable.map((item, index) => ({
     ...item,
     no: (page - 1) * limit + index + 1,
@@ -309,7 +317,7 @@ export default function TableSection({
           </button>
           <button
             onClick={() => {
-              router.push('/perhitungan');
+              handlePerhitungan(soldier);
             }}
             className="w-full text-left px-3 py-2 text-xs flex items-center gap-2 hover:bg-gray-50 hover:cursor-pointer"
             >
@@ -318,7 +326,7 @@ export default function TableSection({
           </button>
           <button
             onClick={() => {
-              router.push('/generate_skep');
+              handleGenerateSkep(soldier);
             }}
             className="w-full text-left px-3 py-2 text-xs flex items-center gap-2 hover:bg-gray-50 hover:cursor-pointer"
             >
@@ -331,6 +339,10 @@ export default function TableSection({
 
     return typeof document !== "undefined" ? createPortal(menu, document.body) : null;
   };
+
+  function capitalize(text = "") {
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  }
 
   return (
     <div className="relative">
@@ -397,7 +409,7 @@ export default function TableSection({
                   </td>
                   <td className="px-4 py-3 border-t border-gray-300">{soldier.NAMA || "-"}</td>
                   <td className="px-4 py-3 border-t border-gray-300">{soldier.NRP || "-"}</td>
-                  <td className="px-4 py-3 border-t border-gray-300">{soldier.PANGKAT || "-"}</td>
+                  <td className="px-4 py-3 border-t border-gray-300">{capitalize(soldier.PANGKAT) || "-"}</td>
                   <td className="px-4 py-3 border-t border-gray-300">{soldier.USIA || "-"}</td>
                   <td className="px-4 py-3 border-t border-gray-300">{soldier.KESATUAN || "-"}</td>
                   <td className="px-4 py-3 border-t border-gray-300">{soldier.TTL || "-"}</td>

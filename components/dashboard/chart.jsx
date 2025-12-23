@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import {
   BarChart,
   Bar,
@@ -32,7 +31,8 @@ function CustomTooltip({ active, payload, selectedYear }) {
 
 export default function Chart({ chartData }) {
   const [years, setYears] = useState([]);
-  const [selectedYear, setSelectedYear] = useState(null);
+  const currentYear = new Date().getFullYear();
+  const [selectedYear, setSelectedYear] = useState(currentYear);
   const [monthlyData, setMonthlyData] = useState([]);
 
   const monthNames = [
