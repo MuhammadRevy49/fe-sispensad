@@ -51,7 +51,7 @@ export default function DetailCardPerwira({ initialData = {}, onCancel }) {
     { label: "No NPWP", key: "NPWP" },
     { label: "Masa Dinas Kerja", key: "MDK", suffix: " Tahun" },
     { label: "Masa Dinas Keprjuritan", key: "MKG", suffix: " Tahun" },
-    { label: "Gaji Pokok Terakhir", key: "GPT", formatter: formatRupiah },
+    { label: "Alamat", key: "ALAMAT" },
   ];
 
   // fetch data detail perwira dari API
@@ -115,6 +115,13 @@ export default function DetailCardPerwira({ initialData = {}, onCancel }) {
   const pasanganName = data?.PASANGAN || data?.NAMA_PASANGAN || "-";
   const pasanganTTL = data?.TTL_PASANGAN || "-";
   const penspokWari = data?.PENSPOK_WARI || "-";
+
+  // helper ambil detail gaji
+  const gpt = data?.GPT || 0;
+  const ntbp = data?.NTBP || 0;
+  const tunIstri = data?.PENSPOK_WARI || 0;
+  const tunAnak = data?.TUN_ANAK || 0;
+  const pensiunPokok = data?.PENSPOK || 0;
 
   const anakList = [1, 2, 3, 4].map((i) => {
     return {
@@ -245,11 +252,30 @@ export default function DetailCardPerwira({ initialData = {}, onCancel }) {
           {/* Card Perhitungan Gaji */}
           <div className="bg-white border border-gray-200 rounded-lg p-4 shadow">
             <div className="flex items-center justify-between mb-3">
-              <h4 className="text-md font-semibold">Noname</h4>
+              <h4 className="text-md font-semibold">Detail Gaji Pensiun Pokok</h4>
             </div>
+            <div className="grid grid-cols-[180px_12px_1fr] gap-y-2 text-sm">
+                <div className="text-gray-800">Gaji Pokok Terakhir</div>
+                <div>:</div>
+                <div className="font-medium">{formatRupiah(gpt) || "-"}</div>
 
-            <div className="text-sm">
-              Belum ada apa apa.
+                <div className="text-gray-800">NTBP</div>
+                <div>:</div>
+                <div className="font-medium">{formatRupiah(ntbp) || "-"}</div>
+
+                <div className="text-gray-800">Nilai Tunjangan Istri</div>
+                <div>:</div>
+                <div className="font-medium">
+                  {formatRupiah(tunIstri) || "-"}
+                </div>
+
+                <div className="text-gray-800">Nilai Tunjangan Anak</div>
+                <div>:</div>
+                <div className="font-medium">{formatRupiah(tunAnak) || "-"}</div>
+
+                <div className="text-gray-800">Pensiun Pokok</div>
+                <div>:</div>
+                <div className="font-medium">{formatRupiah(pensiunPokok) || "-"}</div>
             </div>
           </div>
         </div>
