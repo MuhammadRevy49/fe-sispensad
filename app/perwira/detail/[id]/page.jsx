@@ -250,7 +250,7 @@ export default function DetailCardPerwira({ initialData = {}, onCancel }) {
             </div>
           </div>
           {/* Card Perhitungan Gaji */}
-          <div className="bg-white border border-gray-200 rounded-lg p-4 shadow">
+          <div className="bg-white border border-gray-200 rounded-lg p-6 shadow">
             <div className="flex items-center justify-between mb-3">
               <h4 className="text-md font-semibold">Detail Gaji Pensiun Pokok</h4>
             </div>
