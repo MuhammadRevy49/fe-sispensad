@@ -1,8 +1,12 @@
 "use client";
 
-import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 
 export default function SKEPPreview({ formData }) {
+  const searchParams = useSearchParams();
+  const template = searchParams.get("template");
+
+  /* ================= UTIL ================= */
   const formatCurrency = (num) => {
     if (!num) return "Rp0,00";
     return new Intl.NumberFormat("id-ID", {
@@ -14,25 +18,146 @@ export default function SKEPPreview({ formData }) {
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return "-";
-    const date = new Date(dateString);
-    const months = [
-      "Januari",
-      "Februari",
-      "Maret",
-      "April",
-      "Mei",
-      "Juni",
-      "Juli",
-      "Agustus",
-      "September",
-      "Oktober",
-      "November",
-      "Desember",
+    if (!dateString) return "";
+    const d = new Date(dateString);
+    const m = [
+      "Januari","Februari","Maret","April","Mei","Juni",
+      "Juli","Agustus","September","Oktober","November","Desember",
     ];
-    return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+    return `${d.getDate()} ${m[d.getMonth()]} ${d.getFullYear()}`;
   };
 
+  /* =====================================================
+     TEMPLATE : SURAT PENGANTAR PATI (KHUSUS)
+     ===================================================== */
+  if (template === "skep_pengantarpati") {
+    return (
+      <div
+        id="skep-preview"
+        className="bg-white font-serif text-black p-6"
+        style={{ width: "210mm", height: "297mm", fontSize: "10px", lineHeight: "1.35" }}
+      >
+        {/* HEADER */}
+        <div className="text-center">
+          <p className="font-bold">DIREKTORAT AJUDAN JENDERAL TNI AD</p>
+          <p className="font-bold">SUBDIREKTORAT PEMBINAAN UMUM</p>
+          <div className="border-b border-black w-2/3 mx-auto my-2" />
+        </div>
+
+        {/* NOMOR & TUJUAN */}
+        <div className="flex justify-between mt-4">
+          <div>
+            <p>Nomor : {formData.nomorSurat || "B/Speng-        /2024"}</p>
+            <p>Klasifikasi : Biasa</p>
+          </div>
+
+          <div className="text-right">
+            <p>Bandung, {formData.tahunSurat || "2024"}</p>
+            <p className="mt-2">Kepada</p>
+            <p className="font-bold">
+              Yth. {formData.namaPenerima || "Mayjen TNI Ilyas Alamsyah, S.E., M.Tr.(Han)."}
+            </p>
+            <p className="whitespace-pre-line">
+              {formData.alamatPenerima ||
+`d.a. KPAD Cijantung Jln. Dahlia Blok H
+No. 26 RT. 008 RW. 004 Kel. Gedong Kec.
+Pasar Rebo Kota Jakarta Timur Prov. DKI
+Jakarta`}
+            </p>
+          </div>
+        </div>
+
+        {/* JUDUL */}
+        <div className="text-center mt-6 mb-2">
+          <p className="font-bold underline">SURAT PENGANTAR</p>
+        </div>
+
+        {/* TABEL */}
+        <table className="w-full border border-black border-collapse text-xs">
+          <thead>
+            <tr>
+              <th className="border border-black p-1 w-10">NO</th>
+              <th className="border border-black p-1">ISI</th>
+              <th className="border border-black p-1 w-24">BANYAKNYA</th>
+              <th className="border border-black p-1 w-48">KETERANGAN</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="border border-black p-1 text-center">1</td>
+              <td className="border border-black p-1 align-top">
+                Salinan Kep Kasad<br />
+                Nomor {formData.nomorKep || "Kep/1161-33/X/2024"}<br />
+                tanggal {formData.tanggalKep || "28 November 2024"}<br />
+                tentang Pemberian Pensiun<br />
+                a.n. {formData.namaPati || "Mayjen TNI Ilyas Alamsyah"}<br />
+                S.E., M.Tr.(Han), NRP {formData.nrpPati || "32235"}<br />
+                masing-masing terdiri dari :<br />
+                a. Bahan kertas manila<br />
+                b. Bahan kertas HVS
+              </td>
+              <td className="border border-black p-1 align-top">
+                3<br /><br />
+                Satu lembar<br />
+                Satu lembar
+              </td>
+              <td className="border border-black p-1 align-top">
+                1. Disampaikan dengan hormat Salinan Keputusan Kasad (Bahan kertas manila)
+                Nomor Seri: A.27114688 untuk dipergunakan sebagaimana mestinya.<br /><br />
+                2. Apabila terjadi mutasi/perubahan status/alamat wajib melaporkan diri
+                kepada Asabri/Kowil setempat nama berdomisili.<br /><br />
+                3. Demikian mohon dimaklumi.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        {/* PENANDATANGAN */}
+        <div className="mt-4">
+          <p>a.n. Kepala Subditbinum Ditajenad</p>
+          <p>Kepala Bagian Tata Usaha,</p>
+
+          <div className="mt-6">
+            <p className="font-bold">{formData.namaPenandatangan || "Lenni Marlena"}</p>
+            <p>
+              Letnan Kolonel Caj (K) NRP {formData.nrpPenandatangan || "2920037040672"}
+            </p>
+          </div>
+        </div>
+
+        {/* TEMBUSAN */}
+        <div className="mt-4">
+          <p className="font-bold">Tembusan :</p>
+          <ol className="list-decimal list-inside">
+            <li>Ketua Badan Pemeriksa Keuangan di Jakarta</li>
+            <li>Dirjen Perbendaharaan Kementerian Keuangan di Jakarta</li>
+            <li>Ka BP TWP AD di Jakarta</li>
+            <li>Dirut PT ASABRI (Persero) di Jakarta</li>
+            <li>Dirut BPJS Kesehatan di Jakarta</li>
+            <li>Dandamabesad di Jakarta</li>
+            <li>Kasubditbinum Ditajenad</li>
+            <li>Kakanbc Utama PT ASABRI (Persero) Jakarta</li>
+            <li>Perwira Keuangan Denmabesad NA.2.01.01 di Jakarta</li>
+          </ol>
+        </div>
+
+        {/* CATATAN */}
+        <div className="mt-3 text-justify">
+          <p className="font-bold">Catatan :</p>
+          <p>
+            Setelah Bpk/Ibu/Sdr/i menerima Salinan Keputusan Pensiun ini agar segera
+            mengurus SKPP kepada Perwira Keuangan Denmabesad NA.2.01.01 di Jakarta
+            selanjutnya dikirim kepada Dirut PT ASABRI (Persero)
+            Jl. Mayjen Sutoyo No. 11 Jakarta Timur - 13630
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  /* =====================================================
+     DEFAULT : SKEP PENSIUN (KODE LAMA)
+     ===================================================== */
   return (
     <div
       id="skep-preview"
