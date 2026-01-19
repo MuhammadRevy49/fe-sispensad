@@ -2,18 +2,23 @@
 
 import { useState, useEffect } from "react";
 import { ArrowLeft } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { variable } from "@/lib/variable";
 import PageTitle from "@/components/reusable/pageTitle";
 
 export default function PerhitunganGaji() {
   const router = useRouter();
+  const { id } = useParams();
   const [gpt, setGpt] = useState(0);
-  const [mkg, setMkg] = useState(0);
+  const [mkg, setMkg] = useState("");
   const [persIstri, setPersIstri] = useState(35);
   const [numAnak, setNumAnak] = useState(1);
   const [persAnak, setPersAnak] = useState(10);
   const [lainList, setLainList] = useState([]);
   const [hasil, setHasil] = useState({ dasar: 0, tunIstri: 0, tunAnak: 0, total: 0 });
+  const [perwiraData, setPerwiraData] = useState({});
+  const [loadingData, setLoadingData] = useState(true);
+  const [errorData, setErrorData] = useState(null);
 
   // Helper untuk parse angka dari input
   const parseNumber = (v) => {
@@ -29,6 +34,15 @@ export default function PerhitunganGaji() {
       currency: "IDR",
       maximumFractionDigits: 0,
     }).format(number);
+  };
+
+  const capitalized = (value) => {
+    if (!value || typeof value !== 'string') return value || "-";
+    return value
+      .toLowerCase()
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   };
 
   const hitung = () => {
@@ -73,9 +87,49 @@ export default function PerhitunganGaji() {
     alert("Perhitungan berhasil disimpan (lokal)");
   };
 
+  useEffect(() => {
+    if (!id) return;
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setErrorData("Token autentikasi tidak ditemukan.");
+      setLoadingData(false);
+      return;
+    }
+
+    const fetchPerwiraData = async () => {
+      try {
+        setLoadingData(true);
+        setErrorData(null);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}${variable.detailPersonil(id)}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) {
+          throw new Error(`Gagal mengambil data (${res.status})`);
+        }
+
+        const json = await res.json();
+        const payload = json.data ?? json;
+        setPerwiraData(payload || {});
+        setMkg(payload.MKG);
+      } catch (err) {
+        console.error(err);
+        setErrorData(err?.message || "Gagal mengambil data perwira.");
+      } finally {
+        setLoadingData(false);
+      }
+    };
+
+    fetchPerwiraData();
+  }, [id]);
+
   // Auto hitung tiap kali input diubah
   useEffect(() => {
-    if (!gpt || !mkg) {
+    if (!gpt || !mkg.trim()) {
       setHasil({ dasar: 0, tunIstri: 0, tunAnak: 0, tunLain: 0, total: 0 });
       return;
     }
@@ -103,18 +157,34 @@ export default function PerhitunganGaji() {
         {/* Kiri: Form kalkulator */}
         <div className="col-span-12 md:col-span-4">
           <div className="bg-white rounded-lg p-6 shadow flex flex-col">
-            <h3 className="font-semibold mb-4">
+            <h3 className="font-semibold mb-1">
               Kalkulator Gaji Pokok Pensiun
             </h3>
+
+            <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 mb-3 text-sm">
+              <div className="grid grid-cols-[120px_1fr] gap-1">
+                <span className="font-medium">Nama</span>
+                <span>: {capitalized(perwiraData.NAMA) || "-"}</span>
+                
+                <span className="font-medium">Pangkat/NRP</span>
+                <span>: {capitalized(perwiraData.PANGKAT) || "-"} / {perwiraData.NRP || "-"}</span>
+                
+                <span className="font-medium">Kesatuan</span>
+                <span>: {capitalized(perwiraData.KESATUAN) || "-"}</span>
+              </div>
+            </div>
 
             <label className="text-sm text-gray-600">
               Gaji Pokok Terakhir (GPT)
             </label>
             <input
               type="text"
-              value={gpt}
-              onChange={(e) => setGpt(e.target.value.replace(/[^0-9]/g, ""))}
-              placeholder="Rp"
+              value={perwiraData.GPT ? formatRupiah(perwiraData.GPT) : ""}
+              onChange={(e) => {
+                const raw = e.target.value.replace(/[^0-9]/g, "");
+                setGpt(Number(raw) || 0);
+              }}
+              placeholder="Masukkan GPT"
               className="mt-2 mb-3 w-full border border-gray-300 rounded px-3 py-2"
             />
 
@@ -122,9 +192,9 @@ export default function PerhitunganGaji() {
               Masa Kerja Gaji (MKG)
             </label>
             <input
-              type="number"
+              type="text"
               value={mkg}
-              onChange={(e) => setMkg(Number(e.target.value))}
+              onChange={(e) => setMkg(e.target.value.replace(/[^0-9]/g, ""))}
               placeholder="Tahun"
               className="mt-2 mb-3 w-full border border-gray-300 rounded px-3 py-2"
             />
@@ -144,23 +214,8 @@ export default function PerhitunganGaji() {
               berdasarkan gaji pokok terakhir
             </div>
 
-            <label className="text-sm text-gray-600 mb-2">Masukkan Jumlah Anak</label>
-            <input type="number" className="p-2 rounded border border-gray-300"/>
-
-            <label className="text-sm text-gray-600 mt-3">
-              Persentase Tunjangan Anak ({persAnak}%)
-            </label>
-            <input
-              type="range"
-              min={0}
-              max={100}
-              value={persAnak}
-              onChange={(e) => setPersAnak(Number(e.target.value))}
-              className="w-full mt-2 mb-1"
-            />
-            <div className="text-xs text-gray-400 mb-3">
-              berdasarkan gaji pokok terakhir
-            </div>
+            <label className="text-sm text-gray-600 mb-2">Jumlah Anak</label>
+            <input type="number" placeholder="Jumlah anak" className="p-2 rounded border border-gray-300"/>
 
             <div className="flex gap-3 mt-6">
               <button
