@@ -17,7 +17,7 @@ export default function Filtering({
   statusFilter,
   setStatusFilter,
 }) {
-  const pangkatOptions = ["Semua", "Brigjen", "Letjen", "Mayjen", "Jenderal"];
+  const pangkatOptions = ["Semua", "Brigjen", "Mayjen", "Letjen", "Jenderal"];
 
   const [localSearch, setLocalSearch] = useState(search || "");
   const [localFilter, setLocalFilter] = useState(filterPangkat || null);

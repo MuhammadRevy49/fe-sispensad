@@ -10,8 +10,8 @@ export default function CardsSection({ loading, setLoading }) {
   // Hanya pangkat Pati (brigjen, letjen, mayjen, jenderal)
   const patiRanks = [
     { name: "brigjen", icon: "/images/perwira/brigjen.png" },
-    { name: "letjen", icon: "/images/perwira/letjen.png" },
     { name: "mayjen", icon: "/images/perwira/mayjen.png" },
+    { name: "letjen", icon: "/images/perwira/letjen.png" },
     { name: "jenderal", icon: "/images/perwira/jenderal.png" },
   ];
 

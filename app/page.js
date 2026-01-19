@@ -31,8 +31,8 @@ export default function Beranda() {
         // Definisikan hanya pangkat Pati
         const patiRanks = [
           { name: "brigjen", icon: "/images/perwira/brigjen.png" },
-          { name: "letjen", icon: "/images/perwira/letjen.png" },
           { name: "mayjen", icon: "/images/perwira/mayjen.png" },
+          { name: "letjen", icon: "/images/perwira/letjen.png" },
           { name: "jenderal", icon: "/images/perwira/jenderal.png" },
         ];
 
@@ -93,8 +93,8 @@ export default function Beranda() {
         // Jika error, tampilkan cards default kosong agar UI tetap stabil
         setCards([
           { jumlah: 0, label: "Brigjen", sub: "Jumlah Brigjen", iconUrl: "/images/perwira/brigjen.png" },
-          { jumlah: 0, label: "Letjen", sub: "Jumlah Letjen", iconUrl: "/images/perwira/letjen.png" },
           { jumlah: 0, label: "Mayjen", sub: "Jumlah Mayjen", iconUrl: "/images/perwira/mayjen.png" },
+          { jumlah: 0, label: "Letjen", sub: "Jumlah Letjen", iconUrl: "/images/perwira/letjen.png" },
           { jumlah: 0, label: "Jenderal", sub: "Jumlah Jenderal", iconUrl: "/images/perwira/jenderal.png" },
         ]);
       }
