@@ -130,7 +130,7 @@ export default function PerhitunganGaji() {
             />
 
             <label className="text-sm text-gray-600">
-              Persentase Tunjangan Istri ({persIstri}%)
+              Persentase Tunjangan Warakawuri ({persIstri}%)
             </label>
             <input
               type="range"
@@ -190,7 +190,7 @@ export default function PerhitunganGaji() {
                     : "Rp..."}
                 </div>
 
-                <div>Nilai Tunjangan Istri</div>
+                <div>Nilai Tunjangan Warakawuri</div>
                 <div className="text-right">:</div>
                 <div className="text-right">
                   {hasil.tunIstri

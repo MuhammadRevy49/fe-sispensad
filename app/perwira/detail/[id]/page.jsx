@@ -28,6 +28,15 @@ export default function DetailCardPerwira({ initialData = {}, onCancel }) {
     return `${dd} - ${mm} - ${yyyy}`;
   };
 
+  const capitalized = (value) => {
+    if (!value || typeof value !== 'string') return value || "-";
+    return value
+      .toLowerCase()
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
   const formatRupiah = (value) => {
     if (value == null || value === "") return "-";
     const num = Number(value);
@@ -41,11 +50,11 @@ export default function DetailCardPerwira({ initialData = {}, onCancel }) {
 
   // mapping label ↔ key API
   const fields = [
-    { label: "Nama", key: "NAMA" },
-    { label: "Pangkat", key: "PANGKAT" },
+    { label: "Nama", key: "NAMA", formatter: capitalized },
+    { label: "Pangkat", key: "PANGKAT", formatter: capitalized },
     { label: "NRP", key: "NRP" },
     { label: "Tanggal Lahir", key: "TTL", formatter: formatDate },
-    { label: "Kesatuan Terakhir", key: "KESATUAN" },
+    { label: "Kesatuan Terakhir", key: "KESATUAN", formatter: capitalized },
     { label: "TMT TNI", key: "TMT_TNI", formatter: formatDate },
     { label: "No KTPA", key: "NKTPA" },
     { label: "No NPWP", key: "NPWP" },
@@ -269,13 +278,17 @@ export default function DetailCardPerwira({ initialData = {}, onCancel }) {
                   {formatRupiah(tunIstri) || "-"}
                 </div>
 
-                <div className="text-gray-800">Nilai Tunjangan Anak</div>
-                <div>:</div>
-                <div className="font-medium">{formatRupiah(tunAnak) || "-"}</div>
+                {anakList.length > 0 && (
+                  <>
+                    <div className="text-gray-800">Nilai Tunjangan Anak</div>
+                    <div>:</div>
+                    <div className="font-medium">{formatRupiah(tunAnak) || "-"}</div>
+                  </>
+                )}
 
-                <div className="text-gray-800">Pensiun Pokok</div>
+                <div className="font-bold text-gray-800">Pensiun Pokok</div>
                 <div>:</div>
-                <div className="font-medium">{formatRupiah(pensiunPokok) || "-"}</div>
+                <div className="font-bold">{formatRupiah(pensiunPokok) || "-"}</div>
             </div>
           </div>
         </div>

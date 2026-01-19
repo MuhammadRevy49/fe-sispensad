@@ -29,7 +29,7 @@ export default function AddDataModal({ open, onClose, onSuccess }) {
     anak: [],
   });
 
-  const pangkatOptions = ["Brigjen", "Letjen", "Mayjen", "Jenderal"];
+  const pangkatOptions = ["Brigjen", "Mayjen", "Letjen", "Jenderal"];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
