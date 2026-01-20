@@ -410,13 +410,13 @@ export default function TableSection({
                   <td className="px-4 py-3 border-t border-gray-300">{soldier.NAMA || "-"}</td>
                   <td className="px-4 py-3 border-t border-gray-300">{soldier.NRP || "-"}</td>
                   <td className="px-4 py-3 border-t border-gray-300">{capitalize(soldier.PANGKAT) || "-"}</td>
-                  <td className="px-4 py-3 border-t border-gray-300">{soldier.USIA || "-"}</td>
+                  <td className="px-4 py-3 border-t border-gray-300 whitespace-nowrap">{soldier.usia || "-"}</td>
                   <td className="px-4 py-3 border-t border-gray-300">{soldier.KESATUAN || "-"}</td>
                   <td className="px-4 py-3 border-t border-gray-300">{soldier.TTL || "-"}</td>
 
-                  <td className="px-4 py-3 border-t border-gray-300">
+                  <td className="px-4 py-3 border-t border-gray-300 whitespace-nowrap">
                     {(() => {
-                      const raw = String(soldier.status_bup || soldier.STATUS || "-");
+                      const raw = String(soldier.status_bup || "-");
                       const key = raw.trim().toLowerCase();
                       let cls = "text-gray-500 border-gray-300";
                       if (key.includes("mencapai bup")) cls = "text-green-600 border-green-600";
