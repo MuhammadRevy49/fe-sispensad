@@ -254,7 +254,15 @@ export default function PerhitunganGaji() {
                     : "Rp..."}
                 </div>
 
-                <div>Nilai Tunjangan Anak</div>
+                <div>Nilai Tunjangan Anak Yatim/Piatu</div>
+                <div className="text-right">:</div>
+                <div className="text-right">
+                  {hasil.tunAnak
+                    ? formatRupiah(Math.round(hasil.tunAnak))
+                    : "Rp..."}
+                </div>
+
+                <div>Nilai Tunjangan Anak Yatim-Piatu</div>
                 <div className="text-right">:</div>
                 <div className="text-right">
                   {hasil.tunAnak
