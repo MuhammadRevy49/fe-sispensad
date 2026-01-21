@@ -173,7 +173,7 @@ export default function DetailCardPerwira({ initialData = {}, onCancel }) {
             </div>
             <button
               type="button"
-              className="mt-auto px-5 py-2 rounded-full w-full bg-gray-200 text-gray-800 text-xs md:text-sm hover:bg-gray-400 transition"
+              className="mt-auto px-5 py-2 rounded-full w-full bg-gray-200 text-gray-800 text-xs md:text-sm hover:bg-gray-400 transition-all hover:cursor-pointer"
             >
               Upload Pas Foto
             </button>

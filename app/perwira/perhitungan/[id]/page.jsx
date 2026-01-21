@@ -9,7 +9,7 @@ import PageTitle from "@/components/reusable/pageTitle";
 export default function PerhitunganGaji() {
   const router = useRouter();
   const { id } = useParams();
-  const [gpt, setGpt] = useState(0);
+  const [gpt, setGpt] = useState("");
   const [mkg, setMkg] = useState("");
   const [persIstri, setPersIstri] = useState(35);
   const [numAnak, setNumAnak] = useState(1);
@@ -116,6 +116,7 @@ export default function PerhitunganGaji() {
         const payload = json.data ?? json;
         setPerwiraData(payload || {});
         setMkg(payload.MKG);
+        setGpt(payload.GPT);
       } catch (err) {
         console.error(err);
         setErrorData(err?.message || "Gagal mengambil data perwira.");
@@ -129,7 +130,7 @@ export default function PerhitunganGaji() {
 
   // Auto hitung tiap kali input diubah
   useEffect(() => {
-    if (!gpt || !mkg.trim()) {
+    if (!gpt || !mkg) {
       setHasil({ dasar: 0, tunIstri: 0, tunAnak: 0, tunLain: 0, total: 0 });
       return;
     }
@@ -179,10 +180,10 @@ export default function PerhitunganGaji() {
             </label>
             <input
               type="text"
-              value={perwiraData.GPT ? formatRupiah(perwiraData.GPT) : ""}
+              value={formatRupiah(gpt)}
               onChange={(e) => {
                 const raw = e.target.value.replace(/[^0-9]/g, "");
-                setGpt(Number(raw) || 0);
+                setGpt(raw);
               }}
               placeholder="Masukkan GPT"
               className="mt-2 mb-3 w-full border border-gray-300 rounded px-3 py-2"
