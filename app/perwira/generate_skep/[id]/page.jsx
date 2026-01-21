@@ -132,7 +132,7 @@ export default function GenerateSKEPPage() {
 
       <div className="flex items-center gap-2 px-3 py-1 mt-6 rounded-full bg-green-100 shadow w-fit">
         <Info size={16} className="text-green-700" />
-        <p className="text-green-700 text-sm">Pilih Template SKEP {jmlAnakPerwira}</p>
+        <p className="text-green-700 text-sm">Pilih Template SKEP</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
