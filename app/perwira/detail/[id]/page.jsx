@@ -59,7 +59,7 @@ export default function DetailCardPerwira({ initialData = {}, onCancel }) {
     { label: "No KTPA", key: "NKTPA" },
     { label: "No NPWP", key: "NPWP" },
     { label: "Masa Dinas Kerja", key: "MDK", suffix: " Tahun" },
-    { label: "Masa Dinas Keprjuritan", key: "MKG", suffix: " Tahun" },
+    { label: "Masa Dinas Keprajuritan", key: "MKG", suffix: " Tahun" },
     { label: "Alamat", key: "ALAMAT" },
   ];
 
@@ -227,11 +227,11 @@ export default function DetailCardPerwira({ initialData = {}, onCancel }) {
 
                 <div className="text-gray-800">Penspok Wari</div>
                 <div>:</div>
-                <div className="font-medium">{penspokWari || "-"}</div>
+                <div className="font-medium">{formatRupiah(penspokWari) || "-"}</div>
             </div>
             <div className="text-sm mt-2">
             {anakList.length === 0 ? (
-              <div className="text-gray-500">Tidak ada anak terdaftar.</div>
+              <div className="text-gray-800">Tidak ada anak terdaftar</div>
             ) : (
               <div className="grid grid-cols-[180px_12px_1fr] gap-y-2">
                 {anakList.map((anak, idx) => (
@@ -263,12 +263,12 @@ export default function DetailCardPerwira({ initialData = {}, onCancel }) {
             <div className="flex items-center justify-between mb-3">
               <h4 className="text-md font-semibold">Detail Gaji Pensiun Pokok</h4>
             </div>
-            <div className="grid grid-cols-[180px_12px_1fr] gap-y-2 text-sm">
+            <div className="grid grid-cols-[190px_12px_1fr] gap-y-2 text-sm">
                 <div className="text-gray-800">Gaji Pokok Terakhir</div>
                 <div>:</div>
                 <div className="font-medium">{formatRupiah(gpt) || "-"}</div>
 
-                <div className="text-gray-800">NTBP</div>
+                <div className="text-gray-800">Nilai Tunjangan Bersifat Pensiun</div>
                 <div>:</div>
                 <div className="font-medium">{formatRupiah(ntbp) || "-"}</div>
 
