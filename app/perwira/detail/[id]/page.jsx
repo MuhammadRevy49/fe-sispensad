@@ -263,12 +263,12 @@ export default function DetailCardPerwira({ initialData = {}, onCancel }) {
             <div className="flex items-center justify-between mb-3">
               <h4 className="text-md font-semibold">Detail Gaji Pensiun Pokok</h4>
             </div>
-            <div className="grid grid-cols-[190px_12px_1fr] gap-y-2 text-sm">
+            <div className="grid grid-cols-[250px_12px_1fr] gap-y-2 text-sm">
                 <div className="text-gray-800">Gaji Pokok Terakhir</div>
                 <div>:</div>
                 <div className="font-medium">{formatRupiah(gpt) || "-"}</div>
 
-                <div className="text-gray-800">Nilai Tunjangan Bersifat Pensiun</div>
+                <div className="text-gray-800 whitespace-nowrap">Nilai Tunjangan Bersifat Pensiun</div>
                 <div>:</div>
                 <div className="font-medium">{formatRupiah(ntbp) || "-"}</div>
 
