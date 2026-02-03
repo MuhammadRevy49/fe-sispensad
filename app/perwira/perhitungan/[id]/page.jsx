@@ -255,7 +255,16 @@ export default function PerhitunganGaji() {
       return;
     }
     hitung();
-  }, [gpt, mkg, persIstri, numAnak, persAnakYatimOrPiatu, lainList]);
+  }, [gpt, mkg, persIstri, numAnak, persAnakYatimOrPiatu, lainList
+  ]);
+
+  // jml anak keperluan readonly
+  let jmlAnak = 0;
+  if (jmlAnakPerwira >= 2) {
+    jmlAnak = 2;
+  } else {
+    jmlAnak = jmlAnakPerwira;
+  }
 
   // hitung hitung gaji pensiun perwira
   const ntbpdiatas30 = parseNumber(gpt) * 0.75;
@@ -264,13 +273,15 @@ export default function PerhitunganGaji() {
   const tunwarakawuri = parseNumber(gpt) * persIstri / 100;
   // anak
   const tunanakyatimorpiatu = parseNumber(gpt) * persAnakYatimOrPiatu / 100;
+  const tunanakyatimpiatuAnak1 = parseNumber(gpt) * 0.225;
+  const tunanakyatimpiatuAnak2 = parseNumber(gpt) * 0.30;
   const tunanakyatimpiatu = jmlAnakPerwira >= 2 ? parseNumber(gpt) * 0.30 : parseNumber(gpt) * 0.225;
 
   const penetapan = mkg >= 30 ? getPenetapanPerwira(ntbpdiatas30) : getPenetapanPerwira(ntbpdibawah30);
   const penetapanWari = getPenetapanWarakawuri(tunwarakawuri);
   const penetapanAnakYOP1 = getPenetapanYatimOrPiatu1Anak(tunanakyatimorpiatu);
   const penetapanAnakYOP2 = getPenetapanYatimOrPiatu2Anak(tunanakyatimorpiatu);
-  const penetapanAnakYT1 = getPenetapanYatimPiatu1Anak(tunanakyatimpiatu);
+  const penetapanAnakYT1 = getPenetapanYatimPiatu1Anak(tunanakyatimpiatuAnak1);
   const penetapanAnakYT2 = getPenetapanYatimPiatu2Anak(tunanakyatimpiatu);
 
   return (  
@@ -359,19 +370,19 @@ export default function PerhitunganGaji() {
               berdasarkan gaji pokok terakhir
             </div>
             
-            <label className="text-sm text-gray-600">
-              Jumlah Anak
-            </label>
-            <input
-            type="number"
-            value={jmlAnakPerwira}
-            readOnly={!isEditing}
-            onChange={(e) => {
-              if (!isEditing) return;
-              setJmlAnakPerwira(e.target.value);
-            }}
-            className={inputClass(isEditing)}
-            />
+            {jmlAnakPerwira > 0 && (
+              <>
+                <label className="text-sm text-gray-600">
+                  Jumlah Anak
+                </label>
+                <input
+                type="number"
+                value={jmlAnak}
+                readOnly
+                className={inputClass(isEditing)}
+                />
+            </>
+            )}
 
             <div className="flex gap-3">
               <button
@@ -408,12 +419,14 @@ export default function PerhitunganGaji() {
             >
               Tun. Warakawuri
             </button>
-            <button
-              onClick={() => setActiveTab("ANAK")}
-              className={tabButtonClass(activeTab === "ANAK")}
-            >
-              Tun. Anak
-            </button>
+            {jmlAnakPerwira > 0 && (
+              <button
+                onClick={() => setActiveTab("ANAK")}
+                className={tabButtonClass(activeTab === "ANAK")}
+              >
+                Tun. Anak
+              </button>
+            )}
           </div>
           </div>
           {/** Gaji Pensiun */}
@@ -496,60 +509,124 @@ export default function PerhitunganGaji() {
           {activeTab === "ANAK" && (
           <div className="bg-white mt-6 rounded-lg p-6 shadow min-h-[420px] flex flex-col justify-between">
             <div>
-              <h3 className="font-semibold mb-4">
+              <h3 className="font-semibold mb-4 mr-12">
                 Rincian Tunjangan Anak
               </h3>
 
-              <div className="grid grid-cols-3 gap-2 text-sm text-gray-600">
-                <div>Nilai Tunjangan Anak Yatim/Piatu</div>
-                <div className="text-right">:</div>
-                <div className="text-left pl-6">
-                  {persAnakYatimOrPiatu}% x GPT
-                </div>
+              {jmlAnakPerwira >= 2 ? (
+                <div className="grid grid-cols-4 gap-2 text-sm text-gray-600">
+                  {/* Header */}
+                  <div></div>
+                  <div></div>
+                  <div className="font-semibold text-center">Anak 1</div>
+                  <div className="font-semibold text-center">Anak 2</div>
 
-                <div></div>
-                <div className="text-right">:</div>
-                <div className="text-left pl-6">
-                  {persAnakYatimOrPiatu}% x {gpt ? formatRupiah(Math.round(parseNumber(gpt))) : "Rp..."}
-                </div>
+                  {/* Yatim / Piatu */}
+                  <div className="whitespace-nowrap">Nilai Tunjangan Anak Yatim/Piatu</div>
+                  <div className="text-right">:</div>
+                  <div>10% x GPT</div>
+                  <div>10% x GPT</div>
 
-                <div></div>
-                <div className="text-right">:</div>
-                <div className="text-left pl-6">
-                  {formatRupiah(tunanakyatimorpiatu)}
-                </div>
+                  <div></div>
+                  <div className="text-right">:</div>
+                  <div>10% x {formatRupiah(gpt)}</div>
+                  <div>10% x {formatRupiah(gpt)}</div>
 
-                <div>Nilai Tunjangan Anak Yatim-Piatu</div>
-                <div className="text-right">:</div>
-                <div className="text-left pl-6">
-                  {jmlAnakPerwira >= 2 ? "30%" : "22,5%"} x GPT
-                </div>
+                  <div></div>
+                  <div className="text-right">:</div>
+                  <div>{formatRupiah(tunanakyatimorpiatu)}</div>
+                  <div>{formatRupiah(tunanakyatimorpiatu)}</div>
 
-                <div></div>
-                <div className="text-right">:</div>
-                <div className="text-left pl-6">
-                  {jmlAnakPerwira >= 2 ? "30%" : "22,5%"} x {gpt ? formatRupiah(Math.round(parseNumber(gpt))) : "Rp..."}
-                </div>
+                  {/* Yatim-Piatu */}
+                  <div className="whitespace-nowrap">Nilai Tunjangan Anak Yatim-Piatu</div>
+                  <div className="text-right">:</div>
+                  <div>22,5% x GPT</div>
+                  <div>30% x GPT</div>
 
-                <div></div>
-                <div className="text-right">:</div>
-                <div className="text-left pl-6">
-                  {formatRupiah(tunanakyatimpiatu)}
-                </div>
+                  <div></div>
+                  <div className="text-right">:</div>
+                  <div>22,5% x {formatRupiah(gpt)}</div>
+                  <div>30% x {formatRupiah(gpt)}</div>
 
-                <div className="col-span-2 border-t border-gray-400 pt-3 flex items-center">
-                  Total Tunjangan Anak Yatim/Piatu<p className="italic ml-1 text-gray-500 text-sm">(sudah ditetapkan)</p>
+                  <div></div>
+                  <div className="text-right">:</div>
+                  <div>{formatRupiah(tunanakyatimpiatuAnak1)}</div>
+                  <div>{formatRupiah(tunanakyatimpiatuAnak2)}</div>
+
+                  {/* Total */}
+                  <div className="col-span-2 border-t pt-3">
+                    Total Tunjangan Anak Yatim/Piatu
+                    <span className="italic text-gray-500 ml-1">(sudah ditetapkan)</span>
+                  </div>
+                  <div className="border-t pt-3 font-semibold">
+                    {formatRupiah(penetapanAnakYOP1.finalSalary)}
+                  </div>
+                  <div className="border-t pt-3 font-semibold">
+                    {formatRupiah(penetapanAnakYOP2.finalSalary)}
+                  </div>
+                  <div className="col-span-2">
+                    Total Tunjangan Anak Yatim-Piatu
+                    <span className="italic text-gray-500 ml-1">(sudah ditetapkan)</span>
+                  </div>
+                  <div className="font-semibold">
+                    {penetapanAnakYT1 ? formatRupiah(penetapanAnakYT1.finalSalary) : "-"}
+                  </div>
+                  <div className="font-semibold">
+                    {penetapanAnakYT2 ? formatRupiah(penetapanAnakYT2.finalSalary) : "-"}
+                  </div>
                 </div>
-                <div className="text-left pl-6 border-t border-gray-400 pt-3 font-semibold">
-                  {jmlAnakPerwira >= 2 ? (penetapanAnakYOP2 ? formatRupiah(penetapanAnakYOP2.finalSalary) : "-") : (penetapanAnakYOP1 ? formatRupiah(penetapanAnakYOP1.finalSalary) : "-")}
-                </div>
-                <div className="col-span-2 flex items-center">
-                  Total Tunjangan Anak Yatim-Piatu<p className="italic ml-1 text-gray-500 text-sm">(sudah ditetapkan)</p>
-                </div>
-                <div className="text-left pl-6 font-semibold">
-                  {jmlAnakPerwira >= 2 ? (penetapanAnakYT2 ? formatRupiah(penetapanAnakYT2.finalSalary) : "-") : (penetapanAnakYT1 ? formatRupiah(penetapanAnakYT1.finalSalary) : "-")}
-                </div>
-              </div>
+              ) : (
+                  <div className="grid grid-cols-3 gap-2 text-sm text-gray-600">
+                    <div>Nilai Tunjangan Anak Yatim/Piatu</div>
+                      <div className="text-right">:</div>
+                      <div className="text-left pl-6">
+                        {persAnakYatimOrPiatu}% x GPT
+                      </div>
+
+                      <div></div>
+                      <div className="text-right">:</div>
+                      <div className="text-left pl-6">
+                        {persAnakYatimOrPiatu}% x {gpt ? formatRupiah(Math.round(parseNumber(gpt))) : "Rp..."}
+                      </div>
+
+                      <div></div>
+                      <div className="text-right">:</div>
+                      <div className="text-left pl-6">
+                        {formatRupiah(tunanakyatimorpiatu)}
+                      </div>
+
+                      <div>Nilai Tunjangan Anak Yatim-Piatu</div>
+                      <div className="text-right">:</div>
+                      <div className="text-left pl-6">
+                        22,5% x GPT
+                      </div>
+
+                      <div></div>
+                      <div className="text-right">:</div>
+                      <div className="text-left pl-6">
+                        22,5% x {gpt ? formatRupiah(Math.round(parseNumber(gpt))) : "Rp..."}
+                      </div>
+
+                      <div></div>
+                      <div className="text-right">:</div>
+                      <div className="text-left pl-6">
+                        {formatRupiah(tunanakyatimpiatu)}
+                      </div>
+
+                      <div className="col-span-2 border-t border-gray-400 pt-3 flex items-center">
+                        Total Tunjangan Anak Yatim/Piatu<p className="italic ml-1 text-gray-500 text-sm">(sudah ditetapkan)</p>
+                      </div>
+                      <div className="text-left pl-6 border-t border-gray-400 pt-3 font-semibold">
+                        {jmlAnakPerwira >= 2 ? (penetapanAnakYOP2 ? formatRupiah(penetapanAnakYOP2.finalSalary) : "-") : (penetapanAnakYOP1 ? formatRupiah(penetapanAnakYOP1.finalSalary) : "-")}
+                      </div>
+                      <div className="col-span-2 flex items-center">
+                        Total Tunjangan Anak Yatim-Piatu<p className="italic ml-1 text-gray-500 text-sm">(sudah ditetapkan)</p>
+                      </div>
+                      <div className="text-left pl-6 font-semibold">
+                        {jmlAnakPerwira >= 2 ? (penetapanAnakYT2 ? formatRupiah(penetapanAnakYT2.finalSalary) : "-") : (penetapanAnakYT1 ? formatRupiah(penetapanAnakYT1.finalSalary) : "-")}
+                      </div>
+                    </div>
+              )}
             </div>
           </div>
           )}
